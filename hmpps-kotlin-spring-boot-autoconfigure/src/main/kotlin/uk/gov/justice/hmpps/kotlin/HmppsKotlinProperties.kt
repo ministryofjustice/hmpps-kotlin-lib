@@ -1,4 +1,4 @@
-package uk.justice.gov.hmpps.kotlin
+package uk.gov.justice.hmpps.kotlin
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 
