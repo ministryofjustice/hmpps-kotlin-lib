@@ -24,10 +24,14 @@ jobs:
           path: hmpps-kotlin-spring-boot-autoconfigure/build/test-results
       - store_artifacts:
           path: hmpps-kotlin-spring-boot-autoconfigure/build/reports/tests
-#      - store_test_results:
-#          path: test-app/build/test-results
-#      - store_artifacts:
-#          path: test-app/build/reports/tests
+      - store_test_results:
+          path: test-app/build/test-results
+      - store_artifacts:
+          path: test-app/build/reports/tests
+      - store_test_results:
+          path: test-app-reactive/build/test-results
+      - store_artifacts:
+          path: test-app-reactive/build/reports/tests
       - persist_to_workspace:
           root: .
           paths:
