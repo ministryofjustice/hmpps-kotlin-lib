@@ -1,4 +1,4 @@
-package uk.justice.gov.hmpps.kotlin
+package uk.gov.justice.hmpps.kotlin
 
 import org.springframework.boot.autoconfigure.AutoConfigureBefore
 import org.springframework.boot.autoconfigure.web.reactive.WebFluxAutoConfiguration
