@@ -1,10 +1,8 @@
-package uk.justice.gov.hmpps.kotlin
+package uk.gov.justice.hmpps.kotlin
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import uk.gov.justice.hmpps.kotlin.HmppsKotlinProperties
-import uk.gov.justice.hmpps.kotlin.InvalidHmppsKotlinPropertiesException
 
 class HmppsKotlinPropertiesTest {
 
