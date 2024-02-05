@@ -25,8 +25,8 @@ dependencies {
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8")
 
-  testImplementation("org.assertj:assertj-core:3.25.2")
-  testImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
+  testImplementation("org.assertj:assertj-core:3.25.3")
+  testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
   testImplementation("org.mockito:mockito-junit-jupiter:5.10.0")
   testImplementation("org.springframework.boot:spring-boot-starter-test")
   testImplementation("org.mockito.kotlin:mockito-kotlin:5.2.1")
