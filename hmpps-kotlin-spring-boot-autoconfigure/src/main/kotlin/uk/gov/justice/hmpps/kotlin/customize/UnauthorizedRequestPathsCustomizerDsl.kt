@@ -3,9 +3,35 @@ package uk.gov.justice.hmpps.kotlin.customize
 @DslMarker
 annotation class UnauthorizedRequestPathCustomizerDslMarker
 
+/**
+ * Part of the [ResourceServerConfigurationCustomizerDsl] DSL.
+ *
+ * To create a new instance of [UnauthorizedRequestPathsCustomizer], use the [ResourceServerConfigurationCustomizer.Companion.build] method, e.g.
+ *
+ * <pre>
+ *   @Bean
+ *   fun configurationCustomizer() = ResourceServerConfigurationCustomizer.build {
+ *     unauthorizedRequestPaths {
+ *       addPaths(setOf("/my-unauthorized-path"))
+ *       ...
+ *     }
+ *   }
+ * </pre>
+ *
+ * The default values for the available customizations can be found in the [UnauthorizedRequestPathsCustomizerBuilder] class.
+ *
+ * Note that by default the paths found in [UnauthorizedRequestPathsCustomizerBuilder.defaultUnauthorizedRequestPaths] are unauthorized.
+ */
 @UnauthorizedRequestPathCustomizerDslMarker
 interface UnauthorizedRequestPathCustomizerDsl {
+  /**
+   * Paths to be added to the default list of unauthorized paths.
+   */
   fun addPaths(paths: Set<String>): UnauthorizedRequestPathsCustomizerBuilder
+
+  /**
+   * Whether to include the default unauthorized paths, defaults to <pre>true</pre>.
+   */
   fun includeDefaults(include: Boolean): UnauthorizedRequestPathsCustomizerBuilder
 }
 

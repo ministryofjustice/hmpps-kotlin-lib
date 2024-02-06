@@ -3,8 +3,23 @@ package uk.gov.justice.hmpps.kotlin.customize
 @DslMarker
 annotation class ResourceServerConfigurationCustomizerDslMarker
 
+/**
+ * A DSL to create a [ResourceServerConfigurationCustomizer].
+ *
+ * To create a new instance of [ResourceServerConfigurationCustomizer], use the [ResourceServerConfigurationCustomizer.Companion.build] method, e.g.
+ *
+ * <pre>
+ *   @Bean
+ *   fun configurationCustomizer() = ResourceServerConfigurationCustomizer.build {
+ *     ...
+ *   }
+ * </pre>
+ */
 @ResourceServerConfigurationCustomizerDslMarker
 interface ResourceServerConfigurationCustomizerDsl {
+  /**
+   * A customizer for unauthorized request paths. See [UnauthorizedRequestPathCustomizerDsl] for more details.
+   */
   @UnauthorizedRequestPathCustomizerDslMarker
   fun unauthorizedRequestPaths(dsl: UnauthorizedRequestPathCustomizerDsl.() -> Unit): UnauthorizedRequestPathsCustomizer
 }
