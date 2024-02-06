@@ -9,6 +9,7 @@ configurations {
 
 dependencies {
   implementation(project(":hmpps-kotlin-spring-boot-starter"))
+  implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
 
   testImplementation("org.wiremock:wiremock-standalone:3.3.1")
   testImplementation("io.jsonwebtoken:jjwt-impl:0.12.5")

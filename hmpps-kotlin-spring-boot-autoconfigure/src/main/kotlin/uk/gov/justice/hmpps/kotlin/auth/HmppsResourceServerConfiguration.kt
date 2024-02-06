@@ -23,6 +23,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.server.SecurityWebFilterChain
+import uk.gov.justice.hmpps.kotlin.customize.ResourceServerConfigurationCustomizer
 
 @Configuration
 @ConditionalOnWebApplication(type = SERVLET)
@@ -32,13 +33,13 @@ import org.springframework.security.web.server.SecurityWebFilterChain
 class HmppsResourceServerConfiguration {
   @ConditionalOnMissingFilterBean
   @Bean
-  fun hmppsSecurityFilterChain(http: HttpSecurity): SecurityFilterChain =
+  fun hmppsSecurityFilterChain(http: HttpSecurity, customizer: ResourceServerConfigurationCustomizer): SecurityFilterChain =
     http {
       sessionManagement { SessionCreationPolicy.STATELESS }
       headers { frameOptions { sameOrigin = true } }
       csrf { disable() }
       authorizeHttpRequests {
-        unauthorizedRequestPaths().forEach { authorize(it, permitAll) }
+        customizer.unauthorizedRequestPathsCustomizer.unauthorizedRequestPaths.forEach { authorize(it, permitAll) }
         authorize(anyRequest, authenticated)
       }
       oauth2ResourceServer {
@@ -46,6 +47,10 @@ class HmppsResourceServerConfiguration {
       }
     }
       .let { http.build() }
+
+  @ConditionalOnMissingBean
+  @Bean
+  fun resourceServerConfigurationCustomizer(): ResourceServerConfigurationCustomizer = ResourceServerConfigurationCustomizer.build {}
 
   @ConditionalOnMissingBean
   @Bean
@@ -62,19 +67,17 @@ class HmppsResourceServerConfiguration {
 class HmppsReactiveResourceServerConfiguration {
   @ConditionalOnMissingFilterBean
   @Bean
-  fun hmppsSecurityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain =
+  fun hmppsSecurityWebFilterChain(http: ServerHttpSecurity, customizer: ResourceServerConfigurationCustomizer): SecurityWebFilterChain =
     http {
       csrf { disable() }
       authorizeExchange {
-        unauthorizedRequestPaths().forEach { authorize(it, permitAll) }
+        customizer.unauthorizedRequestPathsCustomizer.unauthorizedRequestPaths.forEach { authorize(it, permitAll) }
         authorize(anyExchange, authenticated)
       }
       oauth2ResourceServer { jwt { jwtAuthenticationConverter = AuthAwareReactiveTokenConverter() } }
     }
-}
 
-private fun unauthorizedRequestPaths() = listOf(
-  "/webjars/**", "/favicon.ico", "/csrf",
-  "/health/**", "/info", "/h2-console/**",
-  "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html",
-)
+  @ConditionalOnMissingBean
+  @Bean
+  fun resourceServerConfigurationCustomizer(): ResourceServerConfigurationCustomizer = ResourceServerConfigurationCustomizer.build {}
+}
