@@ -40,7 +40,9 @@ class HmppsResourceServerConfiguration {
       csrf { disable() }
       authorizeHttpRequests {
         customizer.unauthorizedRequestPathsCustomizer.unauthorizedRequestPaths.forEach { authorize(it, permitAll) }
-        authorize(anyRequest, authenticated)
+        customizer.anyRequestRoleCustomizer.defaultRole
+          ?.also { authorize(anyRequest, hasRole(it)) }
+          ?: also { authorize(anyRequest, authenticated) }
       }
       oauth2ResourceServer {
         jwt { jwtAuthenticationConverter = AuthAwareTokenConverter() }
@@ -72,7 +74,9 @@ class HmppsReactiveResourceServerConfiguration {
       csrf { disable() }
       authorizeExchange {
         customizer.unauthorizedRequestPathsCustomizer.unauthorizedRequestPaths.forEach { authorize(it, permitAll) }
-        authorize(anyExchange, authenticated)
+        customizer.anyRequestRoleCustomizer.defaultRole
+          ?.also { authorize(anyExchange, hasRole(it)) }
+          ?: also { authorize(anyExchange, authenticated) }
       }
       oauth2ResourceServer { jwt { jwtAuthenticationConverter = AuthAwareReactiveTokenConverter() } }
     }

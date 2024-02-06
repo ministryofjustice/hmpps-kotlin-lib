@@ -44,4 +44,25 @@ class ResourceServerConfigurationCustomizerTest {
       )
     }
   }
+
+  @Nested
+  inner class AnyRequestRole {
+    @Test
+    fun `should default to no role`() {
+      val customizer = ResourceServerConfigurationCustomizer.build {}
+
+      assertThat(customizer.anyRequestRoleCustomizer.defaultRole).isNull()
+    }
+
+    @Test
+    fun `should set default role`() {
+      val customizer = ResourceServerConfigurationCustomizer.build {
+        anyRequestRole {
+          defaultRole("ROLE_MY_ROLE")
+        }
+      }
+
+      assertThat(customizer.anyRequestRoleCustomizer.defaultRole).isEqualTo("ROLE_MY_ROLE")
+    }
+  }
 }

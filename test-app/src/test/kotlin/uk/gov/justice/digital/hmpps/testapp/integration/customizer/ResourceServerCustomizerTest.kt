@@ -18,6 +18,7 @@ class ResourceServerCustomizerTest : IntegrationTestBase() {
         addPaths(setOf("/info"))
         includeDefaults(false)
       }
+      anyRequestRole { defaultRole("ANY_REQUEST") }
     }
   }
 
@@ -37,5 +38,25 @@ class ResourceServerCustomizerTest : IntegrationTestBase() {
       .exchange()
       .expectStatus()
       .isOk
+  }
+
+  @Test
+  fun `should apply the default role to all authorised endpoints`() {
+    webTestClient.get()
+      .uri("/health")
+      .headers(setAuthorisation(roles = listOf("ROLE_ANY_REQUEST")))
+      .exchange()
+      .expectStatus()
+      .isOk
+  }
+
+  @Test
+  fun `should not override a PreAuthorize with the default role`() {
+    webTestClient.get()
+      .uri("/time")
+      .headers(setAuthorisation(roles = listOf("ROLE_ANY_REQUEST")))
+      .exchange()
+      .expectStatus()
+      .isForbidden
   }
 }
