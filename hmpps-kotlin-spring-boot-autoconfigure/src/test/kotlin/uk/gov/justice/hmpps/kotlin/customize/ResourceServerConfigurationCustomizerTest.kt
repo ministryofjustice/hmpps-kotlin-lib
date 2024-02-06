@@ -22,9 +22,9 @@ class ResourceServerConfigurationCustomizerTest {
     @Test
     fun `should ignore default unauthorized request paths`() {
       val customizer = ResourceServerConfigurationCustomizer.build {
-        unauthorizedRequestPaths(
-          includeDefaults = false,
-        )
+        unauthorizedRequestPaths {
+          includeDefaults(false)
+        }
       }
 
       assertThat(customizer.unauthorizedRequestPathsCustomizer.unauthorizedRequestPaths).isEmpty()
@@ -33,9 +33,9 @@ class ResourceServerConfigurationCustomizerTest {
     @Test
     fun `should add additional unauthorized request paths`() {
       val customizer = ResourceServerConfigurationCustomizer.build {
-        unauthorizedRequestPaths(
-          addPaths = setOf("/some-path"),
-        )
+        unauthorizedRequestPaths {
+          addPaths(setOf("/some-path"))
+        }
       }
 
       assertThat(customizer.unauthorizedRequestPathsCustomizer.unauthorizedRequestPaths).contains(

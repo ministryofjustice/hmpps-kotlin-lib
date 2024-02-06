@@ -6,10 +6,7 @@ annotation class ResourceServerConfigurationCustomizerDslMarker
 @ResourceServerConfigurationCustomizerDslMarker
 interface ResourceServerConfigurationCustomizerDsl {
   @UnauthorizedRequestPathCustomizerDslMarker
-  fun unauthorizedRequestPaths(
-    addPaths: Set<String> = setOf(),
-    includeDefaults: Boolean = true,
-  ): UnauthorizedRequestPathsCustomizer
+  fun unauthorizedRequestPaths(dsl: UnauthorizedRequestPathCustomizerDsl.() -> Unit): UnauthorizedRequestPathsCustomizer
 }
 
 @DslMarker
@@ -17,8 +14,8 @@ annotation class UnauthorizedRequestPathCustomizerDslMarker
 
 @UnauthorizedRequestPathCustomizerDslMarker
 interface UnauthorizedRequestPathCustomizerDsl {
-  val addPaths: Set<String>
-  val includeDefaults: Boolean
+  fun addPaths(paths: Set<String>): UnauthorizedRequestPathsCustomizerBuilder
+  fun includeDefaults(include: Boolean): UnauthorizedRequestPathsCustomizerBuilder
 }
 
 class ResourceServerConfigurationCustomizer {
@@ -35,14 +32,9 @@ class ResourceServerConfigurationCustomizer {
 class ResourceServerConfigurationCustomizerBuilder : ResourceServerConfigurationCustomizerDsl {
   private var unauthorizedRequestPathsCustomizer = UnauthorizedRequestPathsCustomizerBuilder().build()
 
-  override fun unauthorizedRequestPaths(
-    addPaths: Set<String>,
-    includeDefaults: Boolean,
-  ) =
-    UnauthorizedRequestPathsCustomizerBuilder(
-      addPaths,
-      includeDefaults,
-    )
+  override fun unauthorizedRequestPaths(dsl: UnauthorizedRequestPathCustomizerDsl.() -> Unit) =
+    UnauthorizedRequestPathsCustomizerBuilder()
+      .apply(dsl)
       .build()
       .also { unauthorizedRequestPathsCustomizer = it }
 
@@ -55,10 +47,20 @@ class UnauthorizedRequestPathsCustomizer(
   val unauthorizedRequestPaths: Set<String> = setOf(),
 )
 
-class UnauthorizedRequestPathsCustomizerBuilder(
-  override val addPaths: Set<String> = setOf(),
-  override val includeDefaults: Boolean = true,
-) : UnauthorizedRequestPathCustomizerDsl {
+class UnauthorizedRequestPathsCustomizerBuilder : UnauthorizedRequestPathCustomizerDsl {
+  private var addPaths: Set<String> = setOf()
+  private var includeDefaults: Boolean = true
+
+  override fun addPaths(paths: Set<String>): UnauthorizedRequestPathsCustomizerBuilder =
+    this.apply {
+      addPaths = paths
+    }
+
+  override fun includeDefaults(include: Boolean): UnauthorizedRequestPathsCustomizerBuilder =
+    this.apply {
+      includeDefaults = include
+    }
+
   fun build(): UnauthorizedRequestPathsCustomizer {
     val paths = mutableSetOf<String>()
       .apply {
