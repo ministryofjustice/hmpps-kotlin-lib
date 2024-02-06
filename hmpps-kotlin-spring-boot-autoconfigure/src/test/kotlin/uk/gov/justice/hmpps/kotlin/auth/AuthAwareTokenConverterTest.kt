@@ -15,7 +15,6 @@ class AuthAwareTokenConverterTest {
     val jwt = createJwt(
       claims = mapOf(
         "user_name" to "some user name",
-        "user_id" to "some user id",
         "client_id" to "some client id",
       ),
     )
@@ -23,20 +22,6 @@ class AuthAwareTokenConverterTest {
     val token = AuthAwareTokenConverter().convert(jwt)
 
     assertThat(token.principal).isEqualTo("some user name")
-  }
-
-  @Test
-  fun `should fall back on user_id for principal`() {
-    val jwt = createJwt(
-      claims = mapOf(
-        "user_id" to "some user id",
-        "client_id" to "some client id",
-      ),
-    )
-
-    val token = AuthAwareTokenConverter().convert(jwt)
-
-    assertThat(token.principal).isEqualTo("some user id")
   }
 
   @Test
@@ -65,7 +50,7 @@ class AuthAwareTokenConverterTest {
   fun `should add granted authorities`() {
     val jwt = createJwt(
       claims = mapOf(
-        "user_name" to "some user name",
+        "client_id" to "some client id",
         "authorities" to listOf("ROLE_SOME_ROLE", "SCOPE_SOME_SCOPE"),
       ),
     )
