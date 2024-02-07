@@ -117,4 +117,74 @@ class ResourceServerConfigurationCustomizerTest {
       }
     }
   }
+
+  @Nested
+  inner class AuthorizeExchange {
+    @Test
+    fun `should default to null`() {
+      val customizer = ResourceServerConfigurationCustomizer.build {}
+
+      assertThat(customizer.authorizeExchangeCustomizer.dsl).isNull()
+    }
+
+    @Test
+    fun `should save authorizeExchange DSL`() {
+      val customizer = ResourceServerConfigurationCustomizer.build {
+        authorizeExchange {
+          authorize("/anything", permitAll)
+        }
+      }
+
+      assertThat(customizer.authorizeExchangeCustomizer.dsl).isNotNull
+    }
+
+    @Test
+    fun `should not allow authorizeExchange with any request role customization`() {
+      assertThrows<IllegalStateException> {
+        ResourceServerConfigurationCustomizer.build {
+          authorizeExchange {
+            authorize("/anything", permitAll)
+          }
+          anyRequestRole {
+            defaultRole = "ROLE_MY_ROLE"
+          }
+        }
+      }
+    }
+
+    @Test
+    fun `should not allow authorizeExchange with unauthorized request paths customization`() {
+      assertThrows<IllegalStateException> {
+        ResourceServerConfigurationCustomizer.build {
+          authorizeExchange {
+            authorize("/anything", permitAll)
+          }
+          unauthorizedRequestPaths {
+            includeDefaults = false
+          }
+        }
+      }.also {
+        assertThat(it.message).contains("authorizeExchange")
+      }
+    }
+  }
+
+  @Nested
+  inner class Validation {
+    @Test
+    fun `should not allow authorizeHttpRequests and authorizeExchange together`() {
+      assertThrows<IllegalStateException> {
+        ResourceServerConfigurationCustomizer.build {
+          authorizeExchange {
+            authorize("/anything", permitAll)
+          }
+          authorizeHttpRequests {
+            authorize("/anything", permitAll)
+          }
+        }
+      }.also {
+        assertThat(it.message).contains("authorizeHttpRequests").contains("authorizeExchange")
+      }
+    }
+  }
 }

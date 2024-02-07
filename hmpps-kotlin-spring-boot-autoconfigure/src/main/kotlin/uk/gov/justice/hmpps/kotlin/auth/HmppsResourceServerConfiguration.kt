@@ -81,10 +81,18 @@ class HmppsReactiveResourceServerConfiguration {
     http {
       csrf { disable() }
       authorizeExchange {
-        customizer.unauthorizedRequestPathsCustomizer.unauthorizedRequestPaths.forEach { authorize(it, permitAll) }
-        customizer.anyRequestRoleCustomizer.defaultRole
-          ?.also { authorize(anyExchange, hasRole(it)) }
-          ?: also { authorize(anyExchange, authenticated) }
+        customizer.authorizeExchangeCustomizer.dsl
+          ?.also {
+            // override the entire authorizeExchange DSL
+            customizer.authorizeExchangeCustomizer.dsl!!.invoke(this)
+          }
+          ?: also {
+            // apply specific customizations to the default authorizeExchange DSL
+            customizer.unauthorizedRequestPathsCustomizer.unauthorizedRequestPaths.forEach { authorize(it, permitAll) }
+            customizer.anyRequestRoleCustomizer.defaultRole
+              ?.also { authorize(anyExchange, hasRole(it)) }
+              ?: also { authorize(anyExchange, authenticated) }
+          }
       }
       oauth2ResourceServer { jwt { jwtAuthenticationConverter = AuthAwareReactiveTokenConverter() } }
     }
