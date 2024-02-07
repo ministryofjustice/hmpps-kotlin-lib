@@ -22,10 +22,17 @@ interface ResourceServerConfigurationCustomizerDsl {
    */
   @UnauthorizedRequestPathCustomizerDslMarker
   fun unauthorizedRequestPaths(dsl: UnauthorizedRequestPathCustomizerDsl.() -> Unit): UnauthorizedRequestPathsCustomizer
+
+  /**
+   * A customizer for setting a default role for all authorized endpoints. See [AnyRequestRoleCustomizerDsl] for more details.
+   */
+  @AnyRequestRoleCustomizerDslMarker
+  fun anyRequestRole(dsl: AnyRequestRoleCustomizerDsl.() -> Unit): AnyRequestRoleCustomizer
 }
 
 class ResourceServerConfigurationCustomizer {
   lateinit var unauthorizedRequestPathsCustomizer: UnauthorizedRequestPathsCustomizer
+  lateinit var anyRequestRoleCustomizer: AnyRequestRoleCustomizer
 
   companion object {
     fun build(dsl: ResourceServerConfigurationCustomizerDsl.() -> Unit): ResourceServerConfigurationCustomizer =
@@ -37,6 +44,7 @@ class ResourceServerConfigurationCustomizer {
 
 class ResourceServerConfigurationCustomizerBuilder : ResourceServerConfigurationCustomizerDsl {
   private var unauthorizedRequestPathsCustomizer = UnauthorizedRequestPathsCustomizerBuilder().build()
+  private var anyRequestRoleCustomizer = AnyRequestRoleCustomizerBuilder().build()
 
   override fun unauthorizedRequestPaths(dsl: UnauthorizedRequestPathCustomizerDsl.() -> Unit) =
     UnauthorizedRequestPathsCustomizerBuilder()
@@ -44,7 +52,16 @@ class ResourceServerConfigurationCustomizerBuilder : ResourceServerConfiguration
       .build()
       .also { unauthorizedRequestPathsCustomizer = it }
 
+  override fun anyRequestRole(dsl: AnyRequestRoleCustomizerDsl.() -> Unit): AnyRequestRoleCustomizer =
+    AnyRequestRoleCustomizerBuilder()
+      .apply(dsl)
+      .build()
+      .also { anyRequestRoleCustomizer = it }
+
   fun build(): ResourceServerConfigurationCustomizer =
     ResourceServerConfigurationCustomizer()
-      .also { it.unauthorizedRequestPathsCustomizer = unauthorizedRequestPathsCustomizer }
+      .also {
+        it.unauthorizedRequestPathsCustomizer = unauthorizedRequestPathsCustomizer
+        it.anyRequestRoleCustomizer = anyRequestRoleCustomizer
+      }
 }
