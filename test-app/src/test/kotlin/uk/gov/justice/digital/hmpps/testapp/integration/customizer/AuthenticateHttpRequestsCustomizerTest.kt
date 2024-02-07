@@ -7,23 +7,22 @@ import org.springframework.context.annotation.Import
 import uk.gov.justice.digital.hmpps.testapp.integration.IntegrationTestBase
 import uk.gov.justice.hmpps.kotlin.customize.ResourceServerConfigurationCustomizer
 
-@Import(ResourceServerCustomizerTest.CustomizerConfiguration::class)
-class ResourceServerCustomizerTest : IntegrationTestBase() {
+@Import(AuthenticateHttpRequestsCustomizerTest.CustomizerConfiguration::class)
+class AuthenticateHttpRequestsCustomizerTest : IntegrationTestBase() {
 
   @TestConfiguration
   class CustomizerConfiguration {
     @Bean
     fun configurationCustomizer() = ResourceServerConfigurationCustomizer.build {
-      unauthorizedRequestPaths {
-        addPaths = setOf("/info")
-        includeDefaults = false
+      authorizeHttpRequests {
+        authorize("/info", hasRole("INFO"))
+        authorize(anyRequest, hasRole("ANY_REQUEST"))
       }
-      anyRequestRole { defaultRole = "ANY_REQUEST" }
     }
   }
 
   @Test
-  fun `should return unauthorized when defaults are removed`() {
+  fun `should return unauthorized as default unauthorized request paths are overridden`() {
     webTestClient.get()
       .uri("/health")
       .exchange()
@@ -32,19 +31,39 @@ class ResourceServerCustomizerTest : IntegrationTestBase() {
   }
 
   @Test
-  fun `should return OK when added to customizer`() {
+  fun `should return ok as this falls under the any request role`() {
     webTestClient.get()
-      .uri("/info")
+      .uri("/health")
+      .headers(setAuthorisation(roles = listOf("ROLE_ANY_REQUEST")))
       .exchange()
       .expectStatus()
       .isOk
   }
 
   @Test
-  fun `should apply the default role to all authorised endpoints`() {
+  fun `should return unauthorized as we have protected on a role`() {
     webTestClient.get()
-      .uri("/health")
+      .uri("/info")
+      .exchange()
+      .expectStatus()
+      .isUnauthorized
+  }
+
+  @Test
+  fun `should return forbidden if we try with the wrong role`() {
+    webTestClient.get()
+      .uri("/info")
       .headers(setAuthorisation(roles = listOf("ROLE_ANY_REQUEST")))
+      .exchange()
+      .expectStatus()
+      .isForbidden
+  }
+
+  @Test
+  fun `should return OK if we use the correct role`() {
+    webTestClient.get()
+      .uri("/info")
+      .headers(setAuthorisation(roles = listOf("ROLE_INFO")))
       .exchange()
       .expectStatus()
       .isOk

@@ -15,10 +15,10 @@ class ResourceServerCustomizerTest : IntegrationTestBase() {
     @Bean
     fun configurationCustomizer() = ResourceServerConfigurationCustomizer.build {
       unauthorizedRequestPaths {
-        addPaths(setOf("/info"))
-        includeDefaults(false)
+        addPaths = setOf("/info")
+        includeDefaults = false
       }
-      anyRequestRole { defaultRole("ANY_REQUEST") }
+      anyRequestRole { defaultRole = "ANY_REQUEST" }
     }
   }
 
