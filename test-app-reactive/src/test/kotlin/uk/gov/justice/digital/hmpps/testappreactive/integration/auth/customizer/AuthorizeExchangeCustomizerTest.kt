@@ -1,11 +1,11 @@
-package uk.gov.justice.digital.hmpps.testappreactive.integration.customizer
+package uk.gov.justice.digital.hmpps.testappreactive.integration.auth.customizer
 
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
 import uk.gov.justice.digital.hmpps.testappreactive.integration.IntegrationTestBase
-import uk.gov.justice.hmpps.kotlin.customize.ResourceServerConfigurationCustomizer
+import uk.gov.justice.hmpps.kotlin.auth.dsl.ResourceServerConfigurationCustomizer
 
 @Import(AuthorizeExchangeCustomizerTest.CustomizerConfiguration::class)
 class AuthorizeExchangeCustomizerTest : IntegrationTestBase() {

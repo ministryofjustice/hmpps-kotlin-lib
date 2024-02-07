@@ -23,7 +23,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.server.SecurityWebFilterChain
-import uk.gov.justice.hmpps.kotlin.customize.ResourceServerConfigurationCustomizer
+import uk.gov.justice.hmpps.kotlin.auth.dsl.ResourceServerConfigurationCustomizer
 
 @Configuration
 @ConditionalOnWebApplication(type = SERVLET)
@@ -40,12 +40,10 @@ class HmppsResourceServerConfiguration {
       csrf { disable() }
       authorizeHttpRequests {
         customizer.authorizeHttpRequestsCustomizer.dsl
-          ?.also {
-            // override the entire authorizeHttpRequests DSL
-            customizer.authorizeHttpRequestsCustomizer.dsl!!.invoke(this)
-          }
+          // override the entire authorizeHttpRequests DSL
+          ?.also { dsl -> dsl.invoke(this) }
+          // apply specific customizations to the default authorizeHttpRequests DSL
           ?: also {
-            // apply specific customizations to the default authorizeHttpRequests DSL
             customizer.unauthorizedRequestPathsCustomizer.unauthorizedRequestPaths.forEach { authorize(it, permitAll) }
             customizer.anyRequestRoleCustomizer.defaultRole
               ?.also { authorize(anyRequest, hasRole(it)) }
@@ -82,12 +80,10 @@ class HmppsReactiveResourceServerConfiguration {
       csrf { disable() }
       authorizeExchange {
         customizer.authorizeExchangeCustomizer.dsl
-          ?.also {
-            // override the entire authorizeExchange DSL
-            customizer.authorizeExchangeCustomizer.dsl!!.invoke(this)
-          }
+          // override the entire authorizeExchange DSL
+          ?.also { dsl -> dsl.invoke(this) }
+          // apply specific customizations to the default authorizeExchange DSL
           ?: also {
-            // apply specific customizations to the default authorizeExchange DSL
             customizer.unauthorizedRequestPathsCustomizer.unauthorizedRequestPaths.forEach { authorize(it, permitAll) }
             customizer.anyRequestRoleCustomizer.defaultRole
               ?.also { authorize(anyExchange, hasRole(it)) }
