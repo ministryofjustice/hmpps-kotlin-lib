@@ -27,12 +27,12 @@ interface UnauthorizedRequestPathCustomizerDsl {
   /**
    * Paths to be added to the default list of unauthorized paths.
    */
-  fun addPaths(paths: Set<String>): UnauthorizedRequestPathsCustomizerBuilder
+  var addPaths: Set<String>
 
   /**
    * Whether to include the default unauthorized paths, defaults to <pre>true</pre>.
    */
-  fun includeDefaults(include: Boolean): UnauthorizedRequestPathsCustomizerBuilder
+  var includeDefaults: Boolean
 }
 
 class UnauthorizedRequestPathsCustomizer(
@@ -40,18 +40,8 @@ class UnauthorizedRequestPathsCustomizer(
 )
 
 class UnauthorizedRequestPathsCustomizerBuilder : UnauthorizedRequestPathCustomizerDsl {
-  private var addPaths: Set<String> = setOf()
-  private var includeDefaults: Boolean = true
-
-  override fun addPaths(paths: Set<String>): UnauthorizedRequestPathsCustomizerBuilder =
-    this.apply {
-      addPaths = paths
-    }
-
-  override fun includeDefaults(include: Boolean): UnauthorizedRequestPathsCustomizerBuilder =
-    this.apply {
-      includeDefaults = include
-    }
+  override var addPaths: Set<String> = setOf()
+  override var includeDefaults: Boolean = true
 
   fun build(): UnauthorizedRequestPathsCustomizer {
     val paths = mutableSetOf<String>()

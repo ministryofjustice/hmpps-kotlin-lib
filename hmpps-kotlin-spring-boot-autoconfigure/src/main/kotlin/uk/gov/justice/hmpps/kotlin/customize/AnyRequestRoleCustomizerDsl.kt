@@ -22,7 +22,7 @@ interface AnyRequestRoleCustomizerDsl {
    *
    * Note that this doesn't override the @PreAuthorize annotation, only the default role protection for anyRequest.
    */
-  fun defaultRole(role: String): AnyRequestRoleCustomizerBuilder
+  var defaultRole: String?
 }
 
 class AnyRequestRoleCustomizer(
@@ -30,12 +30,7 @@ class AnyRequestRoleCustomizer(
 )
 
 class AnyRequestRoleCustomizerBuilder : AnyRequestRoleCustomizerDsl {
-  private var defaultRole: String? = null
-
-  override fun defaultRole(role: String): AnyRequestRoleCustomizerBuilder =
-    this.apply {
-      defaultRole = role
-    }
+  override var defaultRole: String? = null
 
   fun build(): AnyRequestRoleCustomizer {
     return AnyRequestRoleCustomizer(defaultRole)

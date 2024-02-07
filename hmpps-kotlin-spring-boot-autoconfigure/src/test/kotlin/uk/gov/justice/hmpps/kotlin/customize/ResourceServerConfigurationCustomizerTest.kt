@@ -23,7 +23,7 @@ class ResourceServerConfigurationCustomizerTest {
     fun `should ignore default unauthorized request paths`() {
       val customizer = ResourceServerConfigurationCustomizer.build {
         unauthorizedRequestPaths {
-          includeDefaults(false)
+          includeDefaults = false
         }
       }
 
@@ -34,7 +34,7 @@ class ResourceServerConfigurationCustomizerTest {
     fun `should add additional unauthorized request paths`() {
       val customizer = ResourceServerConfigurationCustomizer.build {
         unauthorizedRequestPaths {
-          addPaths(setOf("/some-path"))
+          addPaths = setOf("/some-path")
         }
       }
 
@@ -58,7 +58,7 @@ class ResourceServerConfigurationCustomizerTest {
     fun `should set default role`() {
       val customizer = ResourceServerConfigurationCustomizer.build {
         anyRequestRole {
-          defaultRole("ROLE_MY_ROLE")
+          defaultRole = "ROLE_MY_ROLE"
         }
       }
 
