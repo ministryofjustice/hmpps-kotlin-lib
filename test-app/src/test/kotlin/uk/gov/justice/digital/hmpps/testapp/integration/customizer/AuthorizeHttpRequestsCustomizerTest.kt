@@ -7,8 +7,8 @@ import org.springframework.context.annotation.Import
 import uk.gov.justice.digital.hmpps.testapp.integration.IntegrationTestBase
 import uk.gov.justice.hmpps.kotlin.customize.ResourceServerConfigurationCustomizer
 
-@Import(AuthenticateHttpRequestsCustomizerTest.CustomizerConfiguration::class)
-class AuthenticateHttpRequestsCustomizerTest : IntegrationTestBase() {
+@Import(AuthorizeHttpRequestsCustomizerTest.CustomizerConfiguration::class)
+class AuthorizeHttpRequestsCustomizerTest : IntegrationTestBase() {
 
   @TestConfiguration
   class CustomizerConfiguration {
