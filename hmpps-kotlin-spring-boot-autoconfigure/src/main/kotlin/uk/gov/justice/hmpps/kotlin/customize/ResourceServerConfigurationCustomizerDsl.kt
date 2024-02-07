@@ -1,5 +1,7 @@
 package uk.gov.justice.hmpps.kotlin.customize
 
+import org.springframework.security.config.annotation.web.AuthorizeHttpRequestsDsl
+
 @DslMarker
 annotation class ResourceServerConfigurationCustomizerDslMarker
 
@@ -28,11 +30,20 @@ interface ResourceServerConfigurationCustomizerDsl {
    */
   @AnyRequestRoleCustomizerDslMarker
   fun anyRequestRole(dsl: AnyRequestRoleCustomizerDsl.() -> Unit): AnyRequestRoleCustomizer
+
+  /**
+   * Replaces the entire default authorizeHttpRequests block. See [AuthorizeHttpRequestsDsl] for more details.
+   *
+   * Note that trying to implement this override with other authorizeHttpRequests customizations will cause application startup to fail because that doesn't make sense.
+   */
+  @AuthorizeHttpRequestsCustomizerDslMarker
+  fun authorizeHttpRequests(dsl: AuthorizeHttpRequestsDsl.() -> Unit): AuthorizeHttpRequestsCustomizer
 }
 
 class ResourceServerConfigurationCustomizer {
   lateinit var unauthorizedRequestPathsCustomizer: UnauthorizedRequestPathsCustomizer
   lateinit var anyRequestRoleCustomizer: AnyRequestRoleCustomizer
+  lateinit var authorizeHttpRequestsCustomizer: AuthorizeHttpRequestsCustomizer
 
   companion object {
     fun build(dsl: ResourceServerConfigurationCustomizerDsl.() -> Unit): ResourceServerConfigurationCustomizer =
@@ -45,23 +56,40 @@ class ResourceServerConfigurationCustomizer {
 class ResourceServerConfigurationCustomizerBuilder : ResourceServerConfigurationCustomizerDsl {
   private var unauthorizedRequestPathsCustomizer = UnauthorizedRequestPathsCustomizerBuilder().build()
   private var anyRequestRoleCustomizer = AnyRequestRoleCustomizerBuilder().build()
+  private var authorizeHttpRequestsCustomizer = AuthorizeHttpRequestsCustomizerBuilder().build()
+  private var overrideAuthorizeHttpRequests = false
+  private var customizeAuthorizeHttpRequests = false
 
   override fun unauthorizedRequestPaths(dsl: UnauthorizedRequestPathCustomizerDsl.() -> Unit) =
     UnauthorizedRequestPathsCustomizerBuilder()
       .apply(dsl)
       .build()
       .also { unauthorizedRequestPathsCustomizer = it }
+      .also { customizeAuthorizeHttpRequests = true }
 
   override fun anyRequestRole(dsl: AnyRequestRoleCustomizerDsl.() -> Unit): AnyRequestRoleCustomizer =
     AnyRequestRoleCustomizerBuilder()
       .apply(dsl)
       .build()
       .also { anyRequestRoleCustomizer = it }
+      .also { customizeAuthorizeHttpRequests = true }
 
-  fun build(): ResourceServerConfigurationCustomizer =
-    ResourceServerConfigurationCustomizer()
+  override fun authorizeHttpRequests(dsl: AuthorizeHttpRequestsDsl.() -> Unit): AuthorizeHttpRequestsCustomizer =
+    AuthorizeHttpRequestsCustomizerBuilder(dsl)
+      .build()
+      .also { authorizeHttpRequestsCustomizer = it }
+      .also { overrideAuthorizeHttpRequests = true }
+
+  fun build(): ResourceServerConfigurationCustomizer {
+    if (overrideAuthorizeHttpRequests && customizeAuthorizeHttpRequests) {
+      throw IllegalStateException("Cannot override the entire authorizeHttpRequests DSL and try to customize it at the same time.")
+    }
+
+    return ResourceServerConfigurationCustomizer()
       .also {
         it.unauthorizedRequestPathsCustomizer = unauthorizedRequestPathsCustomizer
         it.anyRequestRoleCustomizer = anyRequestRoleCustomizer
+        it.authorizeHttpRequestsCustomizer = authorizeHttpRequestsCustomizer
       }
+  }
 }

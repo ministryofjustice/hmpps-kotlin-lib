@@ -39,10 +39,18 @@ class HmppsResourceServerConfiguration {
       headers { frameOptions { sameOrigin = true } }
       csrf { disable() }
       authorizeHttpRequests {
-        customizer.unauthorizedRequestPathsCustomizer.unauthorizedRequestPaths.forEach { authorize(it, permitAll) }
-        customizer.anyRequestRoleCustomizer.defaultRole
-          ?.also { authorize(anyRequest, hasRole(it)) }
-          ?: also { authorize(anyRequest, authenticated) }
+        customizer.authorizeHttpRequestsCustomizer.dsl
+          ?.also {
+            // override the entire authorizeHttpRequests DSL
+            customizer.authorizeHttpRequestsCustomizer.dsl!!.invoke(this)
+          }
+          ?: also {
+            // apply specific customizations to the default authorizeHttpRequests DSL
+            customizer.unauthorizedRequestPathsCustomizer.unauthorizedRequestPaths.forEach { authorize(it, permitAll) }
+            customizer.anyRequestRoleCustomizer.defaultRole
+              ?.also { authorize(anyRequest, hasRole(it)) }
+              ?: also { authorize(anyRequest, authenticated) }
+          }
       }
       oauth2ResourceServer {
         jwt { jwtAuthenticationConverter = AuthAwareTokenConverter() }

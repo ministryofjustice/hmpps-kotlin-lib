@@ -3,6 +3,7 @@ package uk.gov.justice.hmpps.kotlin.customize
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 class ResourceServerConfigurationCustomizerTest {
 
@@ -63,6 +64,57 @@ class ResourceServerConfigurationCustomizerTest {
       }
 
       assertThat(customizer.anyRequestRoleCustomizer.defaultRole).isEqualTo("ROLE_MY_ROLE")
+    }
+  }
+
+  @Nested
+  inner class AuthorizeHttpRequests {
+    @Test
+    fun `should default to null`() {
+      val customizer = ResourceServerConfigurationCustomizer.build {}
+
+      assertThat(customizer.authorizeHttpRequestsCustomizer.dsl).isNull()
+    }
+
+    @Test
+    fun `should save authorizeHttpRequests DSL`() {
+      val customizer = ResourceServerConfigurationCustomizer.build {
+        authorizeHttpRequests {
+          authorize("/anything", permitAll)
+        }
+      }
+
+      assertThat(customizer.authorizeHttpRequestsCustomizer.dsl).isNotNull
+    }
+
+    @Test
+    fun `should not allow authorizeHttpRequests with any request role customization`() {
+      assertThrows<IllegalStateException> {
+        ResourceServerConfigurationCustomizer.build {
+          authorizeHttpRequests {
+            authorize("/anything", permitAll)
+          }
+          anyRequestRole {
+            defaultRole = "ROLE_MY_ROLE"
+          }
+        }
+      }
+    }
+
+    @Test
+    fun `should not allow authorizeHttpRequests with unauthorized request paths customization`() {
+      assertThrows<IllegalStateException> {
+        ResourceServerConfigurationCustomizer.build {
+          authorizeHttpRequests {
+            authorize("/anything", permitAll)
+          }
+          unauthorizedRequestPaths {
+            includeDefaults = false
+          }
+        }
+      }.also {
+        assertThat(it.message).contains("authorizeHttpRequests")
+      }
     }
   }
 }
