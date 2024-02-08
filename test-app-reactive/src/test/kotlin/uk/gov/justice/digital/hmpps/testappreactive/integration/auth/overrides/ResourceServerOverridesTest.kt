@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.testappreactive.integration.overrides
+package uk.gov.justice.digital.hmpps.testappreactive.integration.auth.overrides
 
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.TestConfiguration

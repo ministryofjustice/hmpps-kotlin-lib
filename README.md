@@ -2,7 +2,69 @@
 > This is a work in progress and is not ready for use yet.
 
 # hmpps-kotlin-lib
-A helper library to share common patterns for projects based from [hmpps-template-kotlin](https://github.com/ministryofjustice/hmpps-template-kotlin)
+
+A Spring Boot Starter library to share common patterns for projects based from [hmpps-template-kotlin](https://github.com/ministryofjustice/hmpps-template-kotlin)
+
+## Overview
+
+Many undocumented patterns have emerged in projects based on the Kotlin template. This library attempts to capture some of those patterns to make them easily available to other projects.
+
+The library is a Spring Boot Starter that provides opinionated default configurations for various components. If popular variations exist for a component then the library aims to provide easy to use customizations for that component. If you wish to override default configurations then the library should get out of your way.
+
+## Usage
+
+### Using the library in a new Kotlin template project
+
+The library is already included in the Kotlin template project and you will inherit its default functionality. This should be enough to get your started.
+
+Once your project hits the real world and you start bumping into harder problems you may wish to customize or opt out of some of the library's components. See the [Components](#components) section for details of what the library provides.
+
+### Adding the library to your existing project
+
+To include this library in your project add the following to your `build.gradle.kts`:
+
+```kotlin
+dependencies {
+  implementation("uk.gov.justice.hmpps:hmpps-kotlin-lib:0.0.1")
+}
+```
+
+You should (hopefully) find that the library does nothing to your project as you should have overridden any beans or configurations that the library provides.
+
+Where possible we recommend that you use the library's default configurations and customizations. This will generally involve removing beans and possibly customizing the library's default configuration if required. See the [Components](#components) section for details of what the library provides.
+
+## Components
+
+### Spring Security Resource Server
+
+#### What is provided?
+
+By including the library you get a basic Spring `SecurityFilterChain`/`SecurityWebFilterChain` bean configured. This includes:
+* requiring a valid JWT token for any endpoint
+* leaving common endpoints unauthorized (e.g. `/health`, `/info`, `/v3/api-docs`, `/swagger-ui/**`)
+* providing an `AuthAwareTokenConverter`
+* providing a cached `JwtDecoder`
+
+For full details of what is provided by default see subproject `hmpps-kotlin-spring-boot-autoconfigure` package `auth` class `HmppsResourceServerConfiguration`.
+
+#### What can I customize?
+
+There are various customizations available. These include:
+* adding other unauthorized paths
+* setting a default role for authorized endpoints
+* overriding the `authorizeHttpRequests` configuration entirely 
+
+For full details of what is customizable start in subproject `hmpps-kotlin-spring-boot-autoconfigure` package `auth` with file `ResourceServerConfigurationCustomizerDsl.kt`.
+
+Look at the interfaces found in the various `*Dsl.kt` files to see what the customization DSL provides including examples in the Javadocs.
+
+Also check the tests in subproject `test-app`/`test-app-reactive` package `...integration/auth/customizer` for working examples.
+
+### How do I opt out?
+
+To opt out of the library's resource server configuration entirely you can just create your own `SecurityFilterChain`/`SecurityWebFilterChain` bean.
+
+See the tests in the subproject `test-app`/`test-app-reactive` package `...integration/auth/overrides` for working examples.
 
 ## Publishing Locally (to test against other projects)
 

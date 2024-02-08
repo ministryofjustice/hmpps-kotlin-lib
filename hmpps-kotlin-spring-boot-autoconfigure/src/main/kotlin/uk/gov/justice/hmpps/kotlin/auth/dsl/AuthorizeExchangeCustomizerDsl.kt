@@ -1,4 +1,4 @@
-package uk.gov.justice.hmpps.kotlin.customize
+package uk.gov.justice.hmpps.kotlin.auth.dsl
 
 import org.springframework.security.config.web.server.AuthorizeExchangeDsl
 
