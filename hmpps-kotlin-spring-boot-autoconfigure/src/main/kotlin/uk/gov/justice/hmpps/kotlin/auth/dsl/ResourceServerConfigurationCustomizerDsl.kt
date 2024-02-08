@@ -11,12 +11,12 @@ annotation class ResourceServerConfigurationCustomizerDslMarker
  *
  * To create a new instance of [ResourceServerConfigurationCustomizer], use the [ResourceServerConfigurationCustomizer.Companion.build] method, e.g.
  *
- * <pre>
+ * ```
  *   @Bean
- *   fun configurationCustomizer() = ResourceServerConfigurationCustomizer.build {
+ *   fun resourceServerCustomizer() = ResourceServerConfigurationCustomizer.build {
  *     ...
  *   }
- * </pre>
+ * ```
  */
 @ResourceServerConfigurationCustomizerDslMarker
 interface ResourceServerConfigurationCustomizerDsl {

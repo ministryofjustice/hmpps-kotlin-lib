@@ -8,15 +8,15 @@ annotation class UnauthorizedRequestPathCustomizerDslMarker
  *
  * To create a new instance of [UnauthorizedRequestPathsCustomizer], use the [ResourceServerConfigurationCustomizer.Companion.build] method, e.g.
  *
- * <pre>
+ * ```
  *   @Bean
- *   fun configurationCustomizer() = ResourceServerConfigurationCustomizer.build {
+ *   fun resourceServerCustomizer() = ResourceServerConfigurationCustomizer.build {
  *     unauthorizedRequestPaths {
  *       addPaths(setOf("/my-unauthorized-path"))
  *       ...
  *     }
  *   }
- * </pre>
+ * ```
  *
  * The default values for the available customizations can be found in the [UnauthorizedRequestPathsCustomizerBuilder] class.
  *
@@ -30,7 +30,7 @@ interface UnauthorizedRequestPathCustomizerDsl {
   var addPaths: Set<String>
 
   /**
-   * Whether to include the default unauthorized paths, defaults to <pre>true</pre>.
+   * Whether to include the default unauthorized paths, defaults to ```true```.
    */
   var includeDefaults: Boolean
 }
