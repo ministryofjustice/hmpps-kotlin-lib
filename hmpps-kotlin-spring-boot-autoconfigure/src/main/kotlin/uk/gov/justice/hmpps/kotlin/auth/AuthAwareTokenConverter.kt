@@ -54,8 +54,8 @@ private fun extractAuthorities(jwt: Jwt, converter: Converter<Jwt, Collection<Gr
 
 class AuthAwareAuthenticationToken(
   jwt: Jwt,
-  private val userName: String?,
-  private val clientId: String,
+  val userName: String?,
+  val clientId: String,
   authorities: Collection<GrantedAuthority>,
 ) : JwtAuthenticationToken(jwt, authorities) {
   override fun getPrincipal(): String = userName ?: clientId
