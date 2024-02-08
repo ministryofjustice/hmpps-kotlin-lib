@@ -10,9 +10,9 @@ annotation class AuthorizeExchangeCustomizerDslMarker
  *
  * To create a new instance of [AuthorizeExchangeCustomizer], use the [ResourceServerConfigurationCustomizer.Companion.build] method, e.g.
  *
- * <pre>
+ * ```
  *   @Bean
- *   fun configurationCustomizer() = ResourceServerConfigurationCustomizer.build {
+ *   fun resourceServerCustomizer() = ResourceServerConfigurationCustomizer.build {
  *     authorizeExchange {
  *       authorize(HttpMethod.GET, "/health", permitAll)
  *       authorize(HttpMethod.GET, "/events", hasRole("ROLE_EVENTS")
@@ -20,7 +20,7 @@ annotation class AuthorizeExchangeCustomizerDslMarker
  *       ...
  *     }
  *   }
- * </pre>
+ * ```
  *
  * Note that using this in conjunction with any customizations to authorizeExchange will cause the application startup to fail as that doesn't make sense.
  */

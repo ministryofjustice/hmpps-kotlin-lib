@@ -8,12 +8,12 @@ annotation class AnyRequestRoleCustomizerDslMarker
  *
  * To create a new instance of [AnyRequestRoleCustomizer], use the [ResourceServerConfigurationCustomizer.Companion.build] method, e.g.
  *
- * <pre>
+ * ```
  *   @Bean
- *   fun configurationCustomizer() = ResourceServerConfigurationCustomizer.build {
+ *   fun resourceServerCustomizer() = ResourceServerConfigurationCustomizer.build {
  *     anyRequestRole { defaultRole("ROLE_MY_ROLE") }
  *   }
- * </pre>
+ * ```
  */
 @AnyRequestRoleCustomizerDslMarker
 interface AnyRequestRoleCustomizerDsl {
