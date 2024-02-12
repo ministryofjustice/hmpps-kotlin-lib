@@ -13,7 +13,7 @@ class AuthorizeHttpRequestsCustomizerTest : IntegrationTestBase() {
   @TestConfiguration
   class CustomizerConfiguration {
     @Bean
-    fun resourceServerCustomizer() = ResourceServerConfigurationCustomizer.build {
+    fun resourceServerCustomizer() = ResourceServerConfigurationCustomizer {
       authorizeHttpRequests {
         authorize("/info", hasRole("INFO"))
         authorize(anyRequest, hasRole("ANY_REQUEST"))

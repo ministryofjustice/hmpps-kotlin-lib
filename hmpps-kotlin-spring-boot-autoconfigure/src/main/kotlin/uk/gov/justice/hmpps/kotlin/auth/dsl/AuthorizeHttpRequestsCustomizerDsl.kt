@@ -9,11 +9,11 @@ annotation class AuthorizeHttpRequestsCustomizerDslMarker
 /**
  * Part of the [ResourceServerConfigurationCustomizerDsl] DSL.
  *
- * To create a new instance of [AuthorizeHttpRequestsCustomizer], use the [ResourceServerConfigurationCustomizer.Companion.build] method, e.g.
+ * To create a new instance of [AuthorizeHttpRequestsCustomizer], use the [ResourceServerConfigurationCustomizer.Companion.invoke] method, e.g.
  *
  * ```
  *   @Bean
- *   fun resourceServerCustomizer() = ResourceServerConfigurationCustomizer.build {
+ *   fun resourceServerCustomizer() = ResourceServerConfigurationCustomizer {
  *     authorizeHttpRequests {
  *       authorize(HttpMethod.GET, "/health", permitAll)
  *       authorize(HttpMethod.GET, "/events", hasRole("ROLE_EVENTS")

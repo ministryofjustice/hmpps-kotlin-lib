@@ -11,7 +11,7 @@ class ResourceServerConfigurationCustomizerTest {
   inner class UnauthorizedRequestPaths {
     @Test
     fun `should default unauthorized request paths`() {
-      val customizer = ResourceServerConfigurationCustomizer.build {}
+      val customizer = ResourceServerConfigurationCustomizer {}
 
       assertThat(customizer.unauthorizedRequestPathsCustomizer.unauthorizedRequestPaths).contains(
         "/health/**",
@@ -22,7 +22,7 @@ class ResourceServerConfigurationCustomizerTest {
 
     @Test
     fun `should ignore default unauthorized request paths`() {
-      val customizer = ResourceServerConfigurationCustomizer.build {
+      val customizer = ResourceServerConfigurationCustomizer {
         unauthorizedRequestPaths {
           includeDefaults = false
         }
@@ -33,7 +33,7 @@ class ResourceServerConfigurationCustomizerTest {
 
     @Test
     fun `should add additional unauthorized request paths`() {
-      val customizer = ResourceServerConfigurationCustomizer.build {
+      val customizer = ResourceServerConfigurationCustomizer {
         unauthorizedRequestPaths {
           addPaths = setOf("/some-path")
         }
@@ -50,14 +50,14 @@ class ResourceServerConfigurationCustomizerTest {
   inner class AnyRequestRole {
     @Test
     fun `should default to no role`() {
-      val customizer = ResourceServerConfigurationCustomizer.build {}
+      val customizer = ResourceServerConfigurationCustomizer {}
 
       assertThat(customizer.anyRequestRoleCustomizer.defaultRole).isNull()
     }
 
     @Test
     fun `should set default role`() {
-      val customizer = ResourceServerConfigurationCustomizer.build {
+      val customizer = ResourceServerConfigurationCustomizer {
         anyRequestRole {
           defaultRole = "ROLE_MY_ROLE"
         }
@@ -71,14 +71,14 @@ class ResourceServerConfigurationCustomizerTest {
   inner class AuthorizeHttpRequests {
     @Test
     fun `should default to null`() {
-      val customizer = ResourceServerConfigurationCustomizer.build {}
+      val customizer = ResourceServerConfigurationCustomizer {}
 
       assertThat(customizer.authorizeHttpRequestsCustomizer.dsl).isNull()
     }
 
     @Test
     fun `should save authorizeHttpRequests DSL`() {
-      val customizer = ResourceServerConfigurationCustomizer.build {
+      val customizer = ResourceServerConfigurationCustomizer {
         authorizeHttpRequests {
           authorize("/anything", permitAll)
         }
@@ -90,7 +90,7 @@ class ResourceServerConfigurationCustomizerTest {
     @Test
     fun `should not allow authorizeHttpRequests with any request role customization`() {
       assertThrows<IllegalStateException> {
-        ResourceServerConfigurationCustomizer.build {
+        ResourceServerConfigurationCustomizer {
           authorizeHttpRequests {
             authorize("/anything", permitAll)
           }
@@ -104,7 +104,7 @@ class ResourceServerConfigurationCustomizerTest {
     @Test
     fun `should not allow authorizeHttpRequests with unauthorized request paths customization`() {
       assertThrows<IllegalStateException> {
-        ResourceServerConfigurationCustomizer.build {
+        ResourceServerConfigurationCustomizer {
           authorizeHttpRequests {
             authorize("/anything", permitAll)
           }
@@ -122,14 +122,14 @@ class ResourceServerConfigurationCustomizerTest {
   inner class AuthorizeExchange {
     @Test
     fun `should default to null`() {
-      val customizer = ResourceServerConfigurationCustomizer.build {}
+      val customizer = ResourceServerConfigurationCustomizer {}
 
       assertThat(customizer.authorizeExchangeCustomizer.dsl).isNull()
     }
 
     @Test
     fun `should save authorizeExchange DSL`() {
-      val customizer = ResourceServerConfigurationCustomizer.build {
+      val customizer = ResourceServerConfigurationCustomizer {
         authorizeExchange {
           authorize("/anything", permitAll)
         }
@@ -141,7 +141,7 @@ class ResourceServerConfigurationCustomizerTest {
     @Test
     fun `should not allow authorizeExchange with any request role customization`() {
       assertThrows<IllegalStateException> {
-        ResourceServerConfigurationCustomizer.build {
+        ResourceServerConfigurationCustomizer {
           authorizeExchange {
             authorize("/anything", permitAll)
           }
@@ -155,7 +155,7 @@ class ResourceServerConfigurationCustomizerTest {
     @Test
     fun `should not allow authorizeExchange with unauthorized request paths customization`() {
       assertThrows<IllegalStateException> {
-        ResourceServerConfigurationCustomizer.build {
+        ResourceServerConfigurationCustomizer {
           authorizeExchange {
             authorize("/anything", permitAll)
           }
@@ -174,7 +174,7 @@ class ResourceServerConfigurationCustomizerTest {
     @Test
     fun `should not allow authorizeHttpRequests and authorizeExchange together`() {
       assertThrows<IllegalStateException> {
-        ResourceServerConfigurationCustomizer.build {
+        ResourceServerConfigurationCustomizer {
           authorizeExchange {
             authorize("/anything", permitAll)
           }

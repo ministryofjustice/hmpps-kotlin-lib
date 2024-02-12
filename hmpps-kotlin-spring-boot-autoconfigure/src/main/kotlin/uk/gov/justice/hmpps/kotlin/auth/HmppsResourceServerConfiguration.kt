@@ -58,7 +58,7 @@ class HmppsResourceServerConfiguration {
 
   @ConditionalOnMissingBean
   @Bean
-  fun resourceServerConfigurationCustomizer(): ResourceServerConfigurationCustomizer = ResourceServerConfigurationCustomizer.build {}
+  fun resourceServerConfigurationCustomizer(): ResourceServerConfigurationCustomizer = ResourceServerConfigurationCustomizer {}
 
   @ConditionalOnMissingBean
   @Bean
@@ -95,5 +95,5 @@ class HmppsReactiveResourceServerConfiguration {
 
   @ConditionalOnMissingBean
   @Bean
-  fun resourceServerConfigurationCustomizer(): ResourceServerConfigurationCustomizer = ResourceServerConfigurationCustomizer.build {}
+  fun resourceServerConfigurationCustomizer(): ResourceServerConfigurationCustomizer = ResourceServerConfigurationCustomizer {}
 }

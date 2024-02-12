@@ -8,11 +8,11 @@ annotation class AuthorizeExchangeCustomizerDslMarker
 /**
  * Part of the [ResourceServerConfigurationCustomizerDsl] DSL.
  *
- * To create a new instance of [AuthorizeExchangeCustomizer], use the [ResourceServerConfigurationCustomizer.Companion.build] method, e.g.
+ * To create a new instance of [AuthorizeExchangeCustomizer], use the [ResourceServerConfigurationCustomizer.Companion.invoke] method, e.g.
  *
  * ```
  *   @Bean
- *   fun resourceServerCustomizer() = ResourceServerConfigurationCustomizer.build {
+ *   fun resourceServerCustomizer() = ResourceServerConfigurationCustomizer {
  *     authorizeExchange {
  *       authorize(HttpMethod.GET, "/health", permitAll)
  *       authorize(HttpMethod.GET, "/events", hasRole("ROLE_EVENTS")
