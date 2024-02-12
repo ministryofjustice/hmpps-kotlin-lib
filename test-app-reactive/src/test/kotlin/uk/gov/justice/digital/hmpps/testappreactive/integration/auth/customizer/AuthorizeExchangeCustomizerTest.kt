@@ -13,7 +13,7 @@ class AuthorizeExchangeCustomizerTest : IntegrationTestBase() {
   @TestConfiguration
   class CustomizerConfiguration {
     @Bean
-    fun resourceServerCustomizer() = ResourceServerConfigurationCustomizer.build {
+    fun resourceServerCustomizer() = ResourceServerConfigurationCustomizer {
       authorizeExchange {
         authorize("/info", hasRole("INFO"))
         authorize(anyExchange, hasRole("ANY_REQUEST"))

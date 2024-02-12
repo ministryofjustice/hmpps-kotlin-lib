@@ -9,11 +9,11 @@ annotation class ResourceServerConfigurationCustomizerDslMarker
 /**
  * A DSL to create a [ResourceServerConfigurationCustomizer].
  *
- * To create a new instance of [ResourceServerConfigurationCustomizer], use the [ResourceServerConfigurationCustomizer.Companion.build] method, e.g.
+ * To create a new instance of [ResourceServerConfigurationCustomizer], use the [ResourceServerConfigurationCustomizer.Companion.invoke] method, e.g.
  *
  * ```
  *   @Bean
- *   fun resourceServerCustomizer() = ResourceServerConfigurationCustomizer.build {
+ *   fun resourceServerCustomizer() = ResourceServerConfigurationCustomizer {
  *     ...
  *   }
  * ```
@@ -56,7 +56,7 @@ class ResourceServerConfigurationCustomizer {
   lateinit var authorizeExchangeCustomizer: AuthorizeExchangeCustomizer
 
   companion object {
-    fun build(dsl: ResourceServerConfigurationCustomizerDsl.() -> Unit): ResourceServerConfigurationCustomizer =
+    operator fun invoke(dsl: ResourceServerConfigurationCustomizerDsl.() -> Unit): ResourceServerConfigurationCustomizer =
       ResourceServerConfigurationCustomizerBuilder()
         .apply(dsl)
         .build()
