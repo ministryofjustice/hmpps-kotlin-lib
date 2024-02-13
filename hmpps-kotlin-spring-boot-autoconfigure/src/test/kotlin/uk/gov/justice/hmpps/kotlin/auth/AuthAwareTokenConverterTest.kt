@@ -63,6 +63,33 @@ class AuthAwareTokenConverterTest {
     )
   }
 
+  @Test
+  fun `should add auth source from claim`() {
+    val jwt = createJwt(
+      claims = mapOf(
+        "client_id" to "some client id",
+        "auth_source" to "nomis",
+      ),
+    )
+
+    val token = AuthAwareTokenConverter().convert(jwt)
+
+    assertThat(token.authSource).isEqualTo(AuthSource.NOMIS)
+  }
+
+  @Test
+  fun `should fall back to none if no auth source`() {
+    val jwt = createJwt(
+      claims = mapOf(
+        "client_id" to "some client id",
+      ),
+    )
+
+    val token = AuthAwareTokenConverter().convert(jwt)
+
+    assertThat(token.authSource).isEqualTo(AuthSource.NONE)
+  }
+
   private fun createJwt(
     subject: String = "some_subject",
     claims: Map<String, Any> = mapOf(),

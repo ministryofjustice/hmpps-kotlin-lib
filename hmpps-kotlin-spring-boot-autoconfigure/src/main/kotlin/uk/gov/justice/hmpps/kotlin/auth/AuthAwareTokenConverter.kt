@@ -25,13 +25,12 @@ class AuthAwareReactiveTokenConverter : Converter<Jwt, Mono<AuthAwareAuthenticat
 
 private fun convert(jwt: Jwt, converter: Converter<Jwt, Collection<GrantedAuthority>>): AuthAwareAuthenticationToken {
   val claims = jwt.claims
-  val userName = findUserName(claims)
-  val clientId = findClientId(claims)
   val authorities = extractAuthorities(jwt, converter)
   return AuthAwareAuthenticationToken(
     jwt = jwt,
-    userName = userName,
-    clientId = clientId,
+    userName = findUserName(claims),
+    clientId = findClientId(claims),
+    authSource = findAuthSource(claims),
     authorities = authorities,
   )
 }
@@ -41,6 +40,8 @@ private fun findUserName(claims: Map<String, Any?>): String? =
 
 private fun findClientId(claims: Map<String, Any?>) =
   claims["client_id"] as String
+
+private fun findAuthSource(claims: Map<String, Any?>) = AuthSource.findBySource(claims["auth_source"] as String?)
 
 private fun extractAuthorities(jwt: Jwt, converter: Converter<Jwt, Collection<GrantedAuthority>>): Collection<GrantedAuthority> {
   val authorities = mutableListOf<GrantedAuthority>().apply { addAll(converter.convert(jwt)!!) }
@@ -56,7 +57,21 @@ class AuthAwareAuthenticationToken(
   jwt: Jwt,
   val userName: String?,
   val clientId: String,
+  val authSource: AuthSource = AuthSource.NONE,
   authorities: Collection<GrantedAuthority>,
 ) : JwtAuthenticationToken(jwt, authorities) {
   override fun getPrincipal(): String = userName ?: clientId
+}
+
+enum class AuthSource(val source: String) {
+  NONE("none"),
+  NOMIS("nomis"),
+  DELIUS("delius"),
+  AUTH("auth"),
+  ;
+
+  companion object {
+    fun findBySource(source: String?): AuthSource =
+      entries.firstOrNull { it.source == source } ?: NONE
+  }
 }
