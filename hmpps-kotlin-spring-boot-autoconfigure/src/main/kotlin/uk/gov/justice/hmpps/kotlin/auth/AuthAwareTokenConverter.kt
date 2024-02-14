@@ -28,8 +28,8 @@ private fun convert(jwt: Jwt, converter: Converter<Jwt, Collection<GrantedAuthor
   val authorities = extractAuthorities(jwt, converter)
   return AuthAwareAuthenticationToken(
     jwt = jwt,
-    userName = findUserName(claims),
     clientId = findClientId(claims),
+    userName = findUserName(claims),
     authSource = findAuthSource(claims),
     authorities = authorities,
   )
@@ -55,10 +55,10 @@ private fun extractAuthorities(jwt: Jwt, converter: Converter<Jwt, Collection<Gr
 
 class AuthAwareAuthenticationToken(
   jwt: Jwt,
-  val userName: String?,
   val clientId: String,
+  val userName: String? = null,
   val authSource: AuthSource = AuthSource.NONE,
-  authorities: Collection<GrantedAuthority>,
+  authorities: Collection<GrantedAuthority> = emptyList(),
 ) : JwtAuthenticationToken(jwt, authorities) {
   override fun getPrincipal(): String = userName ?: clientId
 }
