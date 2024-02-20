@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplicat
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type.REACTIVE
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type.SERVLET
 import org.springframework.boot.autoconfigure.web.servlet.ConditionalOnMissingFilterBean
-import org.springframework.cache.CacheManager
 import org.springframework.cache.annotation.EnableCaching
+import org.springframework.cache.concurrent.ConcurrentMapCache
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
@@ -64,8 +64,7 @@ class HmppsResourceServerConfiguration {
   @Bean
   fun locallyCachedJwtDecoder(
     @Value("\${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}") jwkSetUri: String,
-    cacheManager: CacheManager,
-  ): JwtDecoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).cache(cacheManager.getCache("jwks")).build()
+  ): JwtDecoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).cache(ConcurrentMapCache("jwks")).build()
 }
 
 @Configuration
