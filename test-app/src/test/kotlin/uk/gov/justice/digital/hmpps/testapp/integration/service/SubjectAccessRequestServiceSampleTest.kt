@@ -19,6 +19,6 @@ class SubjectAccessRequestServiceSampleTest {
     val restrictedPatient = service.getPrisonContentFor("A12345", null, null)?.content
 
     assertThat(restrictedPatient).extracting("prisonerNumber").isEqualTo("A12345")
-    assertThat(restrictedPatient).extracting("commentText").isEqualTo("test")
+    assertThat(restrictedPatient).extracting("commentText").isEqualTo("some useful comment")
   }
 }
