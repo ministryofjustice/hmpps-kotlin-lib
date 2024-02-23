@@ -33,7 +33,10 @@ import java.time.LocalDate
 class HmppsSubjectAccessRequestController(private val service: HmppsSubjectAccessRequestService) {
 
   @GetMapping
-  @Operation(summary = "Provides content for a prisoner to satisfy the needs of a subject access request on their behalf")
+  @Operation(
+    summary = "Provides content for a prisoner to satisfy the needs of a subject access request on their behalf",
+    description = "Requires role SAR_DATA_ACCESS or additional role as specified by hmpps.sar.additionalAccessRole configuration.",
+  )
   @ApiResponses(
     value = [
       ApiResponse(
