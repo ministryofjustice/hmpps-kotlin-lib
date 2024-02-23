@@ -3,13 +3,13 @@
 ## What is provided?
 
 If you implement one of the three subject access request interfaces then a `/subject-access-request` endpoint will
-be automatically created and call your service.  The endpoint will be protected by a `SAR_DATA_ACCESS` role.
+be automatically created and call your service.  The endpoint will be protected by a `SAR_DATA_ACCESS` role and
+an additional role can be added if required.
 
 If you do not implement the service then no endpoint will be created.
 
 ## What can I customize?
-
-There are three options:
+In terms of service implementations there are options:
 
 1. For applications that *only* store prisoner information implement `HmppsPrisonSubjectAccessRequestService`.
 If the subject access request endpoint is called with a prison number then your service will be called. 
@@ -17,6 +17,9 @@ If the subject access request endpoint is called with a prison number then your 
 If the subject access request endpoint is called with a case reference number then your service will be called.
 1. For applications that store prisoner and also probation information then implement `HmppsPrisonProbationSubjectAccessRequestService`.
 If either a prison number or case reference number is supplied to the endpoint then your service will be called.
+
+The default controller endpoint will be protected by `SAR_DATA_ACCESS`.  Specifying a `hmpps.sar.additionalAccessRole`
+property in `application.yml` will then add in the additional access role as well.
 
 ## How do I opt out?
 

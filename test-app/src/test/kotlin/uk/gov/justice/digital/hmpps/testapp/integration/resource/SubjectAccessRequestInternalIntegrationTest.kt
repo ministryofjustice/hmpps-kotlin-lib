@@ -60,6 +60,15 @@ class SubjectAccessRequestInternalIntegrationTest : IntegrationTestBase() {
       }
 
       @Test
+      fun `should return success for additional access role`() {
+        // service will return not found for prisoners that don't start with A
+        webTestClient.get().uri("/subject-access-request?prn=B12345C")
+          .headers(setAuthorisation(roles = listOf("ROLE_TEST_DATA_ACCESS")))
+          .exchange()
+          .expectStatus().isNoContent
+      }
+
+      @Test
       fun `should return 204 if no prisoner data exists`() {
         // service will return not found for prisoners that don't start with A
         webTestClient.get().uri("/subject-access-request?prn=B12345C")

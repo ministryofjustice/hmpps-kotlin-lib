@@ -27,7 +27,7 @@ import java.time.LocalDate
 @Suppress("SpringJavaInjectionPointsAutowiringInspection")
 @RestController
 @Tag(name = "Subject Access Request")
-@PreAuthorize("hasRole('SAR_DATA_ACCESS')")
+@PreAuthorize("hasAnyRole('SAR_DATA_ACCESS', @environment.getProperty('hmpps.sar.additionalAccessRole', 'SAR_DATA_ACCESS'))")
 @RequestMapping("/subject-access-request", produces = [MediaType.APPLICATION_JSON_VALUE])
 @ConditionalOnBean(HmppsSubjectAccessRequestService::class)
 class HmppsSubjectAccessRequestController(private val service: HmppsSubjectAccessRequestService) {
