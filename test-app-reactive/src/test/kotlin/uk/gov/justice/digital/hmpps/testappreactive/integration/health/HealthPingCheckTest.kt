@@ -1,16 +1,18 @@
-package uk.gov.justice.digital.hmpps.testapp.integration.health
+package uk.gov.justice.digital.hmpps.testappreactive.integration.health
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import uk.gov.justice.digital.hmpps.testapp.integration.IntegrationTestBase
+import uk.gov.justice.digital.hmpps.testappreactive.integration.IntegrationTestBase
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.function.Consumer
 
-class HealthCheckTest : IntegrationTestBase() {
+class HealthPingCheckTest : IntegrationTestBase() {
 
   @Test
   fun `Health page reports ok`() {
+    stubPingWithResponse(200)
+
     webTestClient.get()
       .uri("/health")
       .exchange()
@@ -22,6 +24,8 @@ class HealthCheckTest : IntegrationTestBase() {
 
   @Test
   fun `Health info reports version`() {
+    stubPingWithResponse(200)
+
     webTestClient.get().uri("/health")
       .exchange()
       .expectStatus().isOk
@@ -30,6 +34,21 @@ class HealthCheckTest : IntegrationTestBase() {
           assertThat(it).startsWith(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE))
         },
       )
+  }
+
+  @Test
+  fun `Health page reports down`() {
+    stubPingWithResponse(503)
+
+    webTestClient.get()
+      .uri("/health")
+      .exchange()
+      .expectStatus()
+      .is5xxServerError
+      .expectBody()
+      .jsonPath("status").isEqualTo("DOWN")
+      .jsonPath("components.hmppsAuth.status").isEqualTo("DOWN")
+      .jsonPath("components.prisonApi.status").isEqualTo("DOWN")
   }
 
   @Test

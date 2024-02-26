@@ -6,7 +6,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplicat
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type.REACTIVE
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type.SERVLET
 import org.springframework.boot.autoconfigure.web.servlet.ConditionalOnMissingFilterBean
-import org.springframework.cache.annotation.EnableCaching
 import org.springframework.cache.concurrent.ConcurrentMapCache
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -29,7 +28,6 @@ import uk.gov.justice.hmpps.kotlin.auth.dsl.ResourceServerConfigurationCustomize
 @ConditionalOnWebApplication(type = SERVLET)
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true, proxyTargetClass = true)
-@EnableCaching
 class HmppsResourceServerConfiguration {
   @ConditionalOnMissingFilterBean
   @Bean

@@ -34,8 +34,10 @@ You should (hopefully) find that the library does nothing to your project as you
 Where possible we recommend that you use the library's default configurations and customizations. This will generally involve removing beans and possibly customizing the library's default configuration if required. See the [Components](#components) section for details of what the library provides.
 
 ## Components
-* [Spring Security Resource Server](./SpringResourceServer.md)
-* [Subject Access Request Endpoint](./SubjectAccessRequestEndpoint.md)
+* [Spring Security Resource Server](readme-contents/SpringResourceServer.md)
+* [Subject Access Request Endpoint](readme-contents/SubjectAccessRequestEndpoint.md)
+* [Web Clients](readme-contents/WebClients.md)
+* [Health Checks](readme-contents/HealthChecks.md)
 
 ## Publishing Locally (to test against other projects)
 

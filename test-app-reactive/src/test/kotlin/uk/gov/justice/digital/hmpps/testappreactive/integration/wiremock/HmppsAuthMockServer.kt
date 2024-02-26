@@ -1,9 +1,10 @@
 package uk.gov.justice.digital.hmpps.testappreactive.integration.wiremock
 
 import com.github.tomakehurst.wiremock.WireMockServer
-import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.get
+import com.github.tomakehurst.wiremock.client.WireMock.post
+import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.http.HttpHeader
 import com.github.tomakehurst.wiremock.http.HttpHeaders
 import org.junit.jupiter.api.extension.AfterAllCallback
@@ -39,14 +40,15 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
 
   fun stubGrantToken() {
     stubFor(
-      WireMock.post(WireMock.urlEqualTo("/auth/oauth/token"))
+      post(urlEqualTo("/auth/oauth/token"))
         .willReturn(
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
             .withBody(
-              """{
-                    "token_type": "bearer",
-                    "access_token": "ABCDE"
+              """
+                {
+                  "token_type": "bearer",
+                  "access_token": "ABCDE"
                 }
               """.trimIndent(),
             ),
@@ -59,7 +61,7 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
       get("/auth/health/ping").willReturn(
         aResponse()
           .withHeader("Content-Type", "application/json")
-          .withBody(if (status == 200) "pong" else "some error")
+          .withBody(if (status == 200) """{"status":"UP"}""" else """{"status":"DOWN"}""")
           .withStatus(status),
       ),
     )

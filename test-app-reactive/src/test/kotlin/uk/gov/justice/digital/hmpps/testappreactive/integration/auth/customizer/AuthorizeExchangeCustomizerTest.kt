@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.testappreactive.integration.auth.customizer
 
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
@@ -19,6 +20,11 @@ class AuthorizeExchangeCustomizerTest : IntegrationTestBase() {
         authorize(anyExchange, hasRole("ANY_REQUEST"))
       }
     }
+  }
+
+  @BeforeEach
+  fun beforeEach() {
+    stubPingWithResponse(200)
   }
 
   @Test

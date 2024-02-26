@@ -42,6 +42,8 @@ class ResourceServerCustomizerTest : IntegrationTestBase() {
 
   @Test
   fun `should apply the default role to all authorised endpoints`() {
+    stubPingWithResponse(200)
+
     webTestClient.get()
       .uri("/health")
       .headers(setAuthorisation(roles = listOf("ROLE_ANY_REQUEST")))
