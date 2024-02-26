@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.kotlin.auth
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type.REACTIVE
@@ -24,9 +25,13 @@ import reactor.netty.http.client.HttpClient
 import java.time.Duration
 import kotlin.apply as kotlinApply
 
+private const val DEFAULT_TIMEOUT_SECONDS: Long = 30
+private const val DEFAULT_HEALTH_TIMEOUT_SECONDS: Long = 2
+
 @ConditionalOnWebApplication(type = SERVLET)
 @Configuration
 class HmppsWebClientConfiguration {
+  @ConditionalOnBean(ClientRegistrationRepository::class)
   @ConditionalOnMissingBean
   @Bean
   fun authorizedClientManager(
@@ -56,7 +61,12 @@ class HmppsReactiveWebClientConfiguration {
   ).kotlinApply { setAuthorizedClientProvider(ReactiveOAuth2AuthorizedClientProviderBuilder.builder().clientCredentials().build()) }
 }
 
-fun WebClient.Builder.authorisedWebClient(authorizedClientManager: OAuth2AuthorizedClientManager, registrationId: String, url: String, timeout: Duration): WebClient {
+fun WebClient.Builder.authorisedWebClient(
+  authorizedClientManager: OAuth2AuthorizedClientManager,
+  registrationId: String,
+  url: String,
+  timeout: Duration = Duration.ofSeconds(DEFAULT_TIMEOUT_SECONDS),
+): WebClient {
   val oauth2Client = ServletOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager).kotlinApply {
     setDefaultClientRegistrationId(registrationId)
   }
@@ -67,7 +77,10 @@ fun WebClient.Builder.authorisedWebClient(authorizedClientManager: OAuth2Authori
     .build()
 }
 
-fun WebClient.Builder.healthWebClient(url: String, healthTimeout: Duration): WebClient =
+fun WebClient.Builder.healthWebClient(
+  url: String,
+  healthTimeout: Duration = Duration.ofSeconds(DEFAULT_HEALTH_TIMEOUT_SECONDS),
+): WebClient =
   baseUrl(url)
     .clientConnector(ReactorClientHttpConnector(HttpClient.create().responseTimeout(healthTimeout)))
     .build()
@@ -76,7 +89,7 @@ fun WebClient.Builder.reactiveAuthorisedWebClient(
   authorizedClientManager: ReactiveOAuth2AuthorizedClientManager,
   registrationId: String,
   url: String,
-  timeout: Duration,
+  timeout: Duration = Duration.ofSeconds(DEFAULT_TIMEOUT_SECONDS),
 ): WebClient =
   baseUrl(url)
     .clientConnector(ReactorClientHttpConnector(HttpClient.create().responseTimeout(timeout)))
@@ -87,7 +100,10 @@ fun WebClient.Builder.reactiveAuthorisedWebClient(
     )
     .build()
 
-fun WebClient.Builder.reactiveHealthWebClient(url: String, healthTimeout: Duration): WebClient =
+fun WebClient.Builder.reactiveHealthWebClient(
+  url: String,
+  healthTimeout: Duration = Duration.ofSeconds(DEFAULT_HEALTH_TIMEOUT_SECONDS),
+): WebClient =
   baseUrl(url)
     .clientConnector(ReactorClientHttpConnector(HttpClient.create().responseTimeout(healthTimeout)))
     .build()
