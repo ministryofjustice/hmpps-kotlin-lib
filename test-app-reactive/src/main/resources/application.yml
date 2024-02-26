@@ -17,13 +17,20 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: ${api.base.url.oauth}/.well-known/jwks.json
+          jwk-set-uri: ${hmpps-auth.base-uri}/.well-known/jwks.json
 
       client:
         provider:
           hmpps-auth:
-            token-uri: ${api.base.url.oauth}/oauth/token
+            token-uri: ${hmpps-auth.base-uri}/oauth/token
 
+        registration:
+          prison-api:
+            provider: hmpps-auth
+            client-id: ${prison-api.client.id}
+            client-secret: ${prison-api.client.secret}
+            authorization-grant-type: client_credentials
+            scope: read
 
 server:
   port: 8080

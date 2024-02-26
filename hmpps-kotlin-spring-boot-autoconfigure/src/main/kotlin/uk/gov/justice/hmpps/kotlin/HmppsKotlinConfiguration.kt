@@ -6,7 +6,9 @@ import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguratio
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import uk.gov.justice.hmpps.kotlin.auth.HmppsReactiveResourceServerConfiguration
+import uk.gov.justice.hmpps.kotlin.auth.HmppsReactiveWebClientConfiguration
 import uk.gov.justice.hmpps.kotlin.auth.HmppsResourceServerConfiguration
+import uk.gov.justice.hmpps.kotlin.auth.HmppsWebClientConfiguration
 import uk.gov.justice.hmpps.kotlin.sar.HmppsSubjectAccessRequestController
 
 @Configuration
@@ -15,5 +17,7 @@ import uk.gov.justice.hmpps.kotlin.sar.HmppsSubjectAccessRequestController
   HmppsResourceServerConfiguration::class,
   HmppsReactiveResourceServerConfiguration::class,
   HmppsSubjectAccessRequestController::class,
+  HmppsWebClientConfiguration::class,
+  HmppsReactiveWebClientConfiguration::class,
 )
 class HmppsKotlinConfiguration
