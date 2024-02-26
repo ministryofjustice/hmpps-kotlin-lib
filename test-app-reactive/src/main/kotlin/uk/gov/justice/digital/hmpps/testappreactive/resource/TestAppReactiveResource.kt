@@ -14,6 +14,7 @@ class TestAppReactiveResource(val prisonApiService: PrisonApiService) {
   @RequestMapping("/time")
   suspend fun getTime() = LocalDateTime.now()
 
-  @RequestMapping("/offender/{id}/booking")
-  fun getOffenderBookingId(@PathVariable id: String) = prisonApiService.getOffender(id)
+  @PreAuthorize("hasRole('ROLE_TEST_APP_REACTIVE')")
+  @RequestMapping("/prisoner/{prisonNumber}/booking")
+  suspend fun getOffenderBookingId(@PathVariable prisonNumber: String) = prisonApiService.getOffenderBooking(prisonNumber)
 }

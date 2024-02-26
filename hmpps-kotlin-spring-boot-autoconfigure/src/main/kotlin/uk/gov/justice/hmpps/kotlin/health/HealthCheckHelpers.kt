@@ -7,15 +7,15 @@ import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import reactor.core.publisher.Mono
 
-abstract class HealthCheck(private val webClient: WebClient) : HealthIndicator {
-  override fun health(): Health = webClient.health()
+abstract class HealthPingCheck(private val webClient: WebClient) : HealthIndicator {
+  override fun health(): Health = webClient.ping()
     .block() ?: Health.down().withDetail("HttpStatus", "No response returned from ping").build()
 }
-abstract class ReactiveHealthCheck(private val webClient: WebClient) : ReactiveHealthIndicator {
-  override fun health(): Mono<Health> = webClient.health()
+abstract class ReactiveHealthPingCheck(private val webClient: WebClient) : ReactiveHealthIndicator {
+  override fun health(): Mono<Health> = webClient.ping()
 }
 
-private fun WebClient.health(): Mono<Health> = get()
+private fun WebClient.ping(): Mono<Health> = get()
   .uri("/health/ping")
   .retrieve()
   .toEntity(String::class.java)

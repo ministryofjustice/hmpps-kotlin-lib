@@ -13,8 +13,8 @@ class PrisonApiServiceTest : IntegrationTestBase() {
     prisonApi.stubGetPrisonerLatestBooking("A1234AA")
 
     webTestClient.get()
-      .uri("/offender/A1234AA/booking")
-      .headers(setAuthorisation())
+      .uri("/prisoner/A1234AA/booking")
+      .headers(setAuthorisation(roles = listOf("ROLE_TEST_APP")))
       .exchange()
       .expectStatus().isOk
       .expectBody().jsonPath("bookingId").isEqualTo(12345)

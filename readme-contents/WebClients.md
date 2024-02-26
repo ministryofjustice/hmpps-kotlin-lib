@@ -18,7 +18,11 @@ For an example of how to create `WebClient` instances see class `WebClientConfig
 
 ## What can I customize?
 
-There is no customization provided for any of the above, so you'd need to opt out entirely to change the default behaviour.
+It is currently only possible to customize the default timeouts for the `WebClient` instances created. This would be done in the `@Bean` definition when creating web clients.
+
+For examples see class `WebClientConfiguration` in either `test-app` or `test-app-reavtive`.
+
+For additional customizations you would need to opt out entirely.
 
 ## How do I opt out?
 

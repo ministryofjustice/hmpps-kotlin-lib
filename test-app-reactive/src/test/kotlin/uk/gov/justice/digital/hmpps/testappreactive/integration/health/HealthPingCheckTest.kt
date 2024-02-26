@@ -1,13 +1,13 @@
-package uk.gov.justice.digital.hmpps.testapp.integration.health
+package uk.gov.justice.digital.hmpps.testappreactive.integration.health
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import uk.gov.justice.digital.hmpps.testapp.integration.IntegrationTestBase
+import uk.gov.justice.digital.hmpps.testappreactive.integration.IntegrationTestBase
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.function.Consumer
 
-class HealthCheckTest : IntegrationTestBase() {
+class HealthPingCheckTest : IntegrationTestBase() {
 
   @Test
   fun `Health page reports ok`() {
@@ -47,7 +47,7 @@ class HealthCheckTest : IntegrationTestBase() {
       .is5xxServerError
       .expectBody()
       .jsonPath("status").isEqualTo("DOWN")
-      .jsonPath("components.hmppsAuthApi.status").isEqualTo("DOWN")
+      .jsonPath("components.hmppsAuth.status").isEqualTo("DOWN")
       .jsonPath("components.prisonApi.status").isEqualTo("DOWN")
   }
 
