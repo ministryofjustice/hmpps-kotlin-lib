@@ -29,9 +29,9 @@ private const val DEFAULT_TIMEOUT_SECONDS: Long = 30
 private const val DEFAULT_HEALTH_TIMEOUT_SECONDS: Long = 2
 
 @ConditionalOnWebApplication(type = SERVLET)
+@ConditionalOnBean(ClientRegistrationRepository::class)
 @Configuration
 class HmppsWebClientConfiguration {
-  @ConditionalOnBean(ClientRegistrationRepository::class)
   @ConditionalOnMissingBean
   @Bean
   fun authorizedClientManager(
@@ -47,6 +47,7 @@ class HmppsWebClientConfiguration {
 }
 
 @ConditionalOnWebApplication(type = REACTIVE)
+@ConditionalOnBean(ReactiveClientRegistrationRepository::class)
 @Configuration
 class HmppsReactiveWebClientConfiguration {
 
