@@ -1,1 +1,5 @@
-uk.gov.justice.hmpps.kotlin.HmppsKotlinConfiguration
+uk.gov.justice.hmpps.kotlin.auth.HmppsResourceServerConfiguration
+uk.gov.justice.hmpps.kotlin.auth.HmppsReactiveResourceServerConfiguration
+uk.gov.justice.hmpps.kotlin.auth.HmppsWebClientConfiguration
+uk.gov.justice.hmpps.kotlin.auth.HmppsReactiveWebClientConfiguration
+uk.gov.justice.hmpps.kotlin.sar.HmppsSubjectAccessRequestController
