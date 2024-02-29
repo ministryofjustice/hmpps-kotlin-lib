@@ -25,7 +25,7 @@ To include this library in your project add the following to your `build.gradle.
 
 ```kotlin
 dependencies {
-  implementation("uk.gov.justice.hmpps:hmpps-kotlin-lib:0.1.2")
+  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:0.2.1")
 }
 ```
 
