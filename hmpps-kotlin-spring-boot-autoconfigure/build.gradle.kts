@@ -11,9 +11,12 @@ plugins {
   id("se.patrikerdes.use-latest-versions") version "0.2.18"
   id("io.spring.dependency-management") version "1.1.4"
   id("org.jlleitschuh.gradle.ktlint") version "12.1.0"
-  id("org.owasp.dependencycheck") version "9.1.0"
+  id("org.owasp.dependencycheck") version "8.4.2"
   id("org.springframework.boot") version "3.2.4"
 }
+
+// Temporarily pin netty version until spring boot upgrades (3.2.5 onwards)
+ext["netty.version"] = "4.1.108.Final"
 
 dependencies {
   implementation("org.springframework.boot:spring-boot-starter-web")
@@ -139,4 +142,11 @@ project.getTasksByName("check", false).forEach {
     ""
   }
   it.dependsOn("$prefix:ktlintCheck")
+}
+
+dependencyCheck {
+  failBuildOnCVSS = 5f
+  suppressionFiles = listOf("dps-gradle-spring-boot-suppressions.xml")
+  format = "ALL"
+  analyzers.assemblyEnabled = false
 }
