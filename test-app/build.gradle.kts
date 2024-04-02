@@ -1,6 +1,6 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.15.2"
-  kotlin("plugin.spring") version "1.9.22"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.15.5"
+  kotlin("plugin.spring") version "1.9.23"
 }
 
 configurations {
@@ -11,7 +11,7 @@ dependencies {
   implementation(project(":hmpps-kotlin-spring-boot-starter"))
   implementation("org.springframework.boot:spring-boot-starter-webflux")
 
-  testImplementation("org.wiremock:wiremock-standalone:3.4.0")
+  testImplementation("org.wiremock:wiremock-standalone:3.5.2")
   testImplementation("io.jsonwebtoken:jjwt-impl:0.12.5")
   testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.5")
 }
