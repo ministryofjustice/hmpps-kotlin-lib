@@ -11,9 +11,8 @@ dependencies {
   implementation(project(":hmpps-kotlin-spring-boot-starter"))
   implementation("org.springframework.boot:spring-boot-starter-webflux")
 
+  testImplementation(project(":hmpps-kotlin-spring-boot-starter-test"))
   testImplementation("org.wiremock:wiremock-standalone:3.6.0")
-  testImplementation("io.jsonwebtoken:jjwt-impl:0.12.5")
-  testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.5")
 }
 
 kotlin {

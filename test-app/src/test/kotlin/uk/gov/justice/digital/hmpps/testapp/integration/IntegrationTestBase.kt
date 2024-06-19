@@ -7,9 +7,9 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDO
 import org.springframework.http.HttpHeaders
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
-import uk.gov.justice.digital.hmpps.testapp.helper.JwtAuthHelper
 import uk.gov.justice.digital.hmpps.testapp.integration.wiremock.HmppsAuthApiExtension
 import uk.gov.justice.digital.hmpps.testapp.integration.wiremock.PrisonApiExtension
+import uk.gov.justice.hmpps.test.kotlin.auth.JwtAuthorisationHelper
 
 @ExtendWith(HmppsAuthApiExtension::class, PrisonApiExtension::class)
 @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -20,13 +20,13 @@ abstract class IntegrationTestBase {
   lateinit var webTestClient: WebTestClient
 
   @Autowired
-  protected lateinit var jwtAuthHelper: JwtAuthHelper
+  protected lateinit var jwtAuthHelper: JwtAuthorisationHelper
 
   internal fun setAuthorisation(
     user: String = "AUTH_ADM",
     roles: List<String> = listOf(),
     scopes: List<String> = listOf("read"),
-  ): (HttpHeaders) -> Unit = jwtAuthHelper.setAuthorisation(user, roles, scopes)
+  ): (HttpHeaders) -> Unit = jwtAuthHelper.setAuthorisationHeader(username = user, scope = scopes, roles = roles)
 
   protected fun stubPingWithResponse(status: Int) {
     HmppsAuthApiExtension.hmppsAuth.stubHealthPing(status)
