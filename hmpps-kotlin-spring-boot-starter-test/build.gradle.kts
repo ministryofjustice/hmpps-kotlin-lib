@@ -37,9 +37,9 @@ publishing {
         }
         developers {
           developer {
-            id.set("mikehalmamoj")
-            name.set("Mike Halma")
-            email.set("mike.halma@digital.justice.gov.uk")
+            id.set("petergphillips")
+            name.set("Peter Phillips")
+            email.set("peter.phillips@digital.justice.gov.uk")
           }
         }
         scm {
