@@ -19,6 +19,11 @@ import java.time.Duration
 import java.util.Date
 import java.util.UUID
 
+/**
+ * Class to provide a JWT Decoder so that we don't need to go to HMPPS Auth to retrieve the jwts.
+ * <p>
+ * Also provides methods to set the bearer authorisation on HttpHeaders and create an access token for use in WebClients.
+ */
 @Component
 class JwtAuthorisationHelper {
   private val keyPair: KeyPair = KeyPairGenerator.getInstance("RSA").apply { initialize(2048) }.generateKeyPair()
@@ -45,7 +50,7 @@ class JwtAuthorisationHelper {
       scope = scope,
       roles = roles,
     )
-    return { it.set(HttpHeaders.AUTHORIZATION, "Bearer $token") }
+    return { it.setBearerAuth(token) }
   }
 
   @JvmOverloads
