@@ -20,6 +20,8 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
   implementation("org.springframework.boot:spring-boot-starter-web")
   implementation("org.springframework.boot:spring-boot-starter-test")
+  implementation("org.springframework.security:spring-security-test")
+  implementation(project(":hmpps-kotlin-spring-boot-starter"))
 
   implementation("io.jsonwebtoken:jjwt-impl:0.12.5")
   implementation("io.jsonwebtoken:jjwt-jackson:0.12.5")

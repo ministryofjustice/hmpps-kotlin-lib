@@ -1,3 +1,4 @@
+uk.gov.justice.hmpps.kotlin.auth.HmppsAuthContextFacade
 uk.gov.justice.hmpps.kotlin.auth.HmppsResourceServerConfiguration
 uk.gov.justice.hmpps.kotlin.auth.HmppsReactiveResourceServerConfiguration
 uk.gov.justice.hmpps.kotlin.auth.HmppsWebClientConfiguration
