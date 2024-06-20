@@ -130,7 +130,7 @@ project.getTasksByName("check", false).forEach {
 
 dependencyCheck {
   failBuildOnCVSS = 5f
-  suppressionFiles = listOf("dps-gradle-spring-boot-suppressions.xml")
+  suppressionFiles = listOf("dps-gradle-spring-boot-suppressions.xml", "hmpps-kotlin-spring-boot-test-autoconfigure/test-suppressions.xml")
   format = "ALL"
   analyzers.assemblyEnabled = false
 }
