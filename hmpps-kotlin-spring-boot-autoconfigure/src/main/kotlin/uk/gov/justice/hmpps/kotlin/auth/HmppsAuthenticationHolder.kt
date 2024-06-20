@@ -6,7 +6,7 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
 
 @Component
-class HmppsAuthContextFacade {
+class HmppsAuthenticationHolder {
   /**
    * This will return null if the token hasn't come from HMPPS Auth.  This is fine for application code, but tests need to
    * then use @WithMockAuthUser rather than using a TestingAuthenticationToken or @WithMockUser annotation.
@@ -30,15 +30,6 @@ class HmppsAuthContextFacade {
 
   val clientId: String?
     get() = authentication?.clientId
-
-  /**
-   * We are gradually moving away from user tokens and instead using client credentials more often.  This will be NONE
-   * if client credentials are used, even if a NOMIS username is passed in.  This means that this method isn't an
-   * adequate test to see if the user is a NOMIS user. The only test at present is to look the user up in the database
-   * too see if they exist.
-   */
-  val authenticationSource: AuthSource
-    get() = authentication?.authSource ?: AuthSource.NONE
 
   fun isOverrideRole(vararg overrideRoles: String): Boolean =
     hasMatchingRole(getRoles(*overrideRoles), authentication)
