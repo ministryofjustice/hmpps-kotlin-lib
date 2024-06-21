@@ -1,45 +1,41 @@
 package uk.gov.justice.hmpps.kotlin.auth
 
+import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication
-import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type.SERVLET
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.GrantedAuthority
-import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.core.context.ReactiveSecurityContextHolder
 import org.springframework.stereotype.Component
 
 @Component
-@ConditionalOnWebApplication(type = SERVLET)
-class HmppsAuthenticationHolder {
+@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
+class HmppsReactiveAuthenticationHolder {
   /**
    * This will return null if the token hasn't come from HMPPS Auth.  This is fine for application code, but tests need to
    * then use @WithMockAuthUser rather than using a TestingAuthenticationToken or @WithMockUser annotation.
    */
-  val authentication: AuthAwareAuthenticationToken?
-    get() = SecurityContextHolder.getContext().authentication as? AuthAwareAuthenticationToken
+  suspend fun getAuthentication(): AuthAwareAuthenticationToken? =
+    ReactiveSecurityContextHolder.getContext().awaitSingle().authentication as? AuthAwareAuthenticationToken
 
   /**
    * This is nullable since this can be called from an unprotected endpoint, but in the majority of cases it should
    * be not null.  This gets the current username from the authentication, falling back to the clientId if there
    * isn't a username passed in.
    */
-  val principal: String?
-    get() = authentication?.principal
+  suspend fun getPrincipal(): String? = getAuthentication()?.principal
 
-  val roles: Collection<GrantedAuthority?>?
-    get() = authentication?.authorities
+  suspend fun getRoles(): Collection<GrantedAuthority?>? = getAuthentication()?.authorities
 
-  val isClientOnly: Boolean
-    get() = authentication?.isSystemClientCredentials() ?: false
+  suspend fun isClientOnly(): Boolean = getAuthentication()?.isSystemClientCredentials() ?: false
 
-  val clientId: String?
-    get() = authentication?.clientId
+  suspend fun getClientId(): String? = getAuthentication()?.clientId
 
-  fun isOverrideRole(vararg overrideRoles: String): Boolean =
-    hasMatchingRole(getRoles(*overrideRoles), authentication)
+  suspend fun isOverrideRole(vararg overrideRoles: String): Boolean =
+    hasMatchingRole(getRoles(*overrideRoles), getAuthentication())
 
   companion object {
-    fun hasRoles(vararg allowedRoles: String): Boolean =
-      hasMatchingRole(getRoles(*allowedRoles), SecurityContextHolder.getContext().authentication)
+    suspend fun hasRoles(vararg allowedRoles: String): Boolean =
+      hasMatchingRole(getRoles(*allowedRoles), ReactiveSecurityContextHolder.getContext().awaitSingle().authentication)
 
     private fun hasMatchingRole(roles: List<String>, authentication: Authentication?): Boolean =
       authentication?.authorities?.any { roles.contains(it?.authority?.replaceFirst("ROLE_", "")) }

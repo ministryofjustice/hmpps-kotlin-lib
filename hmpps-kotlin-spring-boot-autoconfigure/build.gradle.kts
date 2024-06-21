@@ -32,6 +32,7 @@ dependencies {
   testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
   testImplementation("org.mockito:mockito-junit-jupiter:5.12.0")
   testImplementation("org.springframework.boot:spring-boot-starter-test")
+  testImplementation("org.springframework.security:spring-security-test")
   testImplementation("org.mockito.kotlin:mockito-kotlin:5.3.1")
   testImplementation("org.mockito:mockito-inline:5.2.0")
   testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
