@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "6.0.0"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "6.0.1"
   kotlin("plugin.spring") version "2.0.0"
 }
 
@@ -12,7 +12,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-webflux")
 
   testImplementation(project(":hmpps-kotlin-spring-boot-starter-test"))
-  testImplementation("org.wiremock:wiremock-standalone:3.6.0")
+  testImplementation("org.wiremock:wiremock-standalone:3.7.0")
 }
 
 kotlin {
