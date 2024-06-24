@@ -4,15 +4,19 @@ import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import org.mockito.Mockito.mock
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException
+import org.springframework.security.authentication.InsufficientAuthenticationException
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.test.context.TestSecurityContextHolder
 import org.springframework.security.test.context.annotation.SecurityTestExecutionListeners
+import org.springframework.security.test.context.support.ReactorContextTestExecutionListener
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import uk.gov.justice.hmpps.kotlin.auth.AuthSource.NONE
 import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder.Companion.hasRoles
@@ -28,10 +32,16 @@ class HmppsAuthenticationHolderTest {
   }
 
   @Test
-  fun `should return null if not a AuthAwareAuthenticationToken`() {
+  fun `should throw exception if not a AuthAwareAuthenticationToken`() {
     TestSecurityContextHolder.setAuthentication(TestingAuthenticationToken("user", "pass"))
+    ReactorContextTestExecutionListener().beforeTestMethod(null)
 
-    assertThat(holder.authentication).isNull()
+    assertThrows<InsufficientAuthenticationException> { holder.authentication }
+  }
+
+  @Test
+  fun `should throw exception if no token found`() {
+    assertThrows<AuthenticationCredentialsNotFoundException> { holder.authentication }
   }
 
   @Test

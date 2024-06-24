@@ -4,10 +4,12 @@ import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import org.mockito.Mockito.mock
+import org.springframework.security.authentication.InsufficientAuthenticationException
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.oauth2.jwt.Jwt
@@ -29,11 +31,11 @@ class HmppsReactiveAuthenticationHolderTest {
   }
 
   @Test
-  fun `should return null if not a AuthAwareAuthenticationToken`() = runTest {
+  fun `should throw exception if not a AuthAwareAuthenticationToken`() = runTest {
     TestSecurityContextHolder.setAuthentication(TestingAuthenticationToken("user", "pass"))
     ReactorContextTestExecutionListener().beforeTestMethod(null)
 
-    assertThat(holder.getAuthentication()).isNull()
+    assertThrows<InsufficientAuthenticationException> { holder.getAuthentication() }
   }
 
   @Test

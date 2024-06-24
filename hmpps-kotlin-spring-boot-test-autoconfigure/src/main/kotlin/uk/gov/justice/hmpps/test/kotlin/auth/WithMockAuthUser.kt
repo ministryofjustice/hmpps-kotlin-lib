@@ -7,7 +7,6 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.test.context.support.WithSecurityContext
 import org.springframework.security.test.context.support.WithSecurityContextFactory
-import org.springframework.util.Assert
 import uk.gov.justice.hmpps.kotlin.auth.AuthAwareAuthenticationToken
 import uk.gov.justice.hmpps.kotlin.auth.AuthSource
 import java.lang.annotation.Inherited
@@ -34,12 +33,16 @@ annotation class WithMockAuthUser(
   val clientId: String = "test-client-id",
 )
 
-internal class WithMockUserSecurityContextFactory : WithSecurityContextFactory<WithMockAuthUser> {
+class WithMockUserSecurityContextFactory : WithSecurityContextFactory<WithMockAuthUser> {
   private var securityContextHolderStrategy = SecurityContextHolder.getContextHolderStrategy()
 
   override fun createSecurityContext(withUser: WithMockAuthUser): SecurityContext {
-    val username = withUser.username.ifEmpty { withUser.value }
-    Assert.notNull(username) { "$withUser cannot have null username on both username and value properties" }
+    val username = withUser.username.ifEmpty { withUser.value }.ifEmpty { null }
+    val subject = if (username.isNullOrEmpty()) {
+      withUser.clientId
+    } else {
+      username
+    }
 
     val grantedAuthorities = if (withUser.authorities.isEmpty()) {
       withUser.roles.map { SimpleGrantedAuthority(if (it.startsWith("ROLE_")) it else "ROLE_$it") }
@@ -59,7 +62,7 @@ internal class WithMockUserSecurityContextFactory : WithSecurityContextFactory<W
           roles = grantedAuthorities.map { it.authority },
           clientId = withUser.clientId,
         ),
-      ).header("head", "value").claim("claim", "value").build(),
+      ).header("head", "value").claim("sub", subject).build(),
       clientId = withUser.clientId,
       userName = username,
       authorities = grantedAuthorities,
