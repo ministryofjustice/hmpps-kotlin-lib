@@ -12,7 +12,7 @@ plugins {
   id("io.spring.dependency-management") version "1.1.5"
   id("org.jlleitschuh.gradle.ktlint") version "12.1.1"
   id("org.owasp.dependencycheck") version "8.4.2"
-  id("org.springframework.boot") version "3.3.0"
+  id("org.springframework.boot") version "3.3.1"
 }
 
 dependencies {
