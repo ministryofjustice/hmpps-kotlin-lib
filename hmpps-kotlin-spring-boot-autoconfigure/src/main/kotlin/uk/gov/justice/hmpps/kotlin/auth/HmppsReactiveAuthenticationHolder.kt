@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.kotlin.auth
 
 import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type.REACTIVE
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException
 import org.springframework.security.authentication.InsufficientAuthenticationException
 import org.springframework.security.core.Authentication
@@ -10,7 +11,7 @@ import org.springframework.security.core.context.ReactiveSecurityContextHolder
 import org.springframework.stereotype.Component
 
 @Component
-@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
+@ConditionalOnWebApplication(type = REACTIVE)
 class HmppsReactiveAuthenticationHolder {
   /**
    * This will return null if the token hasn't come from HMPPS Auth.  This is fine for application code, but tests need to

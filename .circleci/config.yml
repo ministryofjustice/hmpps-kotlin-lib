@@ -15,7 +15,7 @@ jobs:
             - gradle-{{ checksum "build.gradle.kts" }}
             - gradle-
       - run:
-          command: ./gradlew -Dorg.gradle.jvmargs="--illegal-access=permit" -Dkotlin.daemon.jvm.options="--illegal-access=permit" check
+          command: ./gradlew check
       - save_cache:
           paths:
             - ~/.gradle
@@ -24,6 +24,10 @@ jobs:
           path: hmpps-kotlin-spring-boot-autoconfigure/build/test-results
       - store_artifacts:
           path: hmpps-kotlin-spring-boot-autoconfigure/build/reports/tests
+      - store_test_results:
+          path: hmpps-kotlin-spring-boot-test-autoconfigure/build/test-results
+      - store_artifacts:
+          path: hmpps-kotlin-spring-boot-test-autoconfigure/build/reports/tests
       - store_test_results:
           path: test-app/build/test-results
       - store_artifacts:
@@ -37,6 +41,8 @@ jobs:
           paths:
             - hmpps-kotlin-spring-boot-autoconfigure/build/libs
             - hmpps-kotlin-spring-boot-starter/build/libs
+            - hmpps-kotlin-spring-boot-test-autoconfigure/build/libs
+            - hmpps-kotlin-spring-boot-starter-test/build/libs
             - build.gradle.kts
 
   publish:
@@ -49,14 +55,9 @@ jobs:
           keys:
             - gradle-{{ checksum "build.gradle.kts" }}
             - gradle-
-      - run:
-          command: |
+      - run: |
             ORG_GRADLE_PROJECT_signingKey=$(echo -e "$ORG_GRADLE_PROJECT_signingKey")
-            ./gradlew -Dorg.gradle.jvmargs="--illegal-access=permit" -Dkotlin.daemon.jvm.options="--illegal-access=permit" hmpps-kotlin-spring-boot-autoconfigure:publishToSonatype closeAndReleaseSonatypeStagingRepository
-      - run:
-          command: |
-            ORG_GRADLE_PROJECT_signingKey=$(echo -e "$ORG_GRADLE_PROJECT_signingKey")
-            ./gradlew -Dorg.gradle.jvmargs="--illegal-access=permit" -Dkotlin.daemon.jvm.options="--illegal-access=permit" hmpps-kotlin-spring-boot-starter:publishToSonatype closeAndReleaseSonatypeStagingRepository
+            ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository
       - save_cache:
           paths:
             - ~/.gradle

@@ -8,13 +8,15 @@ import uk.gov.justice.digital.hmpps.testapp.service.PrisonApiService
 import java.time.LocalDateTime
 
 @RestController
-class TestAppResource(val prisonApiService: PrisonApiService) {
+@PreAuthorize("hasRole('ROLE_TEST_APP')")
+class TestAppResource(private val prisonApiService: PrisonApiService) {
 
-  @PreAuthorize("hasRole('ROLE_TEST_APP')")
   @RequestMapping("/time")
-  fun getTime() = LocalDateTime.now()
+  fun getTime(): LocalDateTime = LocalDateTime.now()
 
-  @PreAuthorize("hasRole('ROLE_TEST_APP')")
   @RequestMapping("/prisoner/{prisonNumber}/booking")
   fun getOffenderBooking(@PathVariable prisonNumber: String) = prisonApiService.getOffenderBooking(prisonNumber)
+
+  @RequestMapping("/auth/token")
+  fun getAuthToken() = prisonApiService.getAuthToken()
 }

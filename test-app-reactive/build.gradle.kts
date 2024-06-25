@@ -16,8 +16,6 @@ dependencies {
 
   testImplementation(project(":hmpps-kotlin-spring-boot-starter-test"))
   testImplementation("org.wiremock:wiremock-standalone:3.7.0")
-  testImplementation("io.jsonwebtoken:jjwt-impl:0.12.6")
-  testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.6")
   testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
 }
 
