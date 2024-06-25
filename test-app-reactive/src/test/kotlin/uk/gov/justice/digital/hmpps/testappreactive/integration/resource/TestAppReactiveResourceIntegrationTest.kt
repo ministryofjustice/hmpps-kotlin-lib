@@ -54,4 +54,61 @@ class TestAppReactiveResourceIntegrationTest : IntegrationTestBase() {
         }
     }
   }
+
+  @Nested
+  inner class AuthEndpoint {
+
+    @Test
+    fun `should return unauthorized if no token`() {
+      webTestClient.get()
+        .uri("/auth/token")
+        .exchange()
+        .expectStatus()
+        .isUnauthorized
+    }
+
+    @Test
+    fun `should return forbidden if no role`() {
+      webTestClient.get()
+        .uri("/auth/token")
+        .headers(setAuthorisation(roles = listOf()))
+        .exchange()
+        .expectStatus()
+        .isForbidden
+    }
+
+    @Test
+    fun `should return forbidden if wrong role`() {
+      webTestClient.get()
+        .uri("/auth/token")
+        .headers(setAuthorisation(roles = listOf("ROLE_WRONG")))
+        .exchange()
+        .expectStatus()
+        .isForbidden
+    }
+
+    @Test
+    fun `should return principal when user passed through`() {
+      webTestClient.get()
+        .uri("/auth/token")
+        .headers(setAuthorisation(roles = listOf("ROLE_TEST_APP_REACTIVE")))
+        .exchange()
+        .expectStatus()
+        .isOk
+        .expectBody()
+        .jsonPath("greeting").isEqualTo("Hello there AUTH_ADM")
+    }
+
+    @Test
+    fun `should return principal when no user passed through`() {
+      webTestClient.get()
+        .uri("/auth/token")
+        .headers(setAuthorisation(user = null, roles = listOf("ROLE_TEST_APP_REACTIVE")))
+        .exchange()
+        .expectStatus()
+        .isOk
+        .expectBody()
+        .jsonPath("greeting").isEqualTo("Hello there test-client-id")
+    }
+  }
 }

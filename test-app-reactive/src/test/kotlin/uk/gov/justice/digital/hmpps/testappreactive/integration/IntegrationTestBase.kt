@@ -23,7 +23,7 @@ abstract class IntegrationTestBase {
   protected lateinit var jwtAuthHelper: JwtAuthorisationHelper
 
   internal fun setAuthorisation(
-    user: String = "AUTH_ADM",
+    user: String? = "AUTH_ADM",
     roles: List<String> = listOf(),
     scopes: List<String> = listOf("read"),
   ): (HttpHeaders) -> Unit = jwtAuthHelper.setAuthorisationHeader(username = user, roles = roles, scope = scopes)

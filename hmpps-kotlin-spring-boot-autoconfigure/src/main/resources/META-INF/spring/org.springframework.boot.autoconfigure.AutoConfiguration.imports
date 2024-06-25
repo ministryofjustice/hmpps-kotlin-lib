@@ -1,4 +1,5 @@
 uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder
+uk.gov.justice.hmpps.kotlin.auth.HmppsReactiveAuthenticationHolder
 uk.gov.justice.hmpps.kotlin.auth.HmppsResourceServerConfiguration
 uk.gov.justice.hmpps.kotlin.auth.HmppsReactiveResourceServerConfiguration
 uk.gov.justice.hmpps.kotlin.auth.HmppsWebClientConfiguration
