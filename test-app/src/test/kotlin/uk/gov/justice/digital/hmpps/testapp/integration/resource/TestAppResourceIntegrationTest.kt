@@ -100,6 +100,18 @@ class TestAppResourceIntegrationTest : IntegrationTestBase() {
     }
 
     @Test
+    fun `should add ROLE_ to roles if not provided`() {
+      webTestClient.get()
+        .uri("/auth/token")
+        .headers(setAuthorisation(roles = listOf("TEST_APP")))
+        .exchange()
+        .expectStatus()
+        .isOk
+        .expectBody()
+        .jsonPath("greeting").isEqualTo("Hello there AUTH_ADM")
+    }
+
+    @Test
     fun `should return principal when no user passed through`() {
       webTestClient.get()
         .uri("/auth/token")

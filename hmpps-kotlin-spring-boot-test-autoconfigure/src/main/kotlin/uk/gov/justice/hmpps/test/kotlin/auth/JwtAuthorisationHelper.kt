@@ -59,7 +59,7 @@ class JwtAuthorisationHelper {
     username: String? = null,
     scope: List<String>? = listOf(),
     roles: List<String>? = listOf(),
-    expiryTime: Duration = Duration.ofHours(1),
+    expiryTime: Duration = Duration.ofHours(2),
     jwtId: String = UUID.randomUUID().toString(),
     authSource: String = "none",
     grantType: String = "client_credentials",
@@ -72,7 +72,10 @@ class JwtAuthorisationHelper {
     ).apply {
       username?.let { this["user_name"] = username }
       scope?.let { this["scope"] = scope }
-      roles?.let { this["authorities"] = roles }
+      roles?.let {
+        // ensure that all roles have a ROLE_ prefix
+        this["authorities"] = roles.map { "ROLE_${it.substringAfter("ROLE_")}" }
+      }
     }
       .let {
         Jwts.builder()
