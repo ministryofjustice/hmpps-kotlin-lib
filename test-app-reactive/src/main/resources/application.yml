@@ -67,5 +67,7 @@ management:
 hmpps:
   sar:
     additionalAccessRole: TEST_DATA_ACCESS
+  info:
+    product-id-enabled: true
 
 product-id: DPS000
