@@ -35,6 +35,7 @@ Where possible we recommend that you use the library's default configurations an
 * [Subject Access Request Endpoint](readme-contents/SubjectAccessRequestEndpoint.md)
 * [Web Clients](readme-contents/WebClients.md)
 * [Health Checks](readme-contents/HealthChecks.md)
+* [Info Contributors](readme-contents/InfoContributors.md)
 
 ## Publishing Locally (to test against other projects)
 
