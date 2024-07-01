@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
 
 @Component
-@ConditionalOnProperty(prefix = "hmpps", name = ["info.product-id-enabled"])
+@ConditionalOnProperty(prefix = "hmpps", name = ["info.product-id-enabled"], matchIfMissing = true)
 class ProductIdInfoContributor(@Value("\${product-id:default}") private val productId: String) : InfoContributor {
 
   override fun contribute(builder: Info.Builder) {

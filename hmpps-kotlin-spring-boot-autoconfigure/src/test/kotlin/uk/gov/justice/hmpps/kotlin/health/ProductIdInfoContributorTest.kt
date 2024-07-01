@@ -16,8 +16,8 @@ class ProductIdInfoContributorTest {
   }
 
   @Test
-  fun `should be disabled if property missing`() {
-    runner.run { assertThat(it).doesNotHaveBean("productIdInfoContributor") }
+  fun `should be enabled if property missing`() {
+    runner.run { assertThat(it).hasBean("productIdInfoContributor") }
   }
 
   @Test
