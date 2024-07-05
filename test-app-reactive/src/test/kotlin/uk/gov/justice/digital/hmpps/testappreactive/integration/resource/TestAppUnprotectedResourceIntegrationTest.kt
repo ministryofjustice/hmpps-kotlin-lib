@@ -26,7 +26,7 @@ class TestAppUnprotectedResourceIntegrationTest : IntegrationTestBase() {
         .expectStatus()
         .isOk
         .expectBody()
-        .jsonPath("greeting").isEqualTo("Not sure why I allowed you in?")
+        .jsonPath("greeting").isEqualTo("No authentication provided")
     }
 
     @Test

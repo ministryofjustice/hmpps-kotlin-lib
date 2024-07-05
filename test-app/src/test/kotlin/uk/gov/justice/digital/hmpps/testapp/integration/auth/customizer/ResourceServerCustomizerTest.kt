@@ -11,6 +11,7 @@ import uk.gov.justice.hmpps.kotlin.auth.dsl.ResourceServerConfigurationCustomize
 @Import(ResourceServerCustomizerTest.CustomizerConfiguration::class)
 @SpringBootTest(
   webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+  // allow overriding of the ResourceServerConfigurationCustomizer bean definition
   properties = ["spring.main.allow-bean-definition-overriding=true"],
 )
 class ResourceServerCustomizerTest : IntegrationTestBase() {
