@@ -17,6 +17,7 @@ import uk.gov.justice.hmpps.kotlin.auth.AuthAwareTokenConverter
 @Import(ResourceServerOverridesTest.OverrideConfiguration::class)
 @SpringBootTest(
   webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+  // allow overriding of the ResourceServerConfigurationCustomizer bean definition
   properties = ["spring.main.allow-bean-definition-overriding=true"],
 )
 class ResourceServerOverridesTest : IntegrationTestBase() {

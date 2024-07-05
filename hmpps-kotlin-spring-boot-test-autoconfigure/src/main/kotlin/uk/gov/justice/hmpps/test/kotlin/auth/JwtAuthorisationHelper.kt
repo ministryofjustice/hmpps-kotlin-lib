@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.test.kotlin.auth
 
 import io.jsonwebtoken.Jwts
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type.REACTIVE
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type.SERVLET
@@ -25,6 +26,7 @@ import java.util.UUID
  * Also provides methods to set the bearer authorisation on HttpHeaders and create an access token for use in WebClients.
  */
 @Component
+@ConditionalOnProperty(prefix = "hmpps", name = ["test.jwt-helper-enabled"], matchIfMissing = true)
 class JwtAuthorisationHelper {
   private val keyPair: KeyPair = KeyPairGenerator.getInstance("RSA").apply { initialize(2048) }.generateKeyPair()
 
