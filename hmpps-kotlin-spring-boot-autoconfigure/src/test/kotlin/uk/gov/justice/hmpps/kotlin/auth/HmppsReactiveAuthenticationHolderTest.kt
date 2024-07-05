@@ -39,6 +39,26 @@ class HmppsReactiveAuthenticationHolderTest {
   }
 
   @Test
+  fun `authenticationOrNull should return null if not a AuthAwareAuthenticationToken`() = runTest {
+    TestSecurityContextHolder.setAuthentication(TestingAuthenticationToken("user", "pass"))
+    ReactorContextTestExecutionListener().beforeTestMethod(null)
+
+    assertThat(holder.getAuthenticationOrNull()).isNull()
+  }
+
+  @Test
+  fun `authenticationOrNull should return null if no token found`() = runTest {
+    assertThat(holder.getAuthenticationOrNull()).isNull()
+  }
+
+  @Test
+  fun `authenticationOrNull should return value if set`() = runTest {
+    setAuthentication(username = "some user name")
+
+    assertThat(holder.getAuthenticationOrNull()?.principal).isEqualTo("some user name")
+  }
+
+  @Test
   fun `should take user_name as principal`() = runTest {
     setAuthentication(username = "some user name")
 

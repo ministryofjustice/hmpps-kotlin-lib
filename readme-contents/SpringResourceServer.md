@@ -7,6 +7,8 @@ By including the library you get a basic Spring `SecurityFilterChain`/`SecurityW
 * leaving common endpoints unauthorized (e.g. `/health`, `/info`, `/v3/api-docs`, `/swagger-ui/**`)
 * providing an `AuthAwareTokenConverter`
 * providing a cached `JwtDecoder`
+* adding required spring security dependencies to your project, e.g. `spring-boot-starter-security`,
+`spring-boot-starter-oauth2-client` and `spring-boot-starter-oauth2-resource-server`.
 
 For full details of what is provided by default see subproject `hmpps-kotlin-spring-boot-autoconfigure` package `auth` class `HmppsResourceServerConfiguration`.
 
@@ -26,5 +28,10 @@ Also check the tests in subproject `test-app`/`test-app-reactive` package `...in
 ## How do I opt out?
 
 To opt out of the library's resource server configuration entirely you can just create your own `SecurityFilterChain`/`SecurityWebFilterChain` bean.
+
+Alternatively you can exclude the auto configuration in your application i.e.
+```kotlin
+@SpringBootApplication(exclude = [HmppsResourceServerConfiguration::class])
+```
 
 See the tests in the subproject `test-app`/`test-app-reactive` package `...integration/auth/overrides` for working examples.

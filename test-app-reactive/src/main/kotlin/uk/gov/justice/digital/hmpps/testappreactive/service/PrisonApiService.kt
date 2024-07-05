@@ -24,6 +24,10 @@ class PrisonApiService(
     .awaitSingleOrNull()
 
   suspend fun getAuthToken() = AuthResponse("Hello there ${hmppsAuthenticationHolder.getPrincipal()}")
+
+  suspend fun getAuthTokenOrNull() = hmppsAuthenticationHolder.getAuthenticationOrNull()?.let {
+    AuthResponse("Hello there ${it.principal}")
+  } ?: AuthResponse("Not sure why I allowed you in?")
 }
 
 data class OffenderBooking(val bookingId: Long)
