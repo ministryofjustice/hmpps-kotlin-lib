@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.testapp.integration.auth.overrides
 
 import org.junit.jupiter.api.Test
+import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
@@ -14,6 +15,10 @@ import uk.gov.justice.digital.hmpps.testapp.integration.IntegrationTestBase
 import uk.gov.justice.hmpps.kotlin.auth.AuthAwareTokenConverter
 
 @Import(ResourceServerOverridesTest.OverrideConfiguration::class)
+@SpringBootTest(
+  webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+  properties = ["spring.main.allow-bean-definition-overriding=true"],
+)
 class ResourceServerOverridesTest : IntegrationTestBase() {
 
   @TestConfiguration

@@ -26,7 +26,7 @@ dependencies {
 }
 ```
 
-You should (hopefully) find that the library does nothing to your project as you should have overridden any beans or configurations that the library provides.
+You should find that the library does nothing to your project as you should have overridden any beans or configurations that the library provides.
 
 Where possible we recommend that you use the library's default configurations and customizations. This will generally involve removing beans and possibly customizing the library's default configuration if required. See the [Components](#components) section for details of what the library provides.
 
@@ -34,8 +34,25 @@ Where possible we recommend that you use the library's default configurations an
 * [Spring Security Resource Server](readme-contents/SpringResourceServer.md)
 * [Subject Access Request Endpoint](readme-contents/SubjectAccessRequestEndpoint.md)
 * [Web Clients](readme-contents/WebClients.md)
+* [Authentication Holders](readme-contents/AuthenticationHolders.md)
 * [Health Checks](readme-contents/HealthChecks.md)
 * [Info Contributors](readme-contents/InfoContributors.md)
+* [Test Helpers](readme-contents/TestHelpers.md)
+
+### Adding the test library to your existing project
+
+To include the test library in your project then add the following to your `build.gradle.kts`:
+
+```kotlin
+dependencies {
+  testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:1.0.1")
+}
+```
+
+Note that the `JwtAuthorisationHelper` declares a primary `JwtDecoder` or `ReactiveJwtDecoder` bean.  This can conflict
+with any test bean definitions in your project and cause unauthorised (401) errors when running.  When integrating the
+test library it is therefore better to remove any local JWT decoder definitions and use the one from the test lib
+instead.
 
 ## Publishing Locally (to test against other projects)
 

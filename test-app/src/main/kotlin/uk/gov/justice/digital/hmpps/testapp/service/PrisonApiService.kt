@@ -23,6 +23,10 @@ class PrisonApiService(
     .block()
 
   fun getAuthToken() = AuthResponse("Hello there ${hmppsAuthenticationHolder.principal}")
+
+  fun getAuthTokenOrNull() = hmppsAuthenticationHolder.authenticationOrNull?.let {
+    AuthResponse("Hello there ${it.principal}")
+  } ?: AuthResponse("Not sure why I allowed you in?")
 }
 
 data class OffenderBooking(val bookingId: Long)

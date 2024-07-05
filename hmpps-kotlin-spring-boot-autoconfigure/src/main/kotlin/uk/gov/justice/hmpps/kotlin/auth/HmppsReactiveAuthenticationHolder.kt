@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.kotlin.auth
 
 import kotlinx.coroutines.reactor.awaitSingle
+import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type.REACTIVE
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException
@@ -14,8 +15,16 @@ import org.springframework.stereotype.Component
 @ConditionalOnWebApplication(type = REACTIVE)
 class HmppsReactiveAuthenticationHolder {
   /**
-   * This will return null if the token hasn't come from HMPPS Auth.  This is fine for application code, but tests need to
-   * then use @WithMockAuthUser rather than using a TestingAuthenticationToken or @WithMockUser annotation.
+   * This will throw an exception if the token is missing or hasn't come from HMPPS Auth.
+   * If there is a possibility that the authentication won't be set (e.g. in event listeners or batch jobs) then
+   * the authenticationOrNull is more suitable as it won't throw an exception but return null instead.
+   *
+   * Tests need to then use @WithMockAuthUser rather than using a TestingAuthenticationToken or @WithMockUser
+   * annotation otherwise the exception will then be thrown.
+   *
+   * @throws NoSuchElementException if no security context set
+   * @throws AuthenticationCredentialsNotFoundException if no authentication in security context
+   * @throws InsufficientAuthenticationException if authentication not an AuthAwareAuthenticationToken
    */
   suspend fun getAuthentication(): AuthAwareAuthenticationToken =
     with(ReactiveSecurityContextHolder.getContext().awaitSingle().authentication) {
@@ -29,14 +38,29 @@ class HmppsReactiveAuthenticationHolder {
     }
 
   /**
-   * This gets the current username from the authentication, falling back to the clientId if thereisn't a username
+   * This will return null if the token is missing or hasn't come from HMPPS Auth.
+   * This will be the case for event listeners and batch jobs so is more suitable if that can be the case.
+   */
+  suspend fun getAuthenticationOrNull(): AuthAwareAuthenticationToken? =
+    ReactiveSecurityContextHolder.getContext().awaitSingleOrNull()?.authentication as? AuthAwareAuthenticationToken
+
+  /**
+   * This gets the current username from the authentication, falling back to the clientId if there isn't a username
    * passed in.
+   *
+   * @throws NoSuchElementException if no security context set
+   * @throws AuthenticationCredentialsNotFoundException if no authentication in security context
+   * @throws InsufficientAuthenticationException if authentication not an AuthAwareAuthenticationToken
    */
   suspend fun getPrincipal(): String = getAuthentication().principal
 
   /**
    * This will be null if there is no username in the token, only a clientId.  Use getPrincipal() to default to the
    * clientId if the username isn't set.
+   *
+   * @throws NoSuchElementException if no security context set
+   * @throws AuthenticationCredentialsNotFoundException if no authentication in security context
+   * @throws InsufficientAuthenticationException if authentication not an AuthAwareAuthenticationToken
    */
   suspend fun getUsername(): String? = getAuthentication().userName
 

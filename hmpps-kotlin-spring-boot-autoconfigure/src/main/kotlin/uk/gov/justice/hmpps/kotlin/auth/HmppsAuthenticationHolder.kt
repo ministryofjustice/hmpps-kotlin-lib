@@ -13,13 +13,20 @@ import org.springframework.stereotype.Component
 @ConditionalOnWebApplication(type = SERVLET)
 class HmppsAuthenticationHolder {
   /**
-   * This will return null if the token hasn't come from HMPPS Auth.  This is fine for application code, but tests need to
-   * then use @WithMockAuthUser rather than using a TestingAuthenticationToken or @WithMockUser annotation.
+   * This will throw an exception if the token is missing or hasn't come from HMPPS Auth.
+   * If there is a possibility that the authentication won't be set (e.g. in event listeners or batch jobs) then
+   * the authenticationOrNull is more suitable as it won't throw an exception but return null instead.
+   *
+   * Tests need to then use @WithMockAuthUser rather than using a TestingAuthenticationToken or @WithMockUser
+   * annotation otherwise the exception will then be thrown.
+   *
+   * @throws AuthenticationCredentialsNotFoundException if no authentication in security context
+   * @throws InsufficientAuthenticationException if authentication not an AuthAwareAuthenticationToken
    */
   val authentication: AuthAwareAuthenticationToken
     get() = with(SecurityContextHolder.getContext().authentication) {
       if (this is AuthAwareAuthenticationToken) {
-        return this
+        this
       } else if (this == null) {
         throw AuthenticationCredentialsNotFoundException("No credentials found")
       } else {
@@ -28,8 +35,18 @@ class HmppsAuthenticationHolder {
     }
 
   /**
+   * This will return null if the token is missing or hasn't come from HMPPS Auth.
+   * This will be the case for event listeners and batch jobs so is more suitable if that can be the case.
+   */
+  val authenticationOrNull: AuthAwareAuthenticationToken?
+    get() = SecurityContextHolder.getContext().authentication as? AuthAwareAuthenticationToken
+
+  /**
    * This gets the current username from the authentication, falling back to the clientId if there isn't a username
    * passed in.
+   *
+   * @throws AuthenticationCredentialsNotFoundException if no authentication in security context
+   * @throws InsufficientAuthenticationException if authentication not an AuthAwareAuthenticationToken
    */
   val principal: String
     get() = authentication.principal
@@ -37,6 +54,9 @@ class HmppsAuthenticationHolder {
   /**
    * This will be null if there is no username in the token, only a clientId.  Use principal to default to the clientId
    * if the username isn't set.
+   *
+   * @throws AuthenticationCredentialsNotFoundException if no authentication in security context
+   * @throws InsufficientAuthenticationException if authentication not an AuthAwareAuthenticationToken
    */
   val username: String?
     get() = authentication.userName

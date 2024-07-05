@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.testapp.integration.auth.customizer
 
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
@@ -9,6 +10,10 @@ import uk.gov.justice.digital.hmpps.testapp.integration.IntegrationTestBase
 import uk.gov.justice.hmpps.kotlin.auth.dsl.ResourceServerConfigurationCustomizer
 
 @Import(AuthorizeHttpRequestsCustomizerTest.CustomizerConfiguration::class)
+@SpringBootTest(
+  webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+  properties = ["spring.main.allow-bean-definition-overriding=true"],
+)
 class AuthorizeHttpRequestsCustomizerTest : IntegrationTestBase() {
 
   @TestConfiguration
