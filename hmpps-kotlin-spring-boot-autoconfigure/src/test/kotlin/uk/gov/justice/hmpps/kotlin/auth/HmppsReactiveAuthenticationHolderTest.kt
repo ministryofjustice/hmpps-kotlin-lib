@@ -17,6 +17,7 @@ import org.springframework.security.test.context.TestSecurityContextHolder
 import org.springframework.security.test.context.support.ReactorContextTestExecutionListener
 import org.springframework.test.context.TestExecutionListeners
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import uk.gov.justice.hmpps.kotlin.auth.AuthSource.NOMIS
 import uk.gov.justice.hmpps.kotlin.auth.AuthSource.NONE
 import uk.gov.justice.hmpps.kotlin.auth.HmppsReactiveAuthenticationHolder.Companion.hasRoles
 
@@ -103,6 +104,20 @@ class HmppsReactiveAuthenticationHolderTest {
     assertThat(holder.getClientId()).isEqualTo("clientId")
   }
 
+  @Test
+  fun `should return none if no auth source`() = runTest {
+    setAuthentication()
+
+    assertThat(holder.getAuthSource()).isEqualTo(NONE)
+  }
+
+  @Test
+  fun `should return auth source`() = runTest {
+    setAuthentication(authSource = NOMIS)
+
+    assertThat(holder.getAuthSource()).isEqualTo(NOMIS)
+  }
+
   @ParameterizedTest
   @CsvSource("ROLE_SYSTEM_USER,true", "SYSTEM_USER,true", "SYSTEMUSER,false")
   fun hasRolesTest(role: String, expected: Boolean) = runTest {
@@ -133,12 +148,16 @@ class HmppsReactiveAuthenticationHolderTest {
     assertThat(hasRoles()).isFalse()
   }
 
-  private fun setAuthentication(rolesSet: Set<String> = setOf(), username: String? = null) = runTest {
+  private fun setAuthentication(
+    rolesSet: Set<String> = setOf(),
+    username: String? = null,
+    authSource: AuthSource = NONE,
+  ) = runTest {
     AuthAwareAuthenticationToken(
       mock(Jwt::class.java),
       "clientId",
       username,
-      NONE,
+      authSource,
       rolesSet.map { SimpleGrantedAuthority(it) },
     ).apply {
       TestSecurityContextHolder.setAuthentication(this)
