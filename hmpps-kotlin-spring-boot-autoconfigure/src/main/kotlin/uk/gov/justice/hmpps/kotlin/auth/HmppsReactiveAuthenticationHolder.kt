@@ -37,7 +37,7 @@ class HmppsReactiveAuthenticationHolder {
       }
     }
 
-  /**
+/**
    * This will return null if the token is missing or hasn't come from HMPPS Auth.
    * This will be the case for event listeners and batch jobs so is more suitable if that can be the case.
    */
@@ -69,6 +69,13 @@ class HmppsReactiveAuthenticationHolder {
   suspend fun isClientOnly(): Boolean = getAuthentication().isSystemClientCredentials() ?: false
 
   suspend fun getClientId(): String = getAuthentication().clientId
+
+  /**
+   * We are gradually moving away from authorisation code tokens and instead using client credentials more often.
+   * This property will be only set to something other than NONE for authorisation code tokens. For client credentials
+   * tokens this will be NONE, even if a NOMIS or Delius username is passed in when creating the token.
+   */
+  suspend fun getAuthSource(): AuthSource = getAuthentication().authSource
 
   suspend fun isOverrideRole(vararg overrideRoles: String): Boolean =
     hasMatchingRole(getRoles(*overrideRoles), getAuthentication())

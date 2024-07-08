@@ -109,6 +109,20 @@ class HmppsAuthenticationHolderTest {
     assertThat(holder.clientId).isEqualTo("clientId")
   }
 
+  @Test
+  fun `should return none if no auth source`() = runTest {
+    setAuthentication()
+
+    assertThat(holder.authSource).isEqualTo(NONE)
+  }
+
+  @Test
+  fun `should return auth source`() = runTest {
+    setAuthentication(authSource = AuthSource.NOMIS)
+
+    assertThat(holder.authSource).isEqualTo(AuthSource.NOMIS)
+  }
+
   @ParameterizedTest
   @CsvSource("ROLE_SYSTEM_USER,true", "SYSTEM_USER,true", "SYSTEMUSER,false")
   fun hasRolesTest(role: String, expected: Boolean) {
@@ -139,12 +153,16 @@ class HmppsAuthenticationHolderTest {
     assertThat(hasRoles()).isFalse()
   }
 
-  private fun setAuthentication(rolesSet: Set<String> = setOf(), username: String? = null) {
+  private fun setAuthentication(
+    rolesSet: Set<String> = setOf(),
+    username: String? = null,
+    authSource: AuthSource = NONE,
+  ) {
     AuthAwareAuthenticationToken(
       mock(Jwt::class.java),
       "clientId",
       username,
-      NONE,
+      authSource,
       rolesSet.map { SimpleGrantedAuthority(it) },
     ).apply {
       TestSecurityContextHolder.setAuthentication(this)

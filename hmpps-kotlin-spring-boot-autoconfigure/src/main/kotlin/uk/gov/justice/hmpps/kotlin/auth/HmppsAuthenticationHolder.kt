@@ -70,6 +70,14 @@ class HmppsAuthenticationHolder {
   val clientId: String
     get() = authentication.clientId
 
+  /**
+   * We are gradually moving away from authorisation code tokens and instead using client credentials more often.
+   * This property will be only set to something other than NONE for authorisation code tokens. For client credentials
+   * tokens this will be NONE, even if a NOMIS or Delius username is passed in when creating the token.
+   */
+  val authSource: AuthSource
+    get() = authentication.authSource
+
   fun isOverrideRole(vararg overrideRoles: String): Boolean =
     hasMatchingRole(getRoles(*overrideRoles), authentication)
 
