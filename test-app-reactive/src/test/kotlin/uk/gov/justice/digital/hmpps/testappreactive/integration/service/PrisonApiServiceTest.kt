@@ -5,10 +5,12 @@ import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import uk.gov.justice.digital.hmpps.testappreactive.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.testappreactive.integration.wiremock.PrisonApiExtension.Companion.prisonApi
+import uk.gov.justice.hmpps.test.kotlin.auth.HmppsAuthApiExtension.Companion.hmppsAuth
 
 class PrisonApiServiceTest : IntegrationTestBase() {
   @Test
   fun `should supply authentication token`() = runTest {
+    hmppsAuth.stubGrantToken()
     prisonApi.stubGetPrisonerLatestBooking("A1234AA")
 
     webTestClient.get()

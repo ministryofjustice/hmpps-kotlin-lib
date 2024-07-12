@@ -7,6 +7,8 @@ to the current security context.
 2. `JwtAuthorisationHelper` that provides a primary `JwtDecoder` bean for your tests so that HMPPS Auth isn't required
 as a wiremock dependency.  It also provides helper methods to create JWT access tokens and set authorisation headers for
 use in integration tests when calling with web clients.
+3. `HmppsAuthApiExtension` that is a junit extension for stubbing out calls to HMPPS Auth e.g. `stubHealthPing` can be
+used to stub out ping endpoint calls.
 
 ## What can I customize?
 

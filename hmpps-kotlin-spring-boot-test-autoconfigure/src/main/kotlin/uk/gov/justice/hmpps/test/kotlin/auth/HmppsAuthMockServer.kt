@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.testappreactive.integration.wiremock
+package uk.gov.justice.hmpps.test.kotlin.auth
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
@@ -20,12 +20,10 @@ class HmppsAuthApiExtension : BeforeAllCallback, AfterAllCallback, BeforeEachCal
 
   override fun beforeAll(context: ExtensionContext) {
     hmppsAuth.start()
-    hmppsAuth.stubGrantToken()
   }
 
   override fun beforeEach(context: ExtensionContext) {
     hmppsAuth.resetRequests()
-    hmppsAuth.stubGrantToken()
   }
 
   override fun afterAll(context: ExtensionContext) {
