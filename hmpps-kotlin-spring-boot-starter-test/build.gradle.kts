@@ -13,6 +13,7 @@ dependencies {
   api(platform("org.springframework.boot:spring-boot-dependencies:3.3.1"))
   api("org.springframework.boot:spring-boot-starter-test")
 
+  api("org.wiremock:wiremock-standalone:3.8.0")
   api("io.jsonwebtoken:jjwt-impl:0.12.6")
   api("io.jsonwebtoken:jjwt-jackson:0.12.6")
 }

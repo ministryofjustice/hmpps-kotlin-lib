@@ -7,8 +7,8 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDO
 import org.springframework.http.HttpHeaders
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
-import uk.gov.justice.digital.hmpps.testapp.integration.wiremock.HmppsAuthApiExtension
 import uk.gov.justice.digital.hmpps.testapp.integration.wiremock.PrisonApiExtension
+import uk.gov.justice.hmpps.test.kotlin.auth.HmppsAuthApiExtension
 import uk.gov.justice.hmpps.test.kotlin.auth.JwtAuthorisationHelper
 
 @ExtendWith(HmppsAuthApiExtension::class, PrisonApiExtension::class)

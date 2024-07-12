@@ -25,6 +25,7 @@ dependencies {
 
   implementation("io.jsonwebtoken:jjwt-impl:0.12.6")
   implementation("io.jsonwebtoken:jjwt-jackson:0.12.6")
+  implementation("org.wiremock:wiremock-standalone:3.8.0")
 }
 
 publishing {

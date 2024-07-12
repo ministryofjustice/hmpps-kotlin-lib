@@ -6,10 +6,12 @@ import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import org.junit.jupiter.api.Test
 import uk.gov.justice.digital.hmpps.testapp.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.testapp.integration.wiremock.PrisonApiExtension.Companion.prisonApi
+import uk.gov.justice.hmpps.test.kotlin.auth.HmppsAuthApiExtension.Companion.hmppsAuth
 
 class PrisonApiServiceTest : IntegrationTestBase() {
   @Test
   fun `should supply authentication token`() {
+    hmppsAuth.stubGrantToken()
     prisonApi.stubGetPrisonerLatestBooking("A1234AA")
 
     webTestClient.get()

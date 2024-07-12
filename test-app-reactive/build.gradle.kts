@@ -15,7 +15,6 @@ dependencies {
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 
   testImplementation(project(":hmpps-kotlin-spring-boot-starter-test"))
-  testImplementation("org.wiremock:wiremock-standalone:3.7.0")
   testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
 }
 
