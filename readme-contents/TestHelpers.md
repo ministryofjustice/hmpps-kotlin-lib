@@ -8,7 +8,11 @@ to the current security context.
 as a wiremock dependency.  It also provides helper methods to create JWT access tokens and set authorisation headers for
 use in integration tests when calling with web clients.
 3. `HmppsAuthApiExtension` that is a junit extension for stubbing out calls to HMPPS Auth e.g. `stubHealthPing` can be
-used to stub out ping endpoint calls.
+used to stub out ping endpoint calls.  By extending your test with this class
+```kotlin
+@ExtendWith(HmppsAuthApiExtension::class)
+```
+a wiremock server will be started on port 8090 for HMPPS Auth.
 
 ## What can I customize?
 
