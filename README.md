@@ -8,6 +8,10 @@ Many undocumented patterns have emerged in projects based on the Kotlin template
 
 The library is a Spring Boot Starter that provides opinionated default configurations for various components. If popular variations exist for a component then the library aims to provide easy to use customizations for that component. If you wish to override default configurations then the library should get out of your way.
 
+## Release Notes
+
+##### [1.x](release-notes/1.x.md)
+
 ## Usage
 
 ### Using the library in a new Kotlin template project
@@ -22,7 +26,7 @@ To include this library in your project add the following to your `build.gradle.
 
 ```kotlin
 dependencies {
-  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:1.0.1")
+  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:1.0.3")
 }
 ```
 
@@ -36,7 +40,7 @@ To include the test library in your project then add the following to your `buil
 
 ```kotlin
 dependencies {
-  testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:1.0.1")
+  testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:1.0.3")
 }
 ```
 
