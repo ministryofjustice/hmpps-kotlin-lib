@@ -1,7 +1,7 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
 plugins {
-  kotlin("jvm") version "2.0.0"
+  kotlin("jvm") version "2.0.10"
   id("maven-publish")
   id("signing")
   id("com.github.ben-manes.versions") version "0.51.0"
