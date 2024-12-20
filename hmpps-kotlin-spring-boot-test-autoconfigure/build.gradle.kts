@@ -9,10 +9,10 @@ plugins {
   id("com.adarshr.test-logger") version "4.0.0"
   id("com.github.ben-manes.versions") version "0.51.0"
   id("se.patrikerdes.use-latest-versions") version "0.2.18"
-  id("io.spring.dependency-management") version "1.1.6"
-  id("org.jlleitschuh.gradle.ktlint") version "12.1.1"
+  id("io.spring.dependency-management") version "1.1.7"
+  id("org.jlleitschuh.gradle.ktlint") version "12.1.2"
   id("org.owasp.dependencycheck") version "8.4.3"
-  id("org.springframework.boot") version "3.4.0"
+  id("org.springframework.boot") version "3.4.1"
 }
 
 dependencies {
