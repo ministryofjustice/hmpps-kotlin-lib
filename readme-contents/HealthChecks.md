@@ -15,3 +15,11 @@ There is no customization provided for any of the above, so you'd need to opt ou
 ## How do I opt out?
 
 Manually create your own health check beans and don't extend the provided abstract classes.
+
+## Real World Examples
+
+Search Github for real world examples:
+
+[Servlet](https://github.com/search?q=org%3Aministryofjustice+uk.gov.justice.hmpps.kotlin.health.HealthPingCheck&type=code)
+
+[Reactive](https://github.com/search?q=org%3Aministryofjustice+uk.gov.justice.hmpps.kotlin.health.ReactiveHealthPingCheck&type=code)

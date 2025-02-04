@@ -28,3 +28,7 @@ If you do not implement the service interface then no endpoint will be created.
 ## Testing your service
 See the `SubjectAccessRequestServiceSampleTest` and `SubjectAccessRequestSampleIntegrationTest` tests in the subproject
 `test-app` package for sample tests to ensure your service and endpoint is working as expected.
+
+## Real World Examples
+
+[Search Github for real world examples](https://github.com/search?q=org%3Aministryofjustice+uk.gov.justice.hmpps.kotlin.sar&type=code).
