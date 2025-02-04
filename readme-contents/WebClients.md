@@ -29,3 +29,11 @@ For additional customizations you would need to opt out entirely.
 The `OAuth2AuthorizedClientManager`/`ReactiveOAuth2AuthorizedClientManager` beans have annotation `@ConditionalOnMissingBean` so you can override them with your own implementation.
 
 Though we recommend using the `WebClient.Builder` extension functions to create `WebClient` instances, you can still inject a `WebClient.Builder` into `@Configuration` to create your own customized `WebClient`s.
+
+## Real World Examples
+
+Search Github for real world examples:
+
+[Servlet](https://github.com/search?q=org%3Aministryofjustice+uk.gov.justice.hmpps.kotlin.auth.authorisedWebClient&type=code)
+
+[Reactive](https://github.com/search?q=org%3Aministryofjustice+uk.gov.justice.hmpps.kotlin.auth.reactiveAuthorisedWebClient&type=code)

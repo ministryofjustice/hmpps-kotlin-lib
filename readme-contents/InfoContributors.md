@@ -20,3 +20,7 @@ Setting the `product-id` or `PRODUCT_ID` value will change the value in the `/in
 ## How do I opt out?
 
 Set the `hmpps.info.product-id-enabled` property to `false`.
+
+## Real World Examples
+
+[Search Github for real world examples](https://github.com/search?q=org%3Aministryofjustice+productId%3A+values.yaml&type=code).

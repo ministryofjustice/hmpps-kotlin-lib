@@ -35,3 +35,7 @@ Alternatively you can exclude the auto configuration in your application i.e.
 ```
 
 See the tests in the subproject `test-app`/`test-app-reactive` package `...integration/auth/overrides` for working examples.
+
+## Real World Examples
+
+[Search Github for real world examples](https://github.com/search?q=org%3Aministryofjustice+uk.gov.justice.hmpps.kotlin.auth.dsl.ResourceServerConfigurationCustomizer&type=code).

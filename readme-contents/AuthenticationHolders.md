@@ -44,3 +44,11 @@ If the component registration is not required then it can be manually excluded f
 ```kotlin
 @SpringBootApplication(exclude = [HmppsAuthenticationHolder::class])
 ```
+
+## Real World Examples
+
+Search Github for real world examples: 
+
+[Servlet](https://github.com/search?q=org%3Aministryofjustice+uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder&type=code)
+
+[Reactive](https://github.com/search?q=org%3Aministryofjustice+uk.gov.justice.hmpps.kotlin.auth.HmppsReactiveAuthenticationHolder&type=code)

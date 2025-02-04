@@ -22,3 +22,11 @@ any test configuration if it is not needed.  Note that this is an opt out - by d
 
 If multiple decoder beans are registered then this will mean that tests could fail with unauthorised errors as the JWT
 in the context might not be decoded by the correct bean. 
+
+## Real World Examples
+
+Search Github for real world examples:
+
+[WithMockAuthUser](https://github.com/search?q=org%3Aministryofjustice+uk.gov.justice.hmpps.test.kotlin.auth.WithMockAuthUser&type=code)
+
+[JwtAuthenicationHelper](https://github.com/search?q=org%3Aministryofjustice+uk.gov.justice.hmpps.test.kotlin.auth.JwtAuthorisationHelper&type=code)
