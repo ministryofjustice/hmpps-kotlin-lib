@@ -65,27 +65,26 @@ class JwtAuthorisationHelper {
     jwtId: String = UUID.randomUUID().toString(),
     authSource: String = "none",
     grantType: String = "client_credentials",
-  ): String =
-    mutableMapOf<String, Any>(
-      "sub" to (username ?: clientId),
-      "client_id" to clientId,
-      "auth_source" to authSource,
-      "grant_type" to grantType,
-    ).apply {
-      username?.let { this["user_name"] = username }
-      scope?.let { this["scope"] = scope }
-      roles?.let {
-        // ensure that all roles have a ROLE_ prefix
-        this["authorities"] = roles.map { "ROLE_${it.substringAfter("ROLE_")}" }
-      }
+  ): String = mutableMapOf<String, Any>(
+    "sub" to (username ?: clientId),
+    "client_id" to clientId,
+    "auth_source" to authSource,
+    "grant_type" to grantType,
+  ).apply {
+    username?.let { this["user_name"] = username }
+    scope?.let { this["scope"] = scope }
+    roles?.let {
+      // ensure that all roles have a ROLE_ prefix
+      this["authorities"] = roles.map { "ROLE_${it.substringAfter("ROLE_")}" }
     }
-      .let {
-        Jwts.builder()
-          .id(jwtId)
-          .subject(username ?: clientId)
-          .claims(it.toMap())
-          .expiration(Date(System.currentTimeMillis() + expiryTime.toMillis()))
-          .signWith(keyPair.private, Jwts.SIG.RS256)
-          .compact()
-      }
+  }
+    .let {
+      Jwts.builder()
+        .id(jwtId)
+        .subject(username ?: clientId)
+        .claims(it.toMap())
+        .expiration(Date(System.currentTimeMillis() + expiryTime.toMillis()))
+        .signWith(keyPair.private, Jwts.SIG.RS256)
+        .compact()
+    }
 }

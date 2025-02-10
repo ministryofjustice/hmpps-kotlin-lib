@@ -27,17 +27,16 @@ class ResourceServerOverridesTest : IntegrationTestBase() {
   @EnableMethodSecurity(prePostEnabled = true, proxyTargetClass = true)
   class OverrideConfiguration {
     @Bean
-    fun filterChain(http: HttpSecurity): SecurityFilterChain =
-      http {
-        sessionManagement { SessionCreationPolicy.STATELESS }
-        headers { frameOptions { sameOrigin = true } }
-        csrf { disable() }
-        authorizeHttpRequests {
-          // This resource server doesn't have any unauthorized request paths unlike the library's default resource server
-          authorize(anyRequest, authenticated)
-        }
-        oauth2ResourceServer { jwt { jwtAuthenticationConverter = AuthAwareTokenConverter() } }
-      }.let { http.build() }
+    fun filterChain(http: HttpSecurity): SecurityFilterChain = http {
+      sessionManagement { SessionCreationPolicy.STATELESS }
+      headers { frameOptions { sameOrigin = true } }
+      csrf { disable() }
+      authorizeHttpRequests {
+        // This resource server doesn't have any unauthorized request paths unlike the library's default resource server
+        authorize(anyRequest, authenticated)
+      }
+      oauth2ResourceServer { jwt { jwtAuthenticationConverter = AuthAwareTokenConverter() } }
+    }.let { http.build() }
   }
 
   @Test

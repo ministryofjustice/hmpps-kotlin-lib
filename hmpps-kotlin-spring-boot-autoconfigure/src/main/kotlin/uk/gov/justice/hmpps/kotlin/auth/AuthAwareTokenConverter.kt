@@ -35,11 +35,9 @@ private fun convert(jwt: Jwt, converter: Converter<Jwt, Collection<GrantedAuthor
   )
 }
 
-private fun findUserName(claims: Map<String, Any?>): String? =
-  if (claims.containsKey("user_name")) claims["user_name"] as String else null
+private fun findUserName(claims: Map<String, Any?>): String? = if (claims.containsKey("user_name")) claims["user_name"] as String else null
 
-private fun findClientId(claims: Map<String, Any?>) =
-  claims["client_id"] as String
+private fun findClientId(claims: Map<String, Any?>) = claims["client_id"] as String
 
 private fun findAuthSource(claims: Map<String, Any?>) = AuthSource.findBySource(claims["auth_source"] as String?)
 
@@ -73,7 +71,6 @@ enum class AuthSource(val source: String) {
   ;
 
   companion object {
-    fun findBySource(source: String?): AuthSource =
-      entries.firstOrNull { it.source == source } ?: NONE
+    fun findBySource(source: String?): AuthSource = entries.firstOrNull { it.source == source } ?: NONE
   }
 }

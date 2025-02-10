@@ -56,10 +56,9 @@ class ResourceServerConfigurationCustomizer {
   lateinit var authorizeExchangeCustomizer: AuthorizeExchangeCustomizer
 
   companion object {
-    operator fun invoke(dsl: ResourceServerConfigurationCustomizerDsl.() -> Unit): ResourceServerConfigurationCustomizer =
-      ResourceServerConfigurationCustomizerBuilder()
-        .apply(dsl)
-        .build()
+    operator fun invoke(dsl: ResourceServerConfigurationCustomizerDsl.() -> Unit): ResourceServerConfigurationCustomizer = ResourceServerConfigurationCustomizerBuilder()
+      .apply(dsl)
+      .build()
   }
 }
 
@@ -72,31 +71,27 @@ class ResourceServerConfigurationCustomizerBuilder : ResourceServerConfiguration
   private var overrideAuthorizeExchange = false
   private var customizeAuthorization = false
 
-  override fun unauthorizedRequestPaths(dsl: UnauthorizedRequestPathCustomizerDsl.() -> Unit) =
-    UnauthorizedRequestPathsCustomizerBuilder()
-      .apply(dsl)
-      .build()
-      .also { unauthorizedRequestPathsCustomizer = it }
-      .also { customizeAuthorization = true }
+  override fun unauthorizedRequestPaths(dsl: UnauthorizedRequestPathCustomizerDsl.() -> Unit) = UnauthorizedRequestPathsCustomizerBuilder()
+    .apply(dsl)
+    .build()
+    .also { unauthorizedRequestPathsCustomizer = it }
+    .also { customizeAuthorization = true }
 
-  override fun anyRequestRole(dsl: AnyRequestRoleCustomizerDsl.() -> Unit): AnyRequestRoleCustomizer =
-    AnyRequestRoleCustomizerBuilder()
-      .apply(dsl)
-      .build()
-      .also { anyRequestRoleCustomizer = it }
-      .also { customizeAuthorization = true }
+  override fun anyRequestRole(dsl: AnyRequestRoleCustomizerDsl.() -> Unit): AnyRequestRoleCustomizer = AnyRequestRoleCustomizerBuilder()
+    .apply(dsl)
+    .build()
+    .also { anyRequestRoleCustomizer = it }
+    .also { customizeAuthorization = true }
 
-  override fun authorizeHttpRequests(dsl: AuthorizeHttpRequestsDsl.() -> Unit): AuthorizeHttpRequestsCustomizer =
-    AuthorizeHttpRequestsCustomizerBuilder(dsl)
-      .build()
-      .also { authorizeHttpRequestsCustomizer = it }
-      .also { overrideAuthorizeHttpRequests = true }
+  override fun authorizeHttpRequests(dsl: AuthorizeHttpRequestsDsl.() -> Unit): AuthorizeHttpRequestsCustomizer = AuthorizeHttpRequestsCustomizerBuilder(dsl)
+    .build()
+    .also { authorizeHttpRequestsCustomizer = it }
+    .also { overrideAuthorizeHttpRequests = true }
 
-  override fun authorizeExchange(dsl: AuthorizeExchangeDsl.() -> Unit): AuthorizeExchangeCustomizer =
-    AuthorizeExchangeCustomizerBuilder(dsl)
-      .build()
-      .also { authorizeExchangeCustomizer = it }
-      .also { overrideAuthorizeExchange = true }
+  override fun authorizeExchange(dsl: AuthorizeExchangeDsl.() -> Unit): AuthorizeExchangeCustomizer = AuthorizeExchangeCustomizerBuilder(dsl)
+    .build()
+    .also { authorizeExchangeCustomizer = it }
+    .also { overrideAuthorizeExchange = true }
 
   fun build(): ResourceServerConfigurationCustomizer {
     validate()

@@ -33,7 +33,5 @@ class AuthorizeHttpRequestsCustomizerBuilder(
   private var dsl: (AuthorizeHttpRequestsDsl.() -> Unit)? = null,
 ) : AbstractRequestMatcherDsl() {
 
-  fun build(): AuthorizeHttpRequestsCustomizer {
-    return AuthorizeHttpRequestsCustomizer(dsl)
-  }
+  fun build(): AuthorizeHttpRequestsCustomizer = AuthorizeHttpRequestsCustomizer(dsl)
 }

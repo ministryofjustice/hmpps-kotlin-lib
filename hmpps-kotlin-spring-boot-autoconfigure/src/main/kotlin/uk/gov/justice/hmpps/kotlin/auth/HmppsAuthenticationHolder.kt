@@ -78,16 +78,13 @@ class HmppsAuthenticationHolder {
   val authSource: AuthSource
     get() = authentication.authSource
 
-  fun isOverrideRole(vararg overrideRoles: String): Boolean =
-    hasMatchingRole(getRoles(*overrideRoles), authentication)
+  fun isOverrideRole(vararg overrideRoles: String): Boolean = hasMatchingRole(getRoles(*overrideRoles), authentication)
 
   companion object {
-    fun hasRoles(vararg allowedRoles: String): Boolean =
-      hasMatchingRole(getRoles(*allowedRoles), SecurityContextHolder.getContext().authentication)
+    fun hasRoles(vararg allowedRoles: String): Boolean = hasMatchingRole(getRoles(*allowedRoles), SecurityContextHolder.getContext().authentication)
 
-    private fun hasMatchingRole(roles: List<String>, authentication: Authentication?): Boolean =
-      authentication?.authorities?.any { roles.contains(it?.authority?.replaceFirst("ROLE_", "")) }
-        ?: false
+    private fun hasMatchingRole(roles: List<String>, authentication: Authentication?): Boolean = authentication?.authorities?.any { roles.contains(it?.authority?.replaceFirst("ROLE_", "")) }
+      ?: false
 
     private fun getRoles(vararg roles: String): List<String> = roles.map { it.replaceFirst("ROLE_", "") }
   }

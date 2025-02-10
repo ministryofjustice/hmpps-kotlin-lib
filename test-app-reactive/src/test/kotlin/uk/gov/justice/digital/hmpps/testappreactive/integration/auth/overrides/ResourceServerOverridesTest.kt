@@ -26,15 +26,14 @@ class ResourceServerOverridesTest : IntegrationTestBase() {
   @EnableReactiveMethodSecurity(useAuthorizationManager = false)
   class OverrideConfiguration {
     @Bean
-    fun filterChain(http: ServerHttpSecurity): SecurityWebFilterChain =
-      http {
-        csrf { disable() }
-        authorizeExchange {
-          // This resource server doesn't have any unauthorized request paths unlike the library's default resource server
-          authorize(anyExchange, authenticated)
-        }
-        oauth2ResourceServer { jwt { jwtAuthenticationConverter = AuthAwareReactiveTokenConverter() } }
+    fun filterChain(http: ServerHttpSecurity): SecurityWebFilterChain = http {
+      csrf { disable() }
+      authorizeExchange {
+        // This resource server doesn't have any unauthorized request paths unlike the library's default resource server
+        authorize(anyExchange, authenticated)
       }
+      oauth2ResourceServer { jwt { jwtAuthenticationConverter = AuthAwareReactiveTokenConverter() } }
+    }
   }
 
   @Test
