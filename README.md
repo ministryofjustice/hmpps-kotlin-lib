@@ -136,8 +136,14 @@ In `build.gradle.kts` we use environment variables `ORG_GRADLE_PROJECT_signingKe
 
 * Generate a new key - follow the [Sonatype guide](https://central.sonatype.org/publish/requirements/gpg/). 
 * Store the passphrase as you'll need it later.
-* Remember to [distribute the public key](https://central.sonatype.org/publish/requirements/gpg/#distributing-your-public-key) to a key server.
+* Remember to [distribute the public key](https://central.sonatype.org/publish/requirements/gpg/#distributing-your-public-key) to a key server. The documentation may be out of date - last time we had to distribute using [this UI](https://keyserver.ubuntu.com/#submitKey).
 * Export the private key to a file - google for `gpg export private key` and you should find several guides for using `gpg --export-secret-keys`.
 * To allow the private key to be inserted into a Circle env var make sure newlines in the private key are replaced with text `\n` so the key fits on a single line.
 * Delete the environment variables `ORG_GRADLE_PROJECT_signingKey` and `ORG_GRADLE_PROJECT_signingPassword` from the [Circle CI env vars page](https://app.circleci.com/settings/project/github/ministryofjustice/hmpps-kotlin-lib/environment-variables)
 * Recreate the environment variables where `ORG_GRADLE_PROJECT_signingKey` contains the private key (on a single line) and `ORG_GRADLE_PROJECT_signingPassword` contains the key's passphrase.
+
+#### Troubleshooting - Public key not found
+
+We saw an error where a publish failed, and checking in the [Staging repository](https://s01.oss.sonatype.org/#stagingRepositories) we found an error stating that the public key we'd uploaded had disappeared.
+
+If this happens again we've added the public key to this repository (in `public.key`) and the contents of this file should be copied to the [ubuntu keyserver UI](https://keyserver.ubuntu.com/#submitKey).
