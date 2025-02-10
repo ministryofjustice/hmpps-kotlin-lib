@@ -35,28 +35,27 @@ import uk.gov.justice.hmpps.kotlin.auth.dsl.ResourceServerConfigurationCustomize
 class HmppsResourceServerConfiguration {
   @ConditionalOnMissingFilterBean
   @Bean
-  fun hmppsSecurityFilterChain(http: HttpSecurity, customizer: ResourceServerConfigurationCustomizer): SecurityFilterChain =
-    http {
-      sessionManagement { SessionCreationPolicy.STATELESS }
-      headers { frameOptions { sameOrigin = true } }
-      csrf { disable() }
-      authorizeHttpRequests {
-        customizer.authorizeHttpRequestsCustomizer.dsl
-          // override the entire authorizeHttpRequests DSL
-          ?.also { dsl -> dsl.invoke(this) }
-          // apply specific customizations to the default authorizeHttpRequests DSL
-          ?: also {
-            customizer.unauthorizedRequestPathsCustomizer.unauthorizedRequestPaths.forEach { authorize(it, permitAll) }
-            customizer.anyRequestRoleCustomizer.defaultRole
-              ?.also { authorize(anyRequest, hasRole(it)) }
-              ?: also { authorize(anyRequest, authenticated) }
-          }
-      }
-      oauth2ResourceServer {
-        jwt { jwtAuthenticationConverter = AuthAwareTokenConverter() }
-      }
+  fun hmppsSecurityFilterChain(http: HttpSecurity, customizer: ResourceServerConfigurationCustomizer): SecurityFilterChain = http {
+    sessionManagement { SessionCreationPolicy.STATELESS }
+    headers { frameOptions { sameOrigin = true } }
+    csrf { disable() }
+    authorizeHttpRequests {
+      customizer.authorizeHttpRequestsCustomizer.dsl
+        // override the entire authorizeHttpRequests DSL
+        ?.also { dsl -> dsl.invoke(this) }
+        // apply specific customizations to the default authorizeHttpRequests DSL
+        ?: also {
+          customizer.unauthorizedRequestPathsCustomizer.unauthorizedRequestPaths.forEach { authorize(it, permitAll) }
+          customizer.anyRequestRoleCustomizer.defaultRole
+            ?.also { authorize(anyRequest, hasRole(it)) }
+            ?: also { authorize(anyRequest, authenticated) }
+        }
     }
-      .let { http.build() }
+    oauth2ResourceServer {
+      jwt { jwtAuthenticationConverter = AuthAwareTokenConverter() }
+    }
+  }
+    .let { http.build() }
 
   @ConditionalOnMissingBean
   @Bean
@@ -77,23 +76,22 @@ class HmppsResourceServerConfiguration {
 class HmppsReactiveResourceServerConfiguration {
   @ConditionalOnMissingFilterBean
   @Bean
-  fun hmppsSecurityWebFilterChain(http: ServerHttpSecurity, customizer: ResourceServerConfigurationCustomizer): SecurityWebFilterChain =
-    http {
-      csrf { disable() }
-      authorizeExchange {
-        customizer.authorizeExchangeCustomizer.dsl
-          // override the entire authorizeExchange DSL
-          ?.also { dsl -> dsl.invoke(this) }
-          // apply specific customizations to the default authorizeExchange DSL
-          ?: also {
-            customizer.unauthorizedRequestPathsCustomizer.unauthorizedRequestPaths.forEach { authorize(it, permitAll) }
-            customizer.anyRequestRoleCustomizer.defaultRole
-              ?.also { authorize(anyExchange, hasRole(it)) }
-              ?: also { authorize(anyExchange, authenticated) }
-          }
-      }
-      oauth2ResourceServer { jwt { jwtAuthenticationConverter = AuthAwareReactiveTokenConverter() } }
+  fun hmppsSecurityWebFilterChain(http: ServerHttpSecurity, customizer: ResourceServerConfigurationCustomizer): SecurityWebFilterChain = http {
+    csrf { disable() }
+    authorizeExchange {
+      customizer.authorizeExchangeCustomizer.dsl
+        // override the entire authorizeExchange DSL
+        ?.also { dsl -> dsl.invoke(this) }
+        // apply specific customizations to the default authorizeExchange DSL
+        ?: also {
+          customizer.unauthorizedRequestPathsCustomizer.unauthorizedRequestPaths.forEach { authorize(it, permitAll) }
+          customizer.anyRequestRoleCustomizer.defaultRole
+            ?.also { authorize(anyExchange, hasRole(it)) }
+            ?: also { authorize(anyExchange, authenticated) }
+        }
     }
+    oauth2ResourceServer { jwt { jwtAuthenticationConverter = AuthAwareReactiveTokenConverter() } }
+  }
 
   @ConditionalOnMissingBean
   @Bean

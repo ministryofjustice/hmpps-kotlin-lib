@@ -23,6 +23,5 @@ class WebClientConfiguration(
   fun prisonApiHealthWebClient(builder: WebClient.Builder): WebClient = builder.reactiveHealthWebClient(prisonApiBaseUri, healthTimeout)
 
   @Bean
-  fun prisonApiWebClient(reactiveAuthorizedClientManager: ReactiveOAuth2AuthorizedClientManager, builder: WebClient.Builder): WebClient =
-    builder.reactiveAuthorisedWebClient(reactiveAuthorizedClientManager, registrationId = "prison-api", url = prisonApiBaseUri, timeout)
+  fun prisonApiWebClient(reactiveAuthorizedClientManager: ReactiveOAuth2AuthorizedClientManager, builder: WebClient.Builder): WebClient = builder.reactiveAuthorisedWebClient(reactiveAuthorizedClientManager, registrationId = "prison-api", url = prisonApiBaseUri, timeout)
 }

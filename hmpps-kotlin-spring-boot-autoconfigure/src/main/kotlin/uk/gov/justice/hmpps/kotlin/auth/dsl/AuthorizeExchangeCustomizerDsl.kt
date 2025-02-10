@@ -32,7 +32,5 @@ class AuthorizeExchangeCustomizerBuilder(
   private var dsl: (AuthorizeExchangeDsl.() -> Unit)? = null,
 ) {
 
-  fun build(): AuthorizeExchangeCustomizer {
-    return AuthorizeExchangeCustomizer(dsl)
-  }
+  fun build(): AuthorizeExchangeCustomizer = AuthorizeExchangeCustomizer(dsl)
 }

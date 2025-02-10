@@ -86,30 +86,27 @@ fun WebClient.Builder.authorisedWebClient(
 fun WebClient.Builder.healthWebClient(
   url: String,
   healthTimeout: Duration = Duration.ofSeconds(DEFAULT_HEALTH_TIMEOUT_SECONDS),
-): WebClient =
-  baseUrl(url)
-    .clientConnector(ReactorClientHttpConnector(HttpClient.create().responseTimeout(healthTimeout)))
-    .build()
+): WebClient = baseUrl(url)
+  .clientConnector(ReactorClientHttpConnector(HttpClient.create().responseTimeout(healthTimeout)))
+  .build()
 
 fun WebClient.Builder.reactiveAuthorisedWebClient(
   authorizedClientManager: ReactiveOAuth2AuthorizedClientManager,
   registrationId: String,
   url: String,
   timeout: Duration = Duration.ofSeconds(DEFAULT_TIMEOUT_SECONDS),
-): WebClient =
-  baseUrl(url)
-    .clientConnector(ReactorClientHttpConnector(HttpClient.create().responseTimeout(timeout)))
-    .filter(
-      ServerOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager).kotlinApply {
-        setDefaultClientRegistrationId(registrationId)
-      },
-    )
-    .build()
+): WebClient = baseUrl(url)
+  .clientConnector(ReactorClientHttpConnector(HttpClient.create().responseTimeout(timeout)))
+  .filter(
+    ServerOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager).kotlinApply {
+      setDefaultClientRegistrationId(registrationId)
+    },
+  )
+  .build()
 
 fun WebClient.Builder.reactiveHealthWebClient(
   url: String,
   healthTimeout: Duration = Duration.ofSeconds(DEFAULT_HEALTH_TIMEOUT_SECONDS),
-): WebClient =
-  baseUrl(url)
-    .clientConnector(ReactorClientHttpConnector(HttpClient.create().responseTimeout(healthTimeout)))
-    .build()
+): WebClient = baseUrl(url)
+  .clientConnector(ReactorClientHttpConnector(HttpClient.create().responseTimeout(healthTimeout)))
+  .build()

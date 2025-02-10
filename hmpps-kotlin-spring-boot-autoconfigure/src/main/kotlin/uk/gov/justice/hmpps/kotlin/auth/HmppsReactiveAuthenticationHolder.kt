@@ -26,23 +26,21 @@ class HmppsReactiveAuthenticationHolder {
    * @throws AuthenticationCredentialsNotFoundException if no authentication in security context
    * @throws InsufficientAuthenticationException if authentication not an AuthAwareAuthenticationToken
    */
-  suspend fun getAuthentication(): AuthAwareAuthenticationToken =
-    with(ReactiveSecurityContextHolder.getContext().awaitSingle().authentication) {
-      if (this is AuthAwareAuthenticationToken) {
-        return this
-      } else if (this == null) {
-        throw AuthenticationCredentialsNotFoundException("No credentials found")
-      } else {
-        throw InsufficientAuthenticationException("Authentication not an instance of AuthAwareAuthenticationToken, found $this instead")
-      }
+  suspend fun getAuthentication(): AuthAwareAuthenticationToken = with(ReactiveSecurityContextHolder.getContext().awaitSingle().authentication) {
+    if (this is AuthAwareAuthenticationToken) {
+      return this
+    } else if (this == null) {
+      throw AuthenticationCredentialsNotFoundException("No credentials found")
+    } else {
+      throw InsufficientAuthenticationException("Authentication not an instance of AuthAwareAuthenticationToken, found $this instead")
     }
+  }
 
 /**
    * This will return null if the token is missing or hasn't come from HMPPS Auth.
    * This will be the case for event listeners and batch jobs so is more suitable if that can be the case.
    */
-  suspend fun getAuthenticationOrNull(): AuthAwareAuthenticationToken? =
-    ReactiveSecurityContextHolder.getContext().awaitSingleOrNull()?.authentication as? AuthAwareAuthenticationToken
+  suspend fun getAuthenticationOrNull(): AuthAwareAuthenticationToken? = ReactiveSecurityContextHolder.getContext().awaitSingleOrNull()?.authentication as? AuthAwareAuthenticationToken
 
   /**
    * This gets the current username from the authentication, falling back to the clientId if there isn't a username
@@ -77,16 +75,13 @@ class HmppsReactiveAuthenticationHolder {
    */
   suspend fun getAuthSource(): AuthSource = getAuthentication().authSource
 
-  suspend fun isOverrideRole(vararg overrideRoles: String): Boolean =
-    hasMatchingRole(getRoles(*overrideRoles), getAuthentication())
+  suspend fun isOverrideRole(vararg overrideRoles: String): Boolean = hasMatchingRole(getRoles(*overrideRoles), getAuthentication())
 
   companion object {
-    suspend fun hasRoles(vararg allowedRoles: String): Boolean =
-      hasMatchingRole(getRoles(*allowedRoles), ReactiveSecurityContextHolder.getContext().awaitSingle().authentication)
+    suspend fun hasRoles(vararg allowedRoles: String): Boolean = hasMatchingRole(getRoles(*allowedRoles), ReactiveSecurityContextHolder.getContext().awaitSingle().authentication)
 
-    private fun hasMatchingRole(roles: List<String>, authentication: Authentication?): Boolean =
-      authentication?.authorities?.any { roles.contains(it?.authority?.replaceFirst("ROLE_", "")) }
-        ?: false
+    private fun hasMatchingRole(roles: List<String>, authentication: Authentication?): Boolean = authentication?.authorities?.any { roles.contains(it?.authority?.replaceFirst("ROLE_", "")) }
+      ?: false
 
     private fun getRoles(vararg roles: String): List<String> = roles.map { it.replaceFirst("ROLE_", "") }
   }

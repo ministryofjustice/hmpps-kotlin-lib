@@ -32,7 +32,5 @@ class AnyRequestRoleCustomizer(
 class AnyRequestRoleCustomizerBuilder : AnyRequestRoleCustomizerDsl {
   override var defaultRole: String? = null
 
-  fun build(): AnyRequestRoleCustomizer {
-    return AnyRequestRoleCustomizer(defaultRole)
-  }
+  fun build(): AnyRequestRoleCustomizer = AnyRequestRoleCustomizer(defaultRole)
 }

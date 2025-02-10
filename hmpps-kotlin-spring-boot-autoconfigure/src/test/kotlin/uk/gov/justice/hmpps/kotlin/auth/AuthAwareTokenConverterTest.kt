@@ -122,14 +122,13 @@ class AuthAwareTokenConverterTest {
     claims: Map<String, Any> = mapOf(),
     expiryTime: Duration = Duration.ofHours(1),
     jwtId: String = UUID.randomUUID().toString(),
-  ): Jwt =
-    Jwt.withTokenValue("some token")
-      .jti(jwtId)
-      .subject(subject)
-      .header("typ", "JWT")
-      .apply {
-        claims.forEach { (key, value) -> claim(key, value) }
-      }
-      .expiresAt(Instant.now().plus(expiryTime))
-      .build()
+  ): Jwt = Jwt.withTokenValue("some token")
+    .jti(jwtId)
+    .subject(subject)
+    .header("typ", "JWT")
+    .apply {
+      claims.forEach { (key, value) -> claim(key, value) }
+    }
+    .expiresAt(Instant.now().plus(expiryTime))
+    .build()
 }
