@@ -15,6 +15,8 @@ plugins {
   id("org.springframework.boot") version "3.4.2"
 }
 
+ext["netty.version"] = "4.1.118.Final"
+
 dependencies {
   implementation("org.springframework.boot:spring-boot-starter-web")
   implementation("org.springframework.boot:spring-boot-starter-webflux")
