@@ -47,6 +47,12 @@ interface ResourceServerConfigurationCustomizerDsl {
    */
   @AuthorizeExchangeCustomizerDslMarker
   fun authorizeExchange(dsl: AuthorizeExchangeDsl.() -> Unit): AuthorizeExchangeCustomizer
+
+  /**
+   * A customizer for the OAuth2 server. See [Oauth2CustomizerDsl] for more details.
+   */
+  @Oauth2CustomizerDslMarker
+  fun oauth2(dsl: Oauth2CustomizerDsl.() -> Unit): Oauth2Customizer
 }
 
 class ResourceServerConfigurationCustomizer {
@@ -54,6 +60,7 @@ class ResourceServerConfigurationCustomizer {
   lateinit var anyRequestRoleCustomizer: AnyRequestRoleCustomizer
   lateinit var authorizeHttpRequestsCustomizer: AuthorizeHttpRequestsCustomizer
   lateinit var authorizeExchangeCustomizer: AuthorizeExchangeCustomizer
+  lateinit var oauth2Customizer: Oauth2Customizer
 
   companion object {
     operator fun invoke(dsl: ResourceServerConfigurationCustomizerDsl.() -> Unit): ResourceServerConfigurationCustomizer = ResourceServerConfigurationCustomizerBuilder()
@@ -67,6 +74,7 @@ class ResourceServerConfigurationCustomizerBuilder : ResourceServerConfiguration
   private var anyRequestRoleCustomizer = AnyRequestRoleCustomizerBuilder().build()
   private var authorizeHttpRequestsCustomizer = AuthorizeHttpRequestsCustomizerBuilder().build()
   private var authorizeExchangeCustomizer = AuthorizeExchangeCustomizerBuilder().build()
+  private var oauth2Customizer = Oauth2CustomizerBuilder().build()
   private var overrideAuthorizeHttpRequests = false
   private var overrideAuthorizeExchange = false
   private var customizeAuthorization = false
@@ -93,6 +101,11 @@ class ResourceServerConfigurationCustomizerBuilder : ResourceServerConfiguration
     .also { authorizeExchangeCustomizer = it }
     .also { overrideAuthorizeExchange = true }
 
+  override fun oauth2(dsl: Oauth2CustomizerDsl.() -> Unit): Oauth2Customizer = Oauth2CustomizerBuilder()
+    .apply(dsl)
+    .build()
+    .also { oauth2Customizer = it }
+
   fun build(): ResourceServerConfigurationCustomizer {
     validate()
 
@@ -102,6 +115,7 @@ class ResourceServerConfigurationCustomizerBuilder : ResourceServerConfiguration
         it.anyRequestRoleCustomizer = anyRequestRoleCustomizer
         it.authorizeHttpRequestsCustomizer = authorizeHttpRequestsCustomizer
         it.authorizeExchangeCustomizer = authorizeExchangeCustomizer
+        it.oauth2Customizer = oauth2Customizer
       }
   }
 
