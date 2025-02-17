@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.testapp.integration.auth.customizer
 
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
@@ -8,6 +9,7 @@ import org.springframework.context.annotation.Import
 import uk.gov.justice.digital.hmpps.testapp.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.testapp.resource.CustomAuthAwareAuthenticationTokenConverter
 import uk.gov.justice.hmpps.kotlin.auth.dsl.ResourceServerConfigurationCustomizer
+import java.time.LocalDate
 
 @Import(CustomTokenConverterTest.CustomizerConfiguration::class)
 @SpringBootTest(
@@ -78,5 +80,19 @@ class CustomTokenConverterTest : IntegrationTestBase() {
       .isOk
       .expectBody()
       .jsonPath("activeCaseload").isEqualTo("MDI")
+  }
+
+  @Test
+  fun `should be OK calling endpoints relying on normal Auth token converter`() {
+    webTestClient.get()
+      .uri("/time")
+      .headers(setAuthorisation(roles = listOf("ROLE_TEST_APP")))
+      .exchange()
+      .expectStatus()
+      .isOk
+      .expectBody()
+      .jsonPath("$").value<String> {
+        assertThat(it).startsWith("${LocalDate.now()}")
+      }
   }
 }
