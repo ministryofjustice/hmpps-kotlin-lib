@@ -52,7 +52,7 @@ class HmppsResourceServerConfiguration {
         }
     }
     oauth2ResourceServer {
-      jwt { jwtAuthenticationConverter = AuthAwareTokenConverter() }
+      jwt { jwtAuthenticationConverter = customizer.oauth2Customizer.tokenConverter }
     }
   }
     .let { http.build() }
@@ -90,7 +90,7 @@ class HmppsReactiveResourceServerConfiguration {
             ?: also { authorize(anyExchange, authenticated) }
         }
     }
-    oauth2ResourceServer { jwt { jwtAuthenticationConverter = AuthAwareReactiveTokenConverter() } }
+    oauth2ResourceServer { jwt { jwtAuthenticationConverter = customizer.oauth2Customizer.reactiveTokenConverter } }
   }
 
   @ConditionalOnMissingBean

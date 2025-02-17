@@ -9,21 +9,21 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter
 import reactor.core.publisher.Mono
 
-class AuthAwareTokenConverter : Converter<Jwt, AbstractAuthenticationToken> {
+open class AuthAwareTokenConverter : Converter<Jwt, AbstractAuthenticationToken> {
   private val jwtGrantedAuthoritiesConverter: Converter<Jwt, Collection<GrantedAuthority>> =
     JwtGrantedAuthoritiesConverter()
 
   override fun convert(jwt: Jwt) = convert(jwt, jwtGrantedAuthoritiesConverter)
 }
 
-class AuthAwareReactiveTokenConverter : Converter<Jwt, Mono<AuthAwareAuthenticationToken>> {
+open class AuthAwareReactiveTokenConverter : Converter<Jwt, Mono<AuthAwareAuthenticationToken>> {
   private val jwtGrantedAuthoritiesConverter: Converter<Jwt, Collection<GrantedAuthority>> =
     JwtGrantedAuthoritiesConverter()
 
   override fun convert(jwt: Jwt): Mono<AuthAwareAuthenticationToken> = Mono.just(convert(jwt, jwtGrantedAuthoritiesConverter))
 }
 
-private fun convert(jwt: Jwt, converter: Converter<Jwt, Collection<GrantedAuthority>>): AuthAwareAuthenticationToken {
+fun convert(jwt: Jwt, converter: Converter<Jwt, Collection<GrantedAuthority>>): AuthAwareAuthenticationToken {
   val claims = jwt.claims
   val authorities = extractAuthorities(jwt, converter)
   return AuthAwareAuthenticationToken(
@@ -41,7 +41,7 @@ private fun findClientId(claims: Map<String, Any?>) = claims["client_id"] as Str
 
 private fun findAuthSource(claims: Map<String, Any?>) = AuthSource.findBySource(claims["auth_source"] as String?)
 
-private fun extractAuthorities(jwt: Jwt, converter: Converter<Jwt, Collection<GrantedAuthority>>): Collection<GrantedAuthority> {
+fun extractAuthorities(jwt: Jwt, converter: Converter<Jwt, Collection<GrantedAuthority>>): Collection<GrantedAuthority> {
   val authorities = mutableListOf<GrantedAuthority>().apply { addAll(converter.convert(jwt)!!) }
   if (jwt.claims.containsKey("authorities")) {
     @Suppress("UNCHECKED_CAST")
@@ -51,7 +51,7 @@ private fun extractAuthorities(jwt: Jwt, converter: Converter<Jwt, Collection<Gr
   return authorities.toSet()
 }
 
-class AuthAwareAuthenticationToken(
+open class AuthAwareAuthenticationToken(
   jwt: Jwt,
   val clientId: String,
   val userName: String? = null,
