@@ -52,7 +52,7 @@ fun extractAuthorities(jwt: Jwt, converter: Converter<Jwt, Collection<GrantedAut
 }
 
 open class AuthAwareAuthenticationToken(
-  jwt: Jwt,
+  val jwt: Jwt,
   val clientId: String,
   val userName: String? = null,
   val authSource: AuthSource = AuthSource.NONE,
