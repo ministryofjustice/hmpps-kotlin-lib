@@ -4,6 +4,8 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import uk.gov.justice.hmpps.kotlin.auth.AuthAwareReactiveTokenConverter
+import uk.gov.justice.hmpps.kotlin.auth.AuthAwareTokenConverter
 
 class ResourceServerConfigurationCustomizerTest {
 
@@ -166,6 +168,32 @@ class ResourceServerConfigurationCustomizerTest {
       }.also {
         assertThat(it.message).contains("authorizeExchange")
       }
+    }
+  }
+
+  @Nested
+  inner class CustomTokenConverter {
+    @Test
+    fun `should default a standard token converter`() {
+      val customizer = ResourceServerConfigurationCustomizer {}
+
+      assertThat(customizer.oauth2Customizer.tokenConverter).isInstanceOf(AuthAwareTokenConverter::class.java)
+      assertThat(customizer.oauth2Customizer.reactiveTokenConverter).isInstanceOf(AuthAwareReactiveTokenConverter::class.java)
+    }
+
+    @Test
+    fun `should allow custom token converters`() {
+      class CustomTokenConverter : AuthAwareTokenConverter()
+      class ReactiveCustomTokenConverter : AuthAwareReactiveTokenConverter()
+      val customizer = ResourceServerConfigurationCustomizer {
+        oauth2 {
+          tokenConverter = CustomTokenConverter()
+          reactiveTokenConverter = ReactiveCustomTokenConverter()
+        }
+      }
+
+      assertThat(customizer.oauth2Customizer.tokenConverter).isInstanceOf(CustomTokenConverter::class.java)
+      assertThat(customizer.oauth2Customizer.reactiveTokenConverter).isInstanceOf(ReactiveCustomTokenConverter::class.java)
     }
   }
 
