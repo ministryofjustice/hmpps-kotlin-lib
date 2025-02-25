@@ -21,6 +21,12 @@ annotation class ResourceServerConfigurationCustomizerDslMarker
 @ResourceServerConfigurationCustomizerDslMarker
 interface ResourceServerConfigurationCustomizerDsl {
   /**
+   * A customizer for a security matcher. See [SecurityMatcherCustomizerDsl] for more details.
+   */
+  @SecurityMatcherCustomizerDslMarker
+  fun securityMatcher(dsl: SecurityMatcherCustomizerDsl.() -> Unit): SecurityMatcherCustomizer
+
+  /**
    * A customizer for unauthorized request paths. See [UnauthorizedRequestPathCustomizerDsl] for more details.
    */
   @UnauthorizedRequestPathCustomizerDslMarker
@@ -56,6 +62,7 @@ interface ResourceServerConfigurationCustomizerDsl {
 }
 
 class ResourceServerConfigurationCustomizer {
+  lateinit var securityMatcherCustomizer: SecurityMatcherCustomizer
   lateinit var unauthorizedRequestPathsCustomizer: UnauthorizedRequestPathsCustomizer
   lateinit var anyRequestRoleCustomizer: AnyRequestRoleCustomizer
   lateinit var authorizeHttpRequestsCustomizer: AuthorizeHttpRequestsCustomizer
@@ -70,14 +77,21 @@ class ResourceServerConfigurationCustomizer {
 }
 
 class ResourceServerConfigurationCustomizerBuilder : ResourceServerConfigurationCustomizerDsl {
+  private var securityMatcherCustomizer = SecurityMatcherCustomizerBuilder().build()
   private var unauthorizedRequestPathsCustomizer = UnauthorizedRequestPathsCustomizerBuilder().build()
   private var anyRequestRoleCustomizer = AnyRequestRoleCustomizerBuilder().build()
   private var authorizeHttpRequestsCustomizer = AuthorizeHttpRequestsCustomizerBuilder().build()
   private var authorizeExchangeCustomizer = AuthorizeExchangeCustomizerBuilder().build()
   private var oauth2Customizer = Oauth2CustomizerBuilder().build()
+  private var overrideSecurityMatcher = false
   private var overrideAuthorizeHttpRequests = false
   private var overrideAuthorizeExchange = false
   private var customizeAuthorization = false
+
+  override fun securityMatcher(dsl: SecurityMatcherCustomizerDsl.() -> Unit) = SecurityMatcherCustomizerBuilder()
+    .apply(dsl)
+    .build()
+    .also { securityMatcherCustomizer = it }
 
   override fun unauthorizedRequestPaths(dsl: UnauthorizedRequestPathCustomizerDsl.() -> Unit) = UnauthorizedRequestPathsCustomizerBuilder()
     .apply(dsl)
@@ -111,6 +125,7 @@ class ResourceServerConfigurationCustomizerBuilder : ResourceServerConfiguration
 
     return ResourceServerConfigurationCustomizer()
       .also {
+        it.securityMatcherCustomizer = securityMatcherCustomizer
         it.unauthorizedRequestPathsCustomizer = unauthorizedRequestPathsCustomizer
         it.anyRequestRoleCustomizer = anyRequestRoleCustomizer
         it.authorizeHttpRequestsCustomizer = authorizeHttpRequestsCustomizer

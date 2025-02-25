@@ -39,6 +39,9 @@ class HmppsResourceServerConfiguration {
     sessionManagement { SessionCreationPolicy.STATELESS }
     headers { frameOptions { sameOrigin = true } }
     csrf { disable() }
+    customizer.securityMatcherCustomizer.paths
+      .takeIf { it.isNotEmpty() }
+      ?.also { securityMatcher(*it.toTypedArray()) }
     authorizeHttpRequests {
       customizer.authorizeHttpRequestsCustomizer.dsl
         // override the entire authorizeHttpRequests DSL
