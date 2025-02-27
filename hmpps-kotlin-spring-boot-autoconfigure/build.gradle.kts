@@ -12,10 +12,8 @@ plugins {
   id("io.spring.dependency-management") version "1.1.7"
   id("org.jlleitschuh.gradle.ktlint") version "12.1.2"
   id("org.owasp.dependencycheck") version "8.4.3"
-  id("org.springframework.boot") version "3.4.2"
+  id("org.springframework.boot") version "3.4.3"
 }
-
-ext["netty.version"] = "4.1.118.Final"
 
 dependencies {
   implementation("org.springframework.boot:spring-boot-starter-web")
@@ -25,7 +23,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
   implementation("org.springframework.boot:spring-boot-starter-actuator")
 
-  implementation("org.springdoc:springdoc-openapi-starter-common:2.8.4")
+  implementation("org.springdoc:springdoc-openapi-starter-common:2.8.5")
 
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8")

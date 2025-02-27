@@ -10,7 +10,7 @@ plugins {
 
 dependencies {
   api(project(":hmpps-kotlin-spring-boot-autoconfigure"))
-  api(platform("org.springframework.boot:spring-boot-dependencies:3.4.2"))
+  api(platform("org.springframework.boot:spring-boot-dependencies:3.4.3"))
   api("org.springframework.boot:spring-boot-starter-security")
   api("org.springframework.boot:spring-boot-starter-oauth2-client")
   api("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
