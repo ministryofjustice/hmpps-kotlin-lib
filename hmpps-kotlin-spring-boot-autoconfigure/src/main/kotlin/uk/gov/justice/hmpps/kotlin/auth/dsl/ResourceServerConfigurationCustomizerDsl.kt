@@ -83,7 +83,6 @@ class ResourceServerConfigurationCustomizerBuilder : ResourceServerConfiguration
   private var authorizeHttpRequestsCustomizer = AuthorizeHttpRequestsCustomizerBuilder().build()
   private var authorizeExchangeCustomizer = AuthorizeExchangeCustomizerBuilder().build()
   private var oauth2Customizer = Oauth2CustomizerBuilder().build()
-  private var overrideSecurityMatcher = false
   private var overrideAuthorizeHttpRequests = false
   private var overrideAuthorizeExchange = false
   private var customizeAuthorization = false

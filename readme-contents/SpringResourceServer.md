@@ -19,6 +19,7 @@ There are various customizations available. These include:
 * setting a default role for authorized endpoints
 * overriding the `authorizeHttpRequests` configuration entirely
 * extending the default auth aware token and token converter
+* defining the paths this security filter chain applies to using a `securityMatcher`
 
 For full details of what is customizable start in subproject `hmpps-kotlin-spring-boot-autoconfigure` package `auth` with file `ResourceServerConfigurationCustomizerDsl.kt`.
 

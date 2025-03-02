@@ -12,6 +12,8 @@ import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguratio
 import org.springframework.cache.concurrent.ConcurrentMapCache
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.core.Ordered.LOWEST_PRECEDENCE
+import org.springframework.core.annotation.Order
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
@@ -25,6 +27,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.server.SecurityWebFilterChain
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers
 import uk.gov.justice.hmpps.kotlin.auth.dsl.ResourceServerConfigurationCustomizer
 
 @AutoConfigureBefore(WebMvcAutoConfiguration::class)
@@ -34,6 +37,7 @@ import uk.gov.justice.hmpps.kotlin.auth.dsl.ResourceServerConfigurationCustomize
 @EnableMethodSecurity(prePostEnabled = true, proxyTargetClass = true)
 class HmppsResourceServerConfiguration {
   @ConditionalOnMissingFilterBean
+  @Order(LOWEST_PRECEDENCE)
   @Bean
   fun hmppsSecurityFilterChain(http: HttpSecurity, customizer: ResourceServerConfigurationCustomizer): SecurityFilterChain = http {
     sessionManagement { SessionCreationPolicy.STATELESS }
@@ -81,6 +85,9 @@ class HmppsReactiveResourceServerConfiguration {
   @Bean
   fun hmppsSecurityWebFilterChain(http: ServerHttpSecurity, customizer: ResourceServerConfigurationCustomizer): SecurityWebFilterChain = http {
     csrf { disable() }
+    customizer.securityMatcherCustomizer.paths
+      .takeIf { it.isNotEmpty() }
+      ?.also { securityMatcher(ServerWebExchangeMatchers.pathMatchers(*it.toTypedArray())) }
     authorizeExchange {
       customizer.authorizeExchangeCustomizer.dsl
         // override the entire authorizeExchange DSL

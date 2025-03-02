@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.testapp.integration.auth.customizer
+package uk.gov.justice.digital.hmpps.testappreactive.integration.auth.customizer
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -7,10 +7,10 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
-import org.springframework.security.config.annotation.web.builders.HttpSecurity
-import org.springframework.security.web.SecurityFilterChain
-import uk.gov.justice.digital.hmpps.testapp.integration.IntegrationTestBase
-import uk.gov.justice.hmpps.kotlin.auth.HmppsResourceServerConfiguration
+import org.springframework.security.config.web.server.ServerHttpSecurity
+import org.springframework.security.web.server.SecurityWebFilterChain
+import uk.gov.justice.digital.hmpps.testappreactive.integration.IntegrationTestBase
+import uk.gov.justice.hmpps.kotlin.auth.HmppsReactiveResourceServerConfiguration
 import uk.gov.justice.hmpps.kotlin.auth.dsl.ResourceServerConfigurationCustomizer
 import java.time.LocalDate
 
@@ -35,9 +35,9 @@ class SecurityMatcherTest : IntegrationTestBase() {
     // And this is the security filter that uses the security marcher customizer
     @Bean
     fun securityMatcherSecurityFilterChain(
-      http: HttpSecurity,
+      http: ServerHttpSecurity,
       @Qualifier("customSecurityMatcherCustomizer") customizer: ResourceServerConfigurationCustomizer,
-    ): SecurityFilterChain = HmppsResourceServerConfiguration().hmppsSecurityFilterChain(http, customizer)
+    ): SecurityWebFilterChain = HmppsReactiveResourceServerConfiguration().hmppsSecurityWebFilterChain(http, customizer)
 
     // We have to explicitly define a standard customizer - this gets the library default and is a backstop for requests not
     // matching the security matcher, so would have the standard customizer for the app e.g. including unauthorized paths etc
@@ -48,9 +48,9 @@ class SecurityMatcherTest : IntegrationTestBase() {
     // only use the custom resource server defined above
     @Bean
     fun hmppsSecurityFilterChain(
-      http: HttpSecurity,
+      http: ServerHttpSecurity,
       @Qualifier("hmppsCustomizer") customizer: ResourceServerConfigurationCustomizer,
-    ): SecurityFilterChain = HmppsResourceServerConfiguration().hmppsSecurityFilterChain(http, customizer)
+    ): SecurityWebFilterChain = HmppsReactiveResourceServerConfiguration().hmppsSecurityWebFilterChain(http, customizer)
   }
 
   @Test
@@ -105,7 +105,7 @@ class SecurityMatcherTest : IntegrationTestBase() {
   fun `should be OK calling endpoints relying on the security filter chain with no security matcher`() {
     webTestClient.get()
       .uri("/time")
-      .headers(setAuthorisation(roles = listOf("ROLE_TEST_APP")))
+      .headers(setAuthorisation(roles = listOf("ROLE_TEST_APP_REACTIVE")))
       .exchange()
       .expectStatus()
       .isOk
