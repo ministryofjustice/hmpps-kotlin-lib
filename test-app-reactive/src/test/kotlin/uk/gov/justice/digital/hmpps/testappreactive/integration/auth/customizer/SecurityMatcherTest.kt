@@ -32,7 +32,7 @@ class SecurityMatcherTest : IntegrationTestBase() {
       anyRequestRole { defaultRole = "CUSTOM_SECURITY_MATCHER" }
     }
 
-    // And this is the security filter that uses the security marcher customizer
+    // And this is the security filter that uses the security matcher customizer
     @Bean
     fun securityMatcherSecurityFilterChain(
       http: ServerHttpSecurity,

@@ -82,6 +82,7 @@ class HmppsResourceServerConfiguration {
 @EnableReactiveMethodSecurity(useAuthorizationManager = false)
 class HmppsReactiveResourceServerConfiguration {
   @ConditionalOnMissingFilterBean
+  @Order(LOWEST_PRECEDENCE)
   @Bean
   fun hmppsSecurityWebFilterChain(http: ServerHttpSecurity, customizer: ResourceServerConfigurationCustomizer): SecurityWebFilterChain = http {
     csrf { disable() }
