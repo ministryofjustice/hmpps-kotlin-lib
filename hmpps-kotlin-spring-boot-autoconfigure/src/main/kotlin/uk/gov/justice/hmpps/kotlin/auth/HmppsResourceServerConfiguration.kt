@@ -25,6 +25,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.server.SecurityWebFilterChain
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers
 import uk.gov.justice.hmpps.kotlin.auth.dsl.ResourceServerConfigurationCustomizer
 
 @AutoConfigureBefore(WebMvcAutoConfiguration::class)
@@ -39,6 +40,9 @@ class HmppsResourceServerConfiguration {
     sessionManagement { SessionCreationPolicy.STATELESS }
     headers { frameOptions { sameOrigin = true } }
     csrf { disable() }
+    customizer.securityMatcherCustomizer.paths
+      .takeIf { it.isNotEmpty() }
+      ?.also { securityMatcher(*it.toTypedArray()) }
     authorizeHttpRequests {
       customizer.authorizeHttpRequestsCustomizer.dsl
         // override the entire authorizeHttpRequests DSL
@@ -78,6 +82,9 @@ class HmppsReactiveResourceServerConfiguration {
   @Bean
   fun hmppsSecurityWebFilterChain(http: ServerHttpSecurity, customizer: ResourceServerConfigurationCustomizer): SecurityWebFilterChain = http {
     csrf { disable() }
+    customizer.securityMatcherCustomizer.paths
+      .takeIf { it.isNotEmpty() }
+      ?.also { securityMatcher(ServerWebExchangeMatchers.pathMatchers(*it.toTypedArray())) }
     authorizeExchange {
       customizer.authorizeExchangeCustomizer.dsl
         // override the entire authorizeExchange DSL
