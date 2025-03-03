@@ -47,7 +47,7 @@ annotation class SecurityMatcherCustomizerDslMarker
  *     }
  *   }
  *
- *   // The HMPPS security filter chain retains the `@Order(LOWEST_PRECEDENCE)` so it's applied last
+ *   // The HMPPS security filter chain gets the Spring default `@Order(LOWEST_PRECEDENCE)` so it's applied last
  *   @Bean
  *   fun hmppsSecurityFilterChain(
  *     http: HttpSecurity,

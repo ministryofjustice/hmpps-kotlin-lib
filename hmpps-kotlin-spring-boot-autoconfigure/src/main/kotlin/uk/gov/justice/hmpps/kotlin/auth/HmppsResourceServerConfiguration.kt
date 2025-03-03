@@ -12,8 +12,6 @@ import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguratio
 import org.springframework.cache.concurrent.ConcurrentMapCache
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.core.Ordered.LOWEST_PRECEDENCE
-import org.springframework.core.annotation.Order
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
@@ -37,7 +35,6 @@ import uk.gov.justice.hmpps.kotlin.auth.dsl.ResourceServerConfigurationCustomize
 @EnableMethodSecurity(prePostEnabled = true, proxyTargetClass = true)
 class HmppsResourceServerConfiguration {
   @ConditionalOnMissingFilterBean
-  @Order(LOWEST_PRECEDENCE)
   @Bean
   fun hmppsSecurityFilterChain(http: HttpSecurity, customizer: ResourceServerConfigurationCustomizer): SecurityFilterChain = http {
     sessionManagement { SessionCreationPolicy.STATELESS }
@@ -82,7 +79,6 @@ class HmppsResourceServerConfiguration {
 @EnableReactiveMethodSecurity(useAuthorizationManager = false)
 class HmppsReactiveResourceServerConfiguration {
   @ConditionalOnMissingFilterBean
-  @Order(LOWEST_PRECEDENCE)
   @Bean
   fun hmppsSecurityWebFilterChain(http: ServerHttpSecurity, customizer: ResourceServerConfigurationCustomizer): SecurityWebFilterChain = http {
     csrf { disable() }
