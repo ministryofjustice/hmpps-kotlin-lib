@@ -59,8 +59,6 @@ open class AuthAwareAuthenticationToken(
   authorities: Collection<GrantedAuthority> = emptyList(),
 ) : JwtAuthenticationToken(jwt, authorities) {
   override fun getPrincipal(): String = userName ?: clientId
-
-  fun isSystemClientCredentials(): Boolean = userName == null
 }
 
 enum class AuthSource(val source: String) {
