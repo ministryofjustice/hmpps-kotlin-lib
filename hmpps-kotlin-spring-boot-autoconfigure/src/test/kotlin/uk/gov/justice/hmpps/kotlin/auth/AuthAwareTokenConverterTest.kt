@@ -90,33 +90,6 @@ class AuthAwareTokenConverterTest {
     assertThat(token.authSource).isEqualTo(AuthSource.NONE)
   }
 
-  @Test
-  fun `should be system client credentials`() {
-    val jwt = createJwt(
-      claims = mapOf(
-        "client_id" to "some client id",
-      ),
-    )
-
-    val token = AuthAwareTokenConverter().convert(jwt)
-
-    assertThat(token.isSystemClientCredentials()).isTrue()
-  }
-
-  @Test
-  fun `should not be system client credentials`() {
-    val jwt = createJwt(
-      claims = mapOf(
-        "user_name" to "some user name",
-        "client_id" to "some client id",
-      ),
-    )
-
-    val token = AuthAwareTokenConverter().convert(jwt)
-
-    assertThat(token.isSystemClientCredentials()).isFalse()
-  }
-
   private fun createJwt(
     subject: String = "some_subject",
     claims: Map<String, Any> = mapOf(),

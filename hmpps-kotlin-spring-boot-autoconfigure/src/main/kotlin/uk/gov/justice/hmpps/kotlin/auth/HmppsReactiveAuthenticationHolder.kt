@@ -64,7 +64,7 @@ class HmppsReactiveAuthenticationHolder {
 
   suspend fun getRoles(): Collection<GrantedAuthority?> = getAuthentication().authorities
 
-  suspend fun isClientOnly(): Boolean = getAuthentication().isSystemClientCredentials() ?: false
+  suspend fun isClientOnly(): Boolean = getAuthentication().userName == null
 
   suspend fun getClientId(): String = getAuthentication().clientId
 

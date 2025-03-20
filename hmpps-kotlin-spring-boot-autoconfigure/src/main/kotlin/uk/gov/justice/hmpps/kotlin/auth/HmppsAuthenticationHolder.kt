@@ -65,7 +65,7 @@ class HmppsAuthenticationHolder {
     get() = authentication.authorities
 
   val isClientOnly: Boolean
-    get() = authentication.isSystemClientCredentials()
+    get() = authentication.userName == null
 
   val clientId: String
     get() = authentication.clientId
