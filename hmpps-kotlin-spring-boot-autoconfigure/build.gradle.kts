@@ -2,17 +2,17 @@ import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-  kotlin("jvm") version "2.1.10"
-  kotlin("plugin.spring") version "2.1.10"
+  kotlin("jvm") version "2.1.20"
+  kotlin("plugin.spring") version "2.1.20"
   id("maven-publish")
   id("signing")
   id("com.adarshr.test-logger") version "4.0.0"
   id("com.github.ben-manes.versions") version "0.52.0"
   id("se.patrikerdes.use-latest-versions") version "0.2.18"
   id("io.spring.dependency-management") version "1.1.7"
-  id("org.jlleitschuh.gradle.ktlint") version "12.1.2"
+  id("org.jlleitschuh.gradle.ktlint") version "12.2.0"
   id("org.owasp.dependencycheck") version "8.4.3"
-  id("org.springframework.boot") version "3.4.3"
+  id("org.springframework.boot") version "3.4.4"
 }
 
 dependencies {
@@ -29,8 +29,8 @@ dependencies {
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8")
 
   testImplementation("org.assertj:assertj-core:3.27.3")
-  testImplementation("org.junit.jupiter:junit-jupiter:5.11.4")
-  testImplementation("org.mockito:mockito-junit-jupiter:5.15.2")
+  testImplementation("org.junit.jupiter:junit-jupiter:5.12.1")
+  testImplementation("org.mockito:mockito-junit-jupiter:5.16.1")
   testImplementation("org.springframework.boot:spring-boot-starter-test")
   testImplementation("org.springframework.security:spring-security-test")
   testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")

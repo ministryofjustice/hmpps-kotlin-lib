@@ -1,6 +1,6 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "7.1.3"
-  kotlin("plugin.spring") version "2.1.10"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "8.0.0"
+  kotlin("plugin.spring") version "2.1.20"
 }
 
 configurations {
@@ -12,7 +12,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-webflux")
 
   testImplementation(project(":hmpps-kotlin-spring-boot-starter-test"))
-  testImplementation("org.wiremock:wiremock-standalone:3.12.0")
+  testImplementation("org.wiremock:wiremock-standalone:3.12.1")
 }
 
 kotlin {
@@ -23,4 +23,8 @@ tasks {
   withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     compilerOptions.jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21
   }
+}
+
+configure<com.gorylenko.GitPropertiesPluginExtension> {
+  dotGitDirectory.set(File("${project.rootDir}/.git"))
 }
