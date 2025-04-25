@@ -10,7 +10,7 @@ plugins {
 
 dependencies {
   api(project(":hmpps-kotlin-spring-boot-test-autoconfigure"))
-  api(platform("org.springframework.boot:spring-boot-dependencies:3.4.4"))
+  api(platform("org.springframework.boot:spring-boot-dependencies:3.4.5"))
   api("org.springframework.boot:spring-boot-starter-test")
 
   api("io.jsonwebtoken:jjwt-impl:0.12.6")
