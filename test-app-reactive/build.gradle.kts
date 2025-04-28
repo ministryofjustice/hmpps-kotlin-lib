@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "8.0.0"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "8.1.0"
   kotlin("plugin.spring") version "2.1.20"
 }
 
@@ -15,7 +15,7 @@ dependencies {
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 
   testImplementation(project(":hmpps-kotlin-spring-boot-starter-test"))
-  testImplementation("org.wiremock:wiremock-standalone:3.12.1")
+  testImplementation("org.wiremock:wiremock-standalone:3.13.0")
   testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
 }
 
