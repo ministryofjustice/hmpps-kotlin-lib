@@ -2,8 +2,8 @@ import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-  kotlin("jvm") version "2.1.20"
-  kotlin("plugin.spring") version "2.1.20"
+  kotlin("jvm") version "2.1.21"
+  kotlin("plugin.spring") version "2.1.21"
   id("maven-publish")
   id("signing")
   id("com.adarshr.test-logger") version "4.0.0"
@@ -12,7 +12,7 @@ plugins {
   id("io.spring.dependency-management") version "1.1.7"
   id("org.jlleitschuh.gradle.ktlint") version "12.2.0"
   id("org.owasp.dependencycheck") version "8.4.3"
-  id("org.springframework.boot") version "3.4.5"
+  id("org.springframework.boot") version "3.5.0"
 }
 
 dependencies {
@@ -23,14 +23,14 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
   implementation("org.springframework.boot:spring-boot-starter-actuator")
 
-  implementation("org.springdoc:springdoc-openapi-starter-common:2.8.6")
+  implementation("org.springdoc:springdoc-openapi-starter-common:2.8.8")
 
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8")
 
   testImplementation("org.assertj:assertj-core:3.27.3")
   testImplementation("org.junit.jupiter:junit-jupiter:5.12.2")
-  testImplementation("org.mockito:mockito-junit-jupiter:5.17.0")
+  testImplementation("org.mockito:mockito-junit-jupiter:5.18.0")
   testImplementation("org.springframework.boot:spring-boot-starter-test")
   testImplementation("org.springframework.security:spring-security-test")
   testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
