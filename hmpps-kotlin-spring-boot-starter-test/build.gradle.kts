@@ -1,7 +1,7 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
 plugins {
-  kotlin("jvm") version "2.1.20"
+  kotlin("jvm") version "2.1.21"
   id("maven-publish")
   id("signing")
   id("com.github.ben-manes.versions") version "0.52.0"
@@ -10,7 +10,7 @@ plugins {
 
 dependencies {
   api(project(":hmpps-kotlin-spring-boot-test-autoconfigure"))
-  api(platform("org.springframework.boot:spring-boot-dependencies:3.4.5"))
+  api(platform("org.springframework.boot:spring-boot-dependencies:3.5.0"))
   api("org.springframework.boot:spring-boot-starter-test")
 
   api("io.jsonwebtoken:jjwt-impl:0.12.6")
