@@ -13,6 +13,7 @@ dependencies {
 
   testImplementation(project(":hmpps-kotlin-spring-boot-starter-test"))
   testImplementation("org.wiremock:wiremock-standalone:3.13.0")
+  testImplementation("io.opentelemetry:opentelemetry-sdk-testing")
 }
 
 kotlin {

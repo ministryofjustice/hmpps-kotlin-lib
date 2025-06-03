@@ -62,6 +62,7 @@ in your `application-test.yml` which will disable the component.
 * [Authentication Holders](readme-contents/AuthenticationHolders.md)
 * [Health Checks](readme-contents/HealthChecks.md)
 * [Info Contributors](readme-contents/InfoContributors.md)
+* [App Insights Client Tracking](readme-contents/AppInsightsClientTracking.md)
 
 ## Test Components
 * [Test Helpers](readme-contents/TestHelpers.md)
