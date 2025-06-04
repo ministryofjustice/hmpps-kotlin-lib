@@ -67,7 +67,9 @@ internal fun Any.defaultTrackingDetails(token: String) {
         currentSpan.setAttribute("username", this) // username in customDimensions
         currentSpan.setAttribute("enduser.id", this) // user_Id at the top level of the request
       }
-      currentSpan.setAttribute("clientId", jwtBody.getClaim("client_id").toString())
+      val clientId = jwtBody.getClaim("client_id")?.toString()
+      clientId?.run { currentSpan.setAttribute("clientId", this) }
+        ?: { log?.warn("Unable to find clientId in token") }
     } catch (e: ParseException) {
       log?.warn("problem decoding jwt public key for application insights", e)
     }
