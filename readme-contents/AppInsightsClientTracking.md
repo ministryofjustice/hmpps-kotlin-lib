@@ -5,7 +5,7 @@
 By including the library you get basic App Insights client tracking added to your application.
 This includes:
 * a basic Spring `HandlerInterceptor`/`WebFilter` to perform the client tracking (depending upon the Spring app being servlet or reactive based)
-* `client_id` and `user_name` are extracted from JWTs and added to the App Insights `Properties` / `customDimensions` as `clientId` and `uername`
+* `client_id` and `user_name` are extracted from JWTs and added to the App Insights `Properties` / `customDimensions` as `clientId` and `username`
 
 > [!WARNING]
 > If you already have client tracking configured then this library tries to get out of your way and wil do nothing if you 

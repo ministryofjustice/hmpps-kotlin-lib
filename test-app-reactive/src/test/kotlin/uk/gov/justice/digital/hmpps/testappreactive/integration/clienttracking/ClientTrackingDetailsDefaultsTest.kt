@@ -1,10 +1,12 @@
 package uk.gov.justice.digital.hmpps.testappreactive.integration.clienttracking
 
+import io.jsonwebtoken.Jwts
 import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.api.trace.Tracer
 import io.opentelemetry.sdk.testing.junit5.OpenTelemetryExtension
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.extension.RegisterExtension
 import org.mockito.kotlin.any
@@ -24,6 +26,10 @@ import reactor.core.publisher.Mono
 import uk.gov.justice.hmpps.kotlin.clienttracking.HmppsClientTrackingWebFilter
 import uk.gov.justice.hmpps.kotlin.clienttracking.HmppsReactiveClientTrackingConfiguration
 import uk.gov.justice.hmpps.test.kotlin.auth.JwtAuthorisationHelper
+import java.security.KeyPairGenerator
+import java.time.Duration
+import java.util.Date
+import java.util.UUID
 import kotlin.run
 import kotlin.use
 
@@ -85,6 +91,33 @@ class ClientTrackingDetailsDefaultsTest(
       })
     })
   }
+
+  @Test
+  fun `should handle missing client id`() {
+    val token = authTokenNoClientId()
+    val req = MockServerHttpRequest.get("/time").header(HttpHeaders.AUTHORIZATION, "Bearer $token").build()
+    val exchange = MockServerWebExchange.from(req)
+
+    assertDoesNotThrow {
+      tracer.spanBuilder("span").startSpan().run {
+        makeCurrent().use { hmppsClientTrackingWebFilter.filter(exchange, webFilterChain).block() }
+        end()
+      }
+    }
+  }
+
+  private fun authTokenNoClientId() = KeyPairGenerator
+    .getInstance("RSA")
+    .apply { initialize(2048) }
+    .generateKeyPair()
+    .let {
+      Jwts.builder()
+        .id(UUID.randomUUID().toString())
+        .subject("subject")
+        .expiration(Date(System.currentTimeMillis() + Duration.ofHours(2).toMillis()))
+        .signWith(it.private, Jwts.SIG.RS256)
+        .compact()
+    }
 
   private companion object {
     @JvmStatic
