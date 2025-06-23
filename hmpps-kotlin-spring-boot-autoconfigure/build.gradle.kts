@@ -10,9 +10,9 @@ plugins {
   id("com.github.ben-manes.versions") version "0.52.0"
   id("se.patrikerdes.use-latest-versions") version "0.2.18"
   id("io.spring.dependency-management") version "1.1.7"
-  id("org.jlleitschuh.gradle.ktlint") version "12.2.0"
+  id("org.jlleitschuh.gradle.ktlint") version "12.3.0"
   id("org.owasp.dependencycheck") version "8.4.3"
-  id("org.springframework.boot") version "3.5.0"
+  id("org.springframework.boot") version "3.5.3"
 }
 
 dependencies {
@@ -23,15 +23,15 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
   implementation("org.springframework.boot:spring-boot-starter-actuator")
 
-  implementation("org.springdoc:springdoc-openapi-starter-common:2.8.8")
+  implementation("org.springdoc:springdoc-openapi-starter-common:2.8.9")
 
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8")
 
-  implementation("io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations:2.14.0")
+  implementation("io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations:2.16.0")
 
   testImplementation("org.assertj:assertj-core:3.27.3")
-  testImplementation("org.junit.jupiter:junit-jupiter:5.12.2")
+  testImplementation("org.junit.jupiter:junit-jupiter:5.13.1")
   testImplementation("org.mockito:mockito-junit-jupiter:5.18.0")
   testImplementation("org.springframework.boot:spring-boot-starter-test")
   testImplementation("org.springframework.security:spring-security-test")
