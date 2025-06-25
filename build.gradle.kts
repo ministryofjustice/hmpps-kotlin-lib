@@ -11,7 +11,7 @@ plugins {
 
 allprojects {
   group = "uk.gov.justice.service.hmpps"
-  version = "1.4.7"
+  version = "1.4.8-beta"
 
   repositories {
     mavenCentral()
@@ -21,8 +21,8 @@ allprojects {
 nexusPublishing {
   repositories {
     create("sonatype") {
-      nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
-      snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
+      nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
+      snapshotRepositoryUrl.set(uri("https://central.sonatype.com/repository/maven-snapshots/"))
       username.set(System.getenv("OSSRH_USERNAME"))
       password.set(System.getenv("OSSRH_PASSWORD"))
     }
