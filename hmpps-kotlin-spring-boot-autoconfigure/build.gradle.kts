@@ -23,6 +23,9 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
   implementation("org.springframework.boot:spring-boot-starter-actuator")
 
+  // Temporarily pinned to mitigate https://spring.io/security/cve-2025-22227
+  implementation("io.projectreactor.netty:reactor-netty-http:1.2.8")
+
   implementation("org.springdoc:springdoc-openapi-starter-common:2.8.9")
 
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")

@@ -23,6 +23,9 @@ dependencies {
   implementation("org.springframework.security:spring-security-test")
   implementation(project(":hmpps-kotlin-spring-boot-starter"))
 
+  // Temporarily pinned to mitigate https://spring.io/security/cve-2025-22227
+  implementation("io.projectreactor.netty:reactor-netty-http:1.2.8")
+
   implementation("io.jsonwebtoken:jjwt-impl:0.12.6")
   implementation("io.jsonwebtoken:jjwt-jackson:0.12.6")
 }
