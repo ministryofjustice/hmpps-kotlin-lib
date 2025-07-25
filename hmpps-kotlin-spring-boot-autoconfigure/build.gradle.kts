@@ -12,7 +12,7 @@ plugins {
   id("io.spring.dependency-management") version "1.1.7"
   id("org.jlleitschuh.gradle.ktlint") version "13.0.0"
   id("org.owasp.dependencycheck") version "8.4.3"
-  id("org.springframework.boot") version "3.5.3"
+  id("org.springframework.boot") version "3.5.4"
 }
 
 dependencies {
@@ -23,9 +23,6 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
   implementation("org.springframework.boot:spring-boot-starter-actuator")
 
-  // Temporarily pinned to mitigate https://spring.io/security/cve-2025-22227
-  implementation("io.projectreactor.netty:reactor-netty-http:1.2.8")
-
   implementation("org.springdoc:springdoc-openapi-starter-common:2.8.9")
 
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
@@ -34,7 +31,7 @@ dependencies {
   implementation("io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations:2.18.0")
 
   testImplementation("org.assertj:assertj-core:3.27.3")
-  testImplementation("org.junit.jupiter:junit-jupiter:5.13.3")
+  testImplementation("org.junit.jupiter:junit-jupiter:5.13.4")
   testImplementation("org.mockito:mockito-junit-jupiter:5.18.0")
   testImplementation("org.springframework.boot:spring-boot-starter-test")
   testImplementation("org.springframework.security:spring-security-test")

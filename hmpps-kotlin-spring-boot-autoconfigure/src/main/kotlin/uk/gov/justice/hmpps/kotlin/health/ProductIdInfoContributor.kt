@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component
 
 @Component
 @ConditionalOnProperty(prefix = "hmpps", name = ["info.product-id-enabled"], matchIfMissing = true)
-class ProductIdInfoContributor(@Value("\${product-id:default}") private val productId: String) : InfoContributor {
+class ProductIdInfoContributor(@param:Value("\${product-id:default}") private val productId: String) : InfoContributor {
 
   override fun contribute(builder: Info.Builder) {
     builder.withDetail("productId", productId)
