@@ -25,6 +25,7 @@ import org.springframework.security.oauth2.client.web.reactive.function.client.S
 import org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.netty.http.client.HttpClient
+import uk.gov.justice.hmpps.kotlin.auth.service.GlobalPrincipalOAuth2AuthorizedClientService
 import java.time.Duration
 import kotlin.apply as kotlinApply
 
@@ -36,6 +37,18 @@ private const val DEFAULT_HEALTH_TIMEOUT_SECONDS: Long = 2
 @ConditionalOnBean(ClientRegistrationRepository::class)
 @Configuration
 class HmppsWebClientConfiguration {
+
+  /**
+   * This method generates an instance of the [org.springframework.security.oauth2.client.AuthorizedClientServiceOAuth2AuthorizedClientManager]
+   * class configured to cache all OAuth2 tokens under a single **principalName** using the
+   * [uk.gov.justice.hmpps.kotlin.auth.service.GlobalPrincipalOAuth2AuthorizedClientService].
+   *
+   * The purpose of this [org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager] is to avoid unnecessary token requests to HMPPS Auth,
+   * and it should be used for web clients where the [uk.gov.justice.hmpps.kotlin.auth.usernameAwareTokenRequestOAuth2AuthorizedClientManager] is not in use.
+   *
+   * @param clientRegistrationRepository
+   * @param OAuth2AuthorizedClientService
+   */
   @ConditionalOnMissingBean
   @Bean
   fun authorizedClientManager(
@@ -43,10 +56,10 @@ class HmppsWebClientConfiguration {
     oAuth2AuthorizedClientService: OAuth2AuthorizedClientService,
   ): OAuth2AuthorizedClientManager {
     val authorizedClientProvider = OAuth2AuthorizedClientProviderBuilder.builder().clientCredentials().build()
-    return AuthorizedClientServiceOAuth2AuthorizedClientManager(
-      clientRegistrationRepository,
-      oAuth2AuthorizedClientService,
-    ).kotlinApply { setAuthorizedClientProvider(authorizedClientProvider) }
+    val globalPrincipalOAuth2AuthorizedClientService = GlobalPrincipalOAuth2AuthorizedClientService(oAuth2AuthorizedClientService)
+    return AuthorizedClientServiceOAuth2AuthorizedClientManager(clientRegistrationRepository, globalPrincipalOAuth2AuthorizedClientService).kotlinApply {
+      setAuthorizedClientProvider(authorizedClientProvider)
+    }
   }
 }
 
