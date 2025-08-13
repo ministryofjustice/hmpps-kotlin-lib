@@ -11,6 +11,7 @@ import org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAu
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.oauth2.client.AuthorizedClientServiceOAuth2AuthorizedClientManager
 import org.springframework.security.oauth2.client.AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager
@@ -19,6 +20,7 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientManager
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientProviderBuilder
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientService
+import org.springframework.security.oauth2.client.endpoint.RestClientClientCredentialsTokenResponseClient
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository
 import org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction
@@ -123,3 +125,42 @@ fun WebClient.Builder.reactiveHealthWebClient(
 ): WebClient = baseUrl(url)
   .clientConnector(ReactorClientHttpConnector(HttpClient.create().responseTimeout(healthTimeout)))
   .build()
+
+/**
+ * This method generates an instance of the [org.springframework.security.oauth2.client.AuthorizedClientServiceOAuth2AuthorizedClientManager]
+ * class configured to include the name of the authenticated principal in the OAuth2ClientCredentialsGrantRequest. This is designed to be used as part of
+ * a request scoped web client where the authenticated principal can vary between requests.
+ *
+ * A [org.springframework.security.oauth2.client.endpoint.RestClientClientCredentialsTokenResponseClient] is configured to extract
+ * the principal name from the current [org.springframework.security.core.Authentication] object and sets it as the **username** parameter
+ * on the client credentials token request.
+ *
+ * This should be used for web clients where the user context is required.
+ *
+ * @param clientRegistrationRepository
+ * @param OAuth2AuthorizedClientService
+ */
+fun usernameAwareTokenRequestOAuth2AuthorizedClientManager(
+  clientRegistrationRepository: ClientRegistrationRepository,
+  oAuth2AuthorizedClientServiceToWrap: OAuth2AuthorizedClientService,
+): OAuth2AuthorizedClientManager {
+  val usernameAwareRestClientClientCredentialsTokenResponseClient = RestClientClientCredentialsTokenResponseClient().kotlinApply {
+    val authentication = SecurityContextHolder.getContext().authentication
+
+    setParametersCustomizer { params ->
+      params.add("username", authentication.name)
+    }
+  }
+
+  val authorizedClientProvider = OAuth2AuthorizedClientProviderBuilder.builder()
+    .clientCredentials { builder ->
+      builder.accessTokenResponseClient(
+        usernameAwareRestClientClientCredentialsTokenResponseClient,
+      )
+    }
+    .build()
+
+  return AuthorizedClientServiceOAuth2AuthorizedClientManager(clientRegistrationRepository, oAuth2AuthorizedClientServiceToWrap).kotlinApply {
+    setAuthorizedClientProvider(authorizedClientProvider)
+  }
+}
