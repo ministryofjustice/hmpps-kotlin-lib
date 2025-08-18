@@ -55,10 +55,9 @@ class HmppsWebClientConfiguration {
   @Bean
   fun authorizedClientManager(
     clientRegistrationRepository: ClientRegistrationRepository,
-    oAuth2AuthorizedClientService: OAuth2AuthorizedClientService,
   ): OAuth2AuthorizedClientManager {
     val authorizedClientProvider = OAuth2AuthorizedClientProviderBuilder.builder().clientCredentials().build()
-    val globalPrincipalOAuth2AuthorizedClientService = GlobalPrincipalOAuth2AuthorizedClientService(oAuth2AuthorizedClientService)
+    val globalPrincipalOAuth2AuthorizedClientService = GlobalPrincipalOAuth2AuthorizedClientService(clientRegistrationRepository)
     return AuthorizedClientServiceOAuth2AuthorizedClientManager(clientRegistrationRepository, globalPrincipalOAuth2AuthorizedClientService).kotlinApply {
       setAuthorizedClientProvider(authorizedClientProvider)
     }

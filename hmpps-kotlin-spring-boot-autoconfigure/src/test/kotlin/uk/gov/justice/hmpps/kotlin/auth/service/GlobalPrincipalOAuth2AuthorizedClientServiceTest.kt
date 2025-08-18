@@ -1,120 +1,151 @@
 package uk.gov.justice.hmpps.kotlin.auth.service
 
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.mockito.kotlin.any
-import org.mockito.kotlin.eq
-import org.mockito.kotlin.mock
+import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.Mock
+import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.security.core.Authentication
-import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService
+import org.springframework.security.oauth2.client.registration.ClientRegistration
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
+import org.springframework.security.oauth2.core.AuthorizationGrantType
+import org.springframework.security.oauth2.core.OAuth2AccessToken
+import java.time.Duration
+import java.time.Instant
 
+@ExtendWith(MockitoExtension::class)
 class GlobalPrincipalOAuth2AuthorizedClientServiceTest {
 
   companion object {
-    const val REGISTRATION_ID = "test-client"
-    const val SERVICE_TO_SERVICE_PRINCIPAL_NAME = "global-service-to-service-principal"
-    const val PRINCIPAL_TO_OVERRIDE = "principal-to-override"
+    const val TEST_REGISTRATION_ID = "test-service-client"
+    const val TEST_SYSTEM_USERNAME = "test-service"
+    const val TEST_PRINCIPAL_ONE = "principal-one"
+    const val TEST_PRINCIPAL_TWO = "principal-two"
+    val TEST_CLIENT_REGISTRATION: ClientRegistration =
+      ClientRegistration.withRegistrationId(TEST_REGISTRATION_ID)
+        .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+        .clientId("clientId")
+        .clientSecret("clientSecret")
+        .tokenUri("tokenUri")
+        .build()
+    val TEST_CLIENT_TOKEN = OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "test-token", Instant.now(), Instant.now().plus(Duration.ofHours(1)))
+    val TEST_AUTHORIZED_CLIENT = OAuth2AuthorizedClient(TEST_CLIENT_REGISTRATION, TEST_SYSTEM_USERNAME, TEST_CLIENT_TOKEN)
+    val AUTHENTICATED_PRINCIPAL_ONE = UsernamePasswordAuthenticationToken(TEST_PRINCIPAL_ONE, null)
   }
 
-  private val grantedAuthorities = listOf(SimpleGrantedAuthority("ABC123"))
+  @Mock
+  private lateinit var clientRegistrationRepositoryMock: ClientRegistrationRepository
 
-  private val serviceToServicePrincipal = UsernamePasswordAuthenticationToken(SERVICE_TO_SERVICE_PRINCIPAL_NAME, "")
-
-  private var oAuth2AuthorizedClientMock: OAuth2AuthorizedClient = mock()
-  private var principalMock: Authentication = mock()
-  private var wrappedService: OAuth2AuthorizedClientService = mock()
-  private lateinit var service: OAuth2AuthorizedClientService
+  private lateinit var globalPrincipalOAuth2AuthorizedClientService: GlobalPrincipalOAuth2AuthorizedClientService
 
   @BeforeEach
   fun setup() {
-    service = GlobalPrincipalOAuth2AuthorizedClientService(wrappedService)
-
-    whenever(principalMock.name)
-      .thenReturn(PRINCIPAL_TO_OVERRIDE)
-
-    whenever(principalMock.authorities)
-      .thenReturn(grantedAuthorities)
-
-    whenever(
-      wrappedService.loadAuthorizedClient(
-        REGISTRATION_ID,
-        SERVICE_TO_SERVICE_PRINCIPAL_NAME,
-      ) as OAuth2AuthorizedClient?,
-    ).thenReturn(oAuth2AuthorizedClientMock)
+    globalPrincipalOAuth2AuthorizedClientService = GlobalPrincipalOAuth2AuthorizedClientService(clientRegistrationRepositoryMock)
   }
 
-  @Test
-  fun `loadAuthorizedClient success the expected auth client is returned `() {
-    val result: OAuth2AuthorizedClient? =
-      service.loadAuthorizedClient(
-        REGISTRATION_ID,
-        PRINCIPAL_TO_OVERRIDE,
-      )
-    assertThat(result).isNotNull()
+  @Nested
+  inner class LoadAuthorizedClientTests {
 
-    assertThat(result).isEqualTo(oAuth2AuthorizedClientMock)
+    @Test
+    fun `loadAuthorizedClient returns the expected cached OAuth2AuthorizedClient for a given registration id even if the authenticated principal is different`() {
+      whenever(clientRegistrationRepositoryMock.findByRegistrationId(TEST_REGISTRATION_ID))
+        .thenReturn(TEST_CLIENT_REGISTRATION)
+      globalPrincipalOAuth2AuthorizedClientService.saveAuthorizedClient(TEST_AUTHORIZED_CLIENT, AUTHENTICATED_PRINCIPAL_ONE)
 
-    verify(wrappedService, times(1))
-      .loadAuthorizedClient(
-        REGISTRATION_ID,
-        SERVICE_TO_SERVICE_PRINCIPAL_NAME,
-      ) as OAuth2AuthorizedClient?
-  }
+      assertCachedAuthorizedClientsStateIsCorrect(listOf(TEST_PRINCIPAL_ONE, TEST_PRINCIPAL_TWO), TEST_AUTHORIZED_CLIENT)
 
-  @Test
-  fun `loadAuthorizedClient loads clients using the single principal name instead of provided principal name value`() {
-    val result: OAuth2AuthorizedClient? = service.loadAuthorizedClient(REGISTRATION_ID, PRINCIPAL_TO_OVERRIDE)
-    assertThat(result).isNotNull()
-
-    assertThat(result).isEqualTo(oAuth2AuthorizedClientMock)
-
-    verify(wrappedService, times(1))
-      .loadAuthorizedClient(
-        REGISTRATION_ID,
-        SERVICE_TO_SERVICE_PRINCIPAL_NAME,
-      ) as OAuth2AuthorizedClient?
-  }
-
-  @Test
-  fun `saveAuthorizedClient uses the expected service to service principal`() {
-    service.saveAuthorizedClient(oAuth2AuthorizedClientMock, principalMock)
-
-    verify(wrappedService, times(1))
-      .saveAuthorizedClient(eq(oAuth2AuthorizedClientMock), eq(serviceToServicePrincipal))
-  }
-
-  @Test
-  fun `removeAuthorizedClient propagates exception thrown by wrapped OAuth2AuthorizedClientService`() {
-    whenever(wrappedService.removeAuthorizedClient(any(), any()))
-      .thenThrow(RuntimeException::class.java)
-
-    assertThatThrownBy {
-      service.removeAuthorizedClient(REGISTRATION_ID, PRINCIPAL_TO_OVERRIDE)
+      verify(clientRegistrationRepositoryMock, times(2))
+        .findByRegistrationId(TEST_REGISTRATION_ID)
     }
 
-    verify(wrappedService, times(1))
-      .removeAuthorizedClient(
-        REGISTRATION_ID,
-        SERVICE_TO_SERVICE_PRINCIPAL_NAME,
-      )
+    @Test
+    fun `loadAuthorizedClient returns null if the requested registration id is not found in the registered clients repository`() {
+      whenever(clientRegistrationRepositoryMock.findByRegistrationId(TEST_REGISTRATION_ID))
+        .thenReturn(null)
+
+      assertCachedAuthorizedClientsStateIsCorrect(listOf(TEST_PRINCIPAL_ONE, TEST_PRINCIPAL_TWO), null)
+
+      verify(clientRegistrationRepositoryMock, times(2))
+        .findByRegistrationId(TEST_REGISTRATION_ID)
+    }
+
+    @Test
+    fun `loadAuthorizedClient returns null if the requested OAuth2AuthorizedClient has not been cached under the system username`() {
+      whenever(clientRegistrationRepositoryMock.findByRegistrationId(TEST_REGISTRATION_ID))
+        .thenReturn(TEST_CLIENT_REGISTRATION)
+
+      assertCachedAuthorizedClientsStateIsCorrect(listOf(TEST_PRINCIPAL_ONE, TEST_PRINCIPAL_TWO), null)
+
+      verify(clientRegistrationRepositoryMock, times(2))
+        .findByRegistrationId(TEST_REGISTRATION_ID)
+    }
   }
 
-  @Test
-  fun `removeAuthorizedClient uses expected principal regardless of input principal`() {
-    service.removeAuthorizedClient(REGISTRATION_ID, PRINCIPAL_TO_OVERRIDE)
+  @Nested
+  inner class SaveAuthorizedClientTests {
 
-    verify(wrappedService, times(1))
-      .removeAuthorizedClient(
-        REGISTRATION_ID,
-        SERVICE_TO_SERVICE_PRINCIPAL_NAME,
+    @Test
+    fun `saveAuthorizedClient stores OAuth2AuthorizedClient under the system username instead of the authenticated principal`() {
+      whenever(clientRegistrationRepositoryMock.findByRegistrationId(TEST_REGISTRATION_ID))
+        .thenReturn(TEST_CLIENT_REGISTRATION)
+
+      globalPrincipalOAuth2AuthorizedClientService.saveAuthorizedClient(TEST_AUTHORIZED_CLIENT, AUTHENTICATED_PRINCIPAL_ONE)
+
+      assertCachedAuthorizedClientsStateIsCorrect(listOf(TEST_PRINCIPAL_ONE, TEST_PRINCIPAL_TWO), TEST_AUTHORIZED_CLIENT)
+    }
+  }
+
+  @Nested
+  inner class RemoveAuthorizedClientTests {
+    @BeforeEach
+    fun setup() {
+      whenever(clientRegistrationRepositoryMock.findByRegistrationId(TEST_REGISTRATION_ID))
+        .thenReturn(TEST_CLIENT_REGISTRATION)
+
+      globalPrincipalOAuth2AuthorizedClientService.saveAuthorizedClient(TEST_AUTHORIZED_CLIENT, AUTHENTICATED_PRINCIPAL_ONE)
+    }
+
+    @Test
+    fun `removeAuthorizedClient removes an OAuth2AuthorizedClient cached by a different authenticated principal`() {
+      assertCachedAuthorizedClientsStateIsCorrect(listOf(TEST_PRINCIPAL_ONE), TEST_AUTHORIZED_CLIENT)
+
+      globalPrincipalOAuth2AuthorizedClientService.removeAuthorizedClient(TEST_REGISTRATION_ID, TEST_PRINCIPAL_TWO)
+
+      assertCachedAuthorizedClientsStateIsCorrect(listOf(TEST_PRINCIPAL_ONE, TEST_PRINCIPAL_TWO), null)
+
+      verify(clientRegistrationRepositoryMock, times(4))
+        .findByRegistrationId(TEST_REGISTRATION_ID)
+    }
+
+    @Test
+    fun `removeAuthorizedClient removes an OAuth2AuthorizedClient cached by a same authenticated principal`() {
+      assertCachedAuthorizedClientsStateIsCorrect(listOf(TEST_PRINCIPAL_ONE), TEST_AUTHORIZED_CLIENT)
+
+      globalPrincipalOAuth2AuthorizedClientService.removeAuthorizedClient(TEST_REGISTRATION_ID, TEST_PRINCIPAL_ONE)
+
+      assertCachedAuthorizedClientsStateIsCorrect(listOf(TEST_PRINCIPAL_ONE, TEST_PRINCIPAL_TWO), null)
+
+      verify(clientRegistrationRepositoryMock, times(4))
+        .findByRegistrationId(TEST_REGISTRATION_ID)
+    }
+  }
+
+  private fun assertCachedAuthorizedClientsStateIsCorrect(
+    testPrincipals: Collection<String>,
+    expectedClient: OAuth2AuthorizedClient?,
+  ) {
+    for (testPrincipal in testPrincipals) {
+      val returnedClient: OAuth2AuthorizedClient? = globalPrincipalOAuth2AuthorizedClientService.loadAuthorizedClient(
+        TEST_REGISTRATION_ID,
+        testPrincipal,
       )
+      assertThat(returnedClient).isEqualTo(expectedClient)
+    }
   }
 }

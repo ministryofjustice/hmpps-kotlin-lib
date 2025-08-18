@@ -1,18 +1,17 @@
 package uk.gov.justice.hmpps.kotlin.auth.service
 
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientId
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
+import java.util.concurrent.ConcurrentHashMap
 
 /**
- * OAuth2AuthorizedClientService implementation that caches clients using the single provided principal name. Clients are
+ * OAuth2AuthorizedClientService implementation that caches clients using the single global principal name. Clients are
  * cached against a [org.springframework.security.oauth2.client.OAuth2AuthorizedClientId] key constructed from:
  * - **clientRegistrationId** And
  * - **principalName** - Hardcoded to `global-system-principal`.
- *
- * This class is designed to wrap the existing instance of the [org.springframework.security.oauth2.client.OAuth2AuthorizedClientService]
- * and override the **principalName**
  *
  * The default implementation [org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService] sets
  * the **principalName** to the **principal** extracted from the current [org.springframework.security.core.Authentication] object.
@@ -23,35 +22,33 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService
  * a new token will be created per user session. During periods of heavy traffic this creates additional load on the Auth token endpoint.
  */
 class GlobalPrincipalOAuth2AuthorizedClientService(
-  private val wrappedOAuth2AuthorizedClientService: OAuth2AuthorizedClientService,
+  private val clientRegistrationRepository: ClientRegistrationRepository,
 ) : OAuth2AuthorizedClientService {
 
   companion object {
-    const val GLOBAL_PRINCIPAL = "global-system-principal"
-    private val GLOBAL_PRINCIPAL_AUTHENTICATION_OBJECT = UsernamePasswordAuthenticationToken(GLOBAL_PRINCIPAL, "")
+    const val GLOBAL_SYSTEM_PRINCIPAL = "global-system-principal"
   }
+
+  private val authorizedClients: MutableMap<OAuth2AuthorizedClientId, OAuth2AuthorizedClient> =
+    ConcurrentHashMap()
 
   override fun <T : OAuth2AuthorizedClient?> loadAuthorizedClient(
     clientRegistrationId: String,
     principalName: String,
-  ): T? = wrappedOAuth2AuthorizedClientService.loadAuthorizedClient(
-    clientRegistrationId,
-    GLOBAL_PRINCIPAL,
-  )
+  ): T? = clientRegistrationRepository.findByRegistrationId(clientRegistrationId)?.let {
+    @Suppress("UNCHECKED_CAST")
+    authorizedClients[OAuth2AuthorizedClientId(clientRegistrationId, GLOBAL_SYSTEM_PRINCIPAL)] as T
+  }
 
-  override fun saveAuthorizedClient(
-    authorizedClient: OAuth2AuthorizedClient,
-    principal: Authentication,
-  ) = wrappedOAuth2AuthorizedClientService.saveAuthorizedClient(
-    authorizedClient,
-    GLOBAL_PRINCIPAL_AUTHENTICATION_OBJECT,
-  )
+  override fun saveAuthorizedClient(authorizedClient: OAuth2AuthorizedClient, principal: Authentication) {
+    authorizedClients[
+      OAuth2AuthorizedClientId(authorizedClient.clientRegistration.registrationId, GLOBAL_SYSTEM_PRINCIPAL),
+    ] = authorizedClient
+  }
 
-  override fun removeAuthorizedClient(
-    clientRegistrationId: String,
-    principalName: String,
-  ) = wrappedOAuth2AuthorizedClientService.removeAuthorizedClient(
-    clientRegistrationId,
-    GLOBAL_PRINCIPAL,
-  )
+  override fun removeAuthorizedClient(clientRegistrationId: String, principalName: String) {
+    clientRegistrationRepository.findByRegistrationId(clientRegistrationId)?.apply {
+      authorizedClients.remove(OAuth2AuthorizedClientId(clientRegistrationId, GLOBAL_SYSTEM_PRINCIPAL))
+    }
+  }
 }
