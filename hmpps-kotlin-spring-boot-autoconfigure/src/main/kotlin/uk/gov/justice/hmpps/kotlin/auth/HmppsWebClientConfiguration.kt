@@ -19,7 +19,6 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientManager
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientProviderBuilder
-import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientService
 import org.springframework.security.oauth2.client.endpoint.RestClientClientCredentialsTokenResponseClient
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository
@@ -28,6 +27,7 @@ import org.springframework.security.oauth2.client.web.reactive.function.client.S
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.netty.http.client.HttpClient
 import uk.gov.justice.hmpps.kotlin.auth.service.GlobalPrincipalOAuth2AuthorizedClientService
+import uk.gov.justice.hmpps.kotlin.auth.service.GlobalPrincipalReactiveOAuth2AuthorizedClientService
 import java.time.Duration
 import kotlin.apply as kotlinApply
 
@@ -49,7 +49,6 @@ class HmppsWebClientConfiguration {
    * and it should be used for web clients where the [uk.gov.justice.hmpps.kotlin.auth.usernameAwareTokenRequestOAuth2AuthorizedClientManager] is not in use.
    *
    * @param clientRegistrationRepository
-   * @param OAuth2AuthorizedClientService
    */
   @ConditionalOnMissingBean
   @Bean
@@ -74,10 +73,9 @@ class HmppsReactiveWebClientConfiguration {
   @Bean
   fun reactiveOAuth2AuthorizedClientManager(
     reactiveClientRegistrationRepository: ReactiveClientRegistrationRepository,
-    reactiveOAuth2AuthorizedClientService: ReactiveOAuth2AuthorizedClientService,
   ): ReactiveOAuth2AuthorizedClientManager = AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager(
     reactiveClientRegistrationRepository,
-    reactiveOAuth2AuthorizedClientService,
+    GlobalPrincipalReactiveOAuth2AuthorizedClientService(reactiveClientRegistrationRepository),
   ).kotlinApply { setAuthorizedClientProvider(ReactiveOAuth2AuthorizedClientProviderBuilder.builder().clientCredentials().build()) }
 }
 
