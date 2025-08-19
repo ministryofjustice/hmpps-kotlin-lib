@@ -15,7 +15,7 @@ class TestAppResource(private val prisonApiService: PrisonApiService) {
   fun getTime(): LocalDateTime = LocalDateTime.now()
 
   @RequestMapping("/prisoner/{prisonNumber}/booking")
-  fun getOffenderBooking(@PathVariable prisonNumber: String) = prisonApiService.getOffenderBooking(prisonNumber)
+  fun getOffenderBooking(@PathVariable prisonNumber: String) = prisonApiService.getOffenderBookingWithUserInContext(prisonNumber)
 
   @RequestMapping("/auth/token")
   fun getAuthToken() = prisonApiService.getAuthToken()
