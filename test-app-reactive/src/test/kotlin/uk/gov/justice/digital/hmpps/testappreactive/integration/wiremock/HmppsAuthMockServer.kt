@@ -42,7 +42,7 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
     private const val WIREMOCK_PORT = 8090
   }
 
-  fun stubGrantToken() {
+  fun stubGrantToken(delayMs: Int = 0) {
     stubFor(
       post(urlEqualTo("/auth/oauth/token"))
         .willReturn(
@@ -55,7 +55,8 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
                   "access_token": "ABCDE"
                 }
               """.trimIndent(),
-            ),
+            )
+            .withFixedDelay(delayMs),
         ),
     )
   }

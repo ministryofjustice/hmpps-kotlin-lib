@@ -10,21 +10,27 @@ import org.springframework.boot.autoconfigure.security.oauth2.client.reactive.Re
 import org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientWebSecurityAutoConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.client.SimpleClientHttpRequestFactory
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.ReactiveSecurityContextHolder
 import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.http.converter.FormHttpMessageConverter
 import org.springframework.security.oauth2.client.AuthorizedClientServiceOAuth2AuthorizedClientManager
 import org.springframework.security.oauth2.client.AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProviderBuilder
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientManager
+import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientProvider
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientProviderBuilder
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientService
 import org.springframework.security.oauth2.client.endpoint.RestClientClientCredentialsTokenResponseClient
+import org.springframework.security.oauth2.client.endpoint.DefaultClientCredentialsTokenResponseClient
 import org.springframework.security.oauth2.client.endpoint.WebClientReactiveClientCredentialsTokenResponseClient
+import org.springframework.security.oauth2.client.http.OAuth2ErrorResponseErrorHandler
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository
 import org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction
@@ -32,6 +38,8 @@ import org.springframework.security.oauth2.client.web.reactive.function.client.S
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.ClientRequest
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction
+import org.springframework.security.oauth2.core.http.converter.OAuth2AccessTokenResponseHttpMessageConverter
+import org.springframework.web.client.RestTemplate
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.netty.http.client.HttpClient
 import uk.gov.justice.hmpps.kotlin.auth.service.GlobalPrincipalOAuth2AuthorizedClientService
@@ -62,18 +70,21 @@ class HmppsWebClientConfiguration {
   @Bean
   fun authorizedClientManager(
     clientRegistrationRepository: ClientRegistrationRepository,
+    oAuth2AuthorizedClientProvider: OAuth2AuthorizedClientProvider,
   ): OAuth2AuthorizedClientManager {
-    val authorizedClientProvider =
-      OAuth2AuthorizedClientProviderBuilder.builder().clientCredentials().build()
     val globalPrincipalOAuth2AuthorizedClientService =
       GlobalPrincipalOAuth2AuthorizedClientService(clientRegistrationRepository)
     return AuthorizedClientServiceOAuth2AuthorizedClientManager(
       clientRegistrationRepository,
       globalPrincipalOAuth2AuthorizedClientService,
     ).kotlinApply {
-      setAuthorizedClientProvider(authorizedClientProvider)
+      setAuthorizedClientProvider(oAuth2AuthorizedClientProvider)
     }
   }
+
+  @ConditionalOnMissingBean
+  @Bean
+  fun authorizedClientProvider(): OAuth2AuthorizedClientProvider = oAuth2AuthorizedClientProvider(Duration.ofSeconds(DEFAULT_TIMEOUT_SECONDS))
 }
 
 @AutoConfigureAfter(ReactiveOAuth2ClientWebSecurityAutoConfiguration::class)
@@ -86,14 +97,53 @@ class HmppsReactiveWebClientConfiguration {
   @Bean
   fun reactiveOAuth2AuthorizedClientManager(
     reactiveClientRegistrationRepository: ReactiveClientRegistrationRepository,
+    reactiveOAuth2AuthorizedClientProvider: ReactiveOAuth2AuthorizedClientProvider,
   ): ReactiveOAuth2AuthorizedClientManager = AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager(
     reactiveClientRegistrationRepository,
     GlobalPrincipalReactiveOAuth2AuthorizedClientService(reactiveClientRegistrationRepository),
   ).kotlinApply {
-    setAuthorizedClientProvider(
-      ReactiveOAuth2AuthorizedClientProviderBuilder.builder().clientCredentials().build(),
+    setAuthorizedClientProvider(reactiveOAuth2AuthorizedClientProvider)
+  }
+
+  @ConditionalOnMissingBean
+  @Bean
+  fun reactiveOAuth2AuthorizedClientProvider(
+    builder: WebClient.Builder,
+  ): ReactiveOAuth2AuthorizedClientProvider = builder.reactiveOAuth2AuthorizedClientProvider(Duration.ofSeconds(DEFAULT_TIMEOUT_SECONDS))
+}
+
+fun oAuth2AuthorizedClientProvider(clientCredentialsClientTimeout: Duration): OAuth2AuthorizedClientProvider {
+  // TODO We have to use a deprecated class here because that's what Spring Security uses. If Spring Security switches to RestClientClientCredentialsTokenResponseClient then we can do the same.
+  val accessTokenResponseClient = DefaultClientCredentialsTokenResponseClient().kotlinApply {
+    setRestOperations(
+      RestTemplate(listOf(FormHttpMessageConverter(), OAuth2AccessTokenResponseHttpMessageConverter())).kotlinApply {
+        errorHandler = OAuth2ErrorResponseErrorHandler()
+        requestFactory = SimpleClientHttpRequestFactory().kotlinApply {
+          setReadTimeout(clientCredentialsClientTimeout)
+        }
+      },
     )
   }
+  return OAuth2AuthorizedClientProviderBuilder
+    .builder()
+    .clientCredentials { it.accessTokenResponseClient(accessTokenResponseClient).build() }
+    .build()
+}
+
+fun WebClient.Builder.reactiveOAuth2AuthorizedClientProvider(clientCredentialsClientTimeout: Duration): ReactiveOAuth2AuthorizedClientProvider {
+  val accessTokenResponseClient = WebClientReactiveClientCredentialsTokenResponseClient().kotlinApply {
+    setWebClient(
+      this@reactiveOAuth2AuthorizedClientProvider.clientConnector(
+        ReactorClientHttpConnector(
+          HttpClient.create().responseTimeout(clientCredentialsClientTimeout),
+        ),
+      ).build(),
+    )
+  }
+  return ReactiveOAuth2AuthorizedClientProviderBuilder
+    .builder()
+    .clientCredentials { it.accessTokenResponseClient(accessTokenResponseClient).build() }
+    .build()
 }
 
 fun WebClient.Builder.authorisedWebClient(
