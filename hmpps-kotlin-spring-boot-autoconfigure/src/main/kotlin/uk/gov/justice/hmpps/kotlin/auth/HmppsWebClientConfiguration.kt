@@ -248,6 +248,21 @@ fun usernameAwareTokenRequestOAuth2AuthorizedClientManager(
   }
 }
 
+/**
+ * This method generates an instance of the [AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager]
+ * class configured to include the name of the authenticated principal in the OAuth2ClientCredentialsGrantRequest. This is designed to be used as part of
+ * a request scoped web client where the authenticated principal can vary between requests.
+ *
+ * A [WebClientReactiveClientCredentialsTokenResponseClient] is configured with an exchange filter function to extract
+ * the principal name from the current [org.springframework.security.core.Authentication] object in the [ReactiveSecurityContextHolder]
+ * and set it as the **username** parameter on the client credentials token request.
+ *
+ * This should be used for web clients where the user context is required.
+ *
+ * @param reactiveClientRegistrationRepository
+ * @param reactiveOAuth2AuthorizedClientService
+ * @param clientCredentialsRequestTimeout
+ */
 fun reactiveUsernameAwareTokenRequestOAuth2AuthorizedClientManager(
   reactiveClientRegistrationRepository: ReactiveClientRegistrationRepository,
   reactiveOAuth2AuthorizedClientService: ReactiveOAuth2AuthorizedClientService,
