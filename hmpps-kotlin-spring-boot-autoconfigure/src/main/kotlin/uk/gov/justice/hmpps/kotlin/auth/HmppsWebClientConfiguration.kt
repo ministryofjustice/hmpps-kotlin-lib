@@ -122,32 +122,30 @@ class HmppsReactiveWebClientConfiguration {
   ): ReactiveOAuth2AuthorizedClientProvider = builder.reactiveOAuth2AuthorizedClientProvider(Duration.ofSeconds(DEFAULT_TIMEOUT_SECONDS))
 }
 
-fun oAuth2AuthorizedClientProvider(clientCredentialsClientTimeout: Duration): OAuth2AuthorizedClientProvider =
-  OAuth2AuthorizedClientProviderBuilder
-    .builder()
-    .clientCredentials { it.accessTokenResponseClient(createAccessTokenResponseClient(clientCredentialsClientTimeout)) }
-    .build()
-
-private fun createAccessTokenResponseClient(clientCredentialsClientTimeout: Duration): RestClientClientCredentialsTokenResponseClient =
-  RestClientClientCredentialsTokenResponseClient().kotlinApply {
-    val requestFactory = ReactorClientHttpRequestFactory().kotlinApply {
-      setReadTimeout(clientCredentialsClientTimeout)
-    }
-
-    // code duplicated from AbstractRestClientOAuth2AccessTokenResponseClient.restClient
-    // so that we can set our requestFactory
-    val restClient = RestClient.builder()
-      .messageConverters { messageConverters: MutableList<HttpMessageConverter<*>?> ->
-        messageConverters.clear()
-        messageConverters.add(FormHttpMessageConverter())
-        messageConverters.add(OAuth2AccessTokenResponseHttpMessageConverter())
-      }
-      .defaultStatusHandler(OAuth2ErrorResponseErrorHandler())
-      .requestFactory(requestFactory)
+fun oAuth2AuthorizedClientProvider(clientCredentialsClientTimeout: Duration): OAuth2AuthorizedClientProvider = OAuth2AuthorizedClientProviderBuilder
+  .builder()
+  .clientCredentials { it.accessTokenResponseClient(createAccessTokenResponseClient(clientCredentialsClientTimeout)) }
   .build()
 
-    setRestClient(restClient)
+private fun createAccessTokenResponseClient(clientCredentialsClientTimeout: Duration): RestClientClientCredentialsTokenResponseClient = RestClientClientCredentialsTokenResponseClient().kotlinApply {
+  val requestFactory = ReactorClientHttpRequestFactory().kotlinApply {
+    setReadTimeout(clientCredentialsClientTimeout)
   }
+
+  // code duplicated from AbstractRestClientOAuth2AccessTokenResponseClient.restClient
+  // so that we can set our requestFactory
+  val restClient = RestClient.builder()
+    .messageConverters { messageConverters: MutableList<HttpMessageConverter<*>?> ->
+      messageConverters.clear()
+      messageConverters.add(FormHttpMessageConverter())
+      messageConverters.add(OAuth2AccessTokenResponseHttpMessageConverter())
+    }
+    .defaultStatusHandler(OAuth2ErrorResponseErrorHandler())
+    .requestFactory(requestFactory)
+    .build()
+
+  setRestClient(restClient)
+}
 
 fun WebClient.Builder.reactiveOAuth2AuthorizedClientProvider(clientCredentialsClientTimeout: Duration): ReactiveOAuth2AuthorizedClientProvider {
   val accessTokenResponseClient = WebClientReactiveClientCredentialsTokenResponseClient().kotlinApply {
