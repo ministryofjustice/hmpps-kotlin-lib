@@ -4,8 +4,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
-import uk.gov.justice.digital.hmpps.testapp.health.HmppsAuthHealthPing
 import uk.gov.justice.digital.hmpps.testapp.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.testapp.integration.wiremock.HmppsAuthApiExtension
 import uk.gov.justice.digital.hmpps.testapp.integration.wiremock.PrisonApiExtension
