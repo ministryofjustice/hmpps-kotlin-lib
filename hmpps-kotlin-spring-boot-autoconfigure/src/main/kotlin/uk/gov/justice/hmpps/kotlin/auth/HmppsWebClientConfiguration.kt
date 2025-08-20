@@ -13,6 +13,9 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.http.client.SimpleClientHttpRequestFactory
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.http.converter.FormHttpMessageConverter
+import org.springframework.http.converter.HttpMessageConverter
+import org.springframework.security.core.context.ReactiveSecurityContextHolder
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.oauth2.client.AuthorizedClientServiceOAuth2AuthorizedClientManager
 import org.springframework.security.oauth2.client.AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager
@@ -23,7 +26,7 @@ import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClient
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientProvider
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientProviderBuilder
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientService
-import org.springframework.security.oauth2.client.endpoint.DefaultClientCredentialsTokenResponseClient
+import org.springframework.security.oauth2.client.endpoint.RestClientClientCredentialsTokenResponseClient
 import org.springframework.security.oauth2.client.endpoint.WebClientReactiveClientCredentialsTokenResponseClient
 import org.springframework.security.oauth2.client.http.OAuth2ErrorResponseErrorHandler
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
@@ -31,10 +34,14 @@ import org.springframework.security.oauth2.client.registration.ReactiveClientReg
 import org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction
 import org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction
 import org.springframework.security.oauth2.core.http.converter.OAuth2AccessTokenResponseHttpMessageConverter
-import org.springframework.web.client.RestTemplate
+import org.springframework.web.client.RestClient
+import org.springframework.web.reactive.function.BodyInserters
+import org.springframework.web.reactive.function.client.ClientRequest
+import org.springframework.web.reactive.function.client.ExchangeFilterFunction
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.netty.http.client.HttpClient
 import java.time.Duration
+import java.util.function.Consumer
 import kotlin.apply as kotlinApply
 
 private const val DEFAULT_TIMEOUT_SECONDS: Long = 30
@@ -85,23 +92,10 @@ class HmppsReactiveWebClientConfiguration {
   ): ReactiveOAuth2AuthorizedClientProvider = builder.reactiveOAuth2AuthorizedClientProvider(Duration.ofSeconds(DEFAULT_TIMEOUT_SECONDS))
 }
 
-fun oAuth2AuthorizedClientProvider(clientCredentialsClientTimeout: Duration): OAuth2AuthorizedClientProvider {
-  // TODO We have to use a deprecated class here because that's what Spring Security uses. If Spring Security switches to RestClientClientCredentialsTokenResponseClient then we can do the same.
-  val accessTokenResponseClient = DefaultClientCredentialsTokenResponseClient().kotlinApply {
-    setRestOperations(
-      RestTemplate(listOf(FormHttpMessageConverter(), OAuth2AccessTokenResponseHttpMessageConverter())).kotlinApply {
-        errorHandler = OAuth2ErrorResponseErrorHandler()
-        requestFactory = SimpleClientHttpRequestFactory().kotlinApply {
-          setReadTimeout(clientCredentialsClientTimeout)
-        }
-      },
-    )
-  }
-  return OAuth2AuthorizedClientProviderBuilder
-    .builder()
-    .clientCredentials { it.accessTokenResponseClient(accessTokenResponseClient).build() }
-    .build()
-}
+fun oAuth2AuthorizedClientProvider(clientCredentialsClientTimeout: Duration): OAuth2AuthorizedClientProvider = OAuth2AuthorizedClientProviderBuilder
+  .builder()
+  .clientCredentials { it.accessTokenResponseClient(RestClientClientCredentialsTokenResponseClient().setupClientCredentialsTokenRequestTimeout(clientCredentialsClientTimeout)) }
+  .build()
 
 fun WebClient.Builder.reactiveOAuth2AuthorizedClientProvider(clientCredentialsClientTimeout: Duration): ReactiveOAuth2AuthorizedClientProvider {
   val accessTokenResponseClient = WebClientReactiveClientCredentialsTokenResponseClient().kotlinApply {
@@ -162,3 +156,134 @@ fun WebClient.Builder.reactiveHealthWebClient(
 ): WebClient = baseUrl(url)
   .clientConnector(ReactorClientHttpConnector(HttpClient.create().responseTimeout(healthTimeout)))
   .build()
+
+/**
+ * This method generates an instance of the [AuthorizedClientServiceOAuth2AuthorizedClientManager]
+ * class configured to include the name of the authenticated principal in the OAuth2ClientCredentialsGrantRequest. This is designed to be used as part of
+ * a request scoped web client where the authenticated principal can vary between requests.
+ *
+ * A [RestClientClientCredentialsTokenResponseClient] is configured to extract
+ * the principal name from the current [Authentication] object and sets it as the **username** parameter
+ * on the client credentials token request.
+ *
+ * This should be used for web clients where the user context is required.
+ *
+ * @param clientRegistrationRepository
+ * @param OAuth2AuthorizedClientService
+ */
+fun usernameAwareTokenRequestOAuth2AuthorizedClientManager(
+  clientRegistrationRepository: ClientRegistrationRepository,
+  oAuth2AuthorizedClientService: OAuth2AuthorizedClientService,
+  clientCredentialsTokenRequestTimeout: Duration,
+): OAuth2AuthorizedClientManager {
+  val usernameAwareRestClientClientCredentialsTokenResponseClient =
+    usernameAwareRestClientClientCredentialsTokenResponseClient(clientCredentialsTokenRequestTimeout)
+
+  val oAuth2AuthorizedClientProvider =
+    OAuth2AuthorizedClientProviderBuilder.builder().clientCredentials { builder ->
+      builder.accessTokenResponseClient(
+        usernameAwareRestClientClientCredentialsTokenResponseClient,
+      )
+    }.build()
+
+  return AuthorizedClientServiceOAuth2AuthorizedClientManager(
+    clientRegistrationRepository,
+    oAuth2AuthorizedClientService,
+  ).kotlinApply {
+    setAuthorizedClientProvider(oAuth2AuthorizedClientProvider)
+  }
+}
+
+/**
+ * This method generates an instance of the [AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager]
+ * class configured to include the name of the authenticated principal in the OAuth2ClientCredentialsGrantRequest. This is designed to be used as part of
+ * a request scoped web client where the authenticated principal can vary between requests.
+ *
+ * A [WebClientReactiveClientCredentialsTokenResponseClient] is configured with an exchange filter function to extract
+ * the principal name from the current [org.springframework.security.core.Authentication] object in the [ReactiveSecurityContextHolder]
+ * and set it as the **username** parameter on the client credentials token request.
+ *
+ * This should be used for web clients where the user context is required.
+ *
+ * @param reactiveClientRegistrationRepository
+ * @param reactiveOAuth2AuthorizedClientService
+ * @param clientCredentialsRequestTimeout
+ */
+fun reactiveUsernameAwareTokenRequestOAuth2AuthorizedClientManager(
+  reactiveClientRegistrationRepository: ReactiveClientRegistrationRepository,
+  reactiveOAuth2AuthorizedClientService: ReactiveOAuth2AuthorizedClientService,
+  clientCredentialsRequestTimeout: Duration,
+): ReactiveOAuth2AuthorizedClientManager {
+  val usernameAwareWebClientReactiveClientCredentialsTokenResponseClient =
+    WebClientReactiveClientCredentialsTokenResponseClient().configureWebClient(clientCredentialsRequestTimeout, listOf(usernameInjectingReactiveExchangeFilterFunction()))
+
+  val reactiveAuthorizedClientProvider =
+    ReactiveOAuth2AuthorizedClientProviderBuilder.builder().clientCredentials { builder ->
+      builder.accessTokenResponseClient(
+        usernameAwareWebClientReactiveClientCredentialsTokenResponseClient,
+      )
+    }.build()
+
+  return AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager(
+    reactiveClientRegistrationRepository,
+    reactiveOAuth2AuthorizedClientService,
+  ).kotlinApply {
+    setAuthorizedClientProvider(reactiveAuthorizedClientProvider)
+  }
+}
+
+fun usernameInjectingReactiveExchangeFilterFunction(): ExchangeFilterFunction = ExchangeFilterFunction.ofRequestProcessor { request ->
+  ReactiveSecurityContextHolder.getContext().map { securityContext ->
+    val username = securityContext?.authentication?.name
+    val builder = ClientRequest.from(request)
+    val body = request.body()
+    if (!username.isNullOrEmpty() && body is BodyInserters.FormInserter<*>) {
+      @Suppress("UNCHECKED_CAST")
+      builder.body((body as BodyInserters.FormInserter<String>).with("username", username))
+    }
+    builder.build()
+  }
+}
+
+private fun WebClientReactiveClientCredentialsTokenResponseClient.configureWebClient(clientCredentialsRequestTimeout: Duration, filterFunctions: Collection<ExchangeFilterFunction> = emptyList<ExchangeFilterFunction>()): WebClientReactiveClientCredentialsTokenResponseClient = this.kotlinApply {
+  setWebClient(
+    WebClient.builder()
+      .clientConnector(ReactorClientHttpConnector(HttpClient.create().responseTimeout(clientCredentialsRequestTimeout)))
+      .filters { it.addAll(filterFunctions) }
+      .build(),
+  )
+}
+
+fun usernameAwareRestClientClientCredentialsTokenResponseClient(clientCredentialsTokenRequestTimeout: Duration): RestClientClientCredentialsTokenResponseClient = RestClientClientCredentialsTokenResponseClient()
+  .setupClientCredentialsTokenRequestTimeout(clientCredentialsTokenRequestTimeout)
+  .injectUsernameFromSecurityContextAsFormParameter()
+
+private fun RestClientClientCredentialsTokenResponseClient.injectUsernameFromSecurityContextAsFormParameter(): RestClientClientCredentialsTokenResponseClient = this.kotlinApply {
+  val username = SecurityContextHolder.getContext().authentication.name
+
+  setParametersCustomizer { params ->
+    params.add("username", username)
+  }
+}
+
+private fun RestClientClientCredentialsTokenResponseClient.setupClientCredentialsTokenRequestTimeout(
+  clientCredentialsRequestTimeout: Duration,
+): RestClientClientCredentialsTokenResponseClient = this.kotlinApply {
+  val requestFactory = SimpleClientHttpRequestFactory().kotlinApply {
+    setReadTimeout(clientCredentialsRequestTimeout)
+  }
+
+  val restClient = RestClient.builder()
+    .messageConverters(
+      Consumer { messageConverters: MutableList<HttpMessageConverter<*>?>? ->
+        messageConverters!!.clear()
+        messageConverters.add(FormHttpMessageConverter())
+        messageConverters.add(OAuth2AccessTokenResponseHttpMessageConverter())
+      },
+    )
+    .defaultStatusHandler(OAuth2ErrorResponseErrorHandler())
+    .requestFactory(requestFactory)
+    .build()
+
+  setRestClient(restClient)
+}

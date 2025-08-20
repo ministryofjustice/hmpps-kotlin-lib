@@ -10,6 +10,7 @@ import uk.gov.justice.hmpps.kotlin.auth.HmppsReactiveAuthenticationHolder
 @Service
 class PrisonApiService(
   private val prisonApiWebClient: WebClient,
+  private val usernameAwarePrisonApiWebClient: WebClient,
   private val hmppsAuthenticationHolder: HmppsReactiveAuthenticationHolder,
 ) {
 
@@ -17,6 +18,13 @@ class PrisonApiService(
     // Note that we don't use string interpolation here ("/$prisonNumber").
     // This is important - using string interpolation causes each uri to be added as a separate path in app insights and
     // you'll run out of memory in your app
+    .uri("/api/offender/{prisonNumber}", prisonNumber)
+    .retrieve()
+    .bodyToMono(OffenderBooking::class.java)
+    .onErrorResume(WebClientResponseException.NotFound::class.java) { Mono.empty() }
+    .awaitSingleOrNull()
+
+  suspend fun getOffenderBookingWithUserInContext(prisonNumber: String): OffenderBooking? = usernameAwarePrisonApiWebClient.get()
     .uri("/api/offender/{prisonNumber}", prisonNumber)
     .retrieve()
     .bodyToMono(OffenderBooking::class.java)
