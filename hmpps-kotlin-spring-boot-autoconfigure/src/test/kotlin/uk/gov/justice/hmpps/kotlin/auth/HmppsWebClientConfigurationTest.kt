@@ -39,7 +39,6 @@ class HmppsWebClientConfigurationTest {
 
     private lateinit var mockReactiveSecurityContextHolder: MockedStatic<ReactiveSecurityContextHolder>
 
-
     @BeforeEach()
     fun setup() {
       mockReactiveSecurityContextHolder = mockStatic(ReactiveSecurityContextHolder::class.java)
@@ -62,7 +61,7 @@ class HmppsWebClientConfigurationTest {
 
       assertThat(body is BodyInserters.FormInserter<*>)
       assertThat(body.toString().contains("grant_type=client_credentials"))
-      assertThat(body.toString().contains("username=${testUser}"))
+      assertThat(body.toString().contains("username=$testUser"))
     }
 
     @Test
@@ -105,12 +104,5 @@ class HmppsWebClientConfigurationTest {
 
       return capturedRequest?.body()
     }
-
   }
-
-
-
-
-
-
 }

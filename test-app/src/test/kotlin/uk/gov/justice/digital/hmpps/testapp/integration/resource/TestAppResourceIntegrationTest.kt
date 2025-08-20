@@ -133,7 +133,7 @@ class TestAppResourceIntegrationTest : IntegrationTestBase() {
   }
 
   @Nested
-  inner class BookingEndpointWithUSerContext {
+  inner class BookingEndpointWithUserContext {
 
     @BeforeEach
     fun setup() {
