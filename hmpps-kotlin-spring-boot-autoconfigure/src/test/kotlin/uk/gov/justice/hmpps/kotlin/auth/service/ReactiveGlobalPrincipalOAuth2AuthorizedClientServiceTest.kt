@@ -21,7 +21,7 @@ import java.time.Duration
 import java.time.Instant
 
 @ExtendWith(MockitoExtension::class)
-class GlobalPrincipalReactiveOAuth2AuthorizedClientServiceTest {
+class ReactiveGlobalPrincipalOAuth2AuthorizedClientServiceTest {
   companion object {
     const val TEST_REGISTRATION_ID = "test-service-client"
     const val TEST_SYSTEM_USERNAME = "test-service"
@@ -49,12 +49,12 @@ class GlobalPrincipalReactiveOAuth2AuthorizedClientServiceTest {
   @Mock
   private lateinit var reactiveClientRegistrationRepositoryMock: ReactiveClientRegistrationRepository
 
-  private lateinit var globalPrincipalReactiveOAuth2AuthorizedClientService: GlobalPrincipalReactiveOAuth2AuthorizedClientService
+  private lateinit var reactiveGlobalPrincipalOAuth2AuthorizedClientService: ReactiveGlobalPrincipalOAuth2AuthorizedClientService
 
   @BeforeEach
   fun setup() {
-    globalPrincipalReactiveOAuth2AuthorizedClientService =
-      GlobalPrincipalReactiveOAuth2AuthorizedClientService(reactiveClientRegistrationRepositoryMock)
+    reactiveGlobalPrincipalOAuth2AuthorizedClientService =
+      ReactiveGlobalPrincipalOAuth2AuthorizedClientService(reactiveClientRegistrationRepositoryMock)
   }
 
   @Nested
@@ -65,7 +65,7 @@ class GlobalPrincipalReactiveOAuth2AuthorizedClientServiceTest {
       whenever(reactiveClientRegistrationRepositoryMock.findByRegistrationId(TEST_REGISTRATION_ID))
         .thenReturn(Mono.just<ClientRegistration>(TEST_CLIENT_REGISTRATION))
 
-      globalPrincipalReactiveOAuth2AuthorizedClientService.saveAuthorizedClient(
+      reactiveGlobalPrincipalOAuth2AuthorizedClientService.saveAuthorizedClient(
         TEST_AUTHORIZED_CLIENT,
         AUTHENTICATED_PRINCIPAL_ONE,
       ).block()
@@ -116,7 +116,7 @@ class GlobalPrincipalReactiveOAuth2AuthorizedClientServiceTest {
       whenever(reactiveClientRegistrationRepositoryMock.findByRegistrationId(TEST_REGISTRATION_ID))
         .thenReturn(Mono.just<ClientRegistration>(TEST_CLIENT_REGISTRATION))
 
-      globalPrincipalReactiveOAuth2AuthorizedClientService.saveAuthorizedClient(
+      reactiveGlobalPrincipalOAuth2AuthorizedClientService.saveAuthorizedClient(
         TEST_AUTHORIZED_CLIENT,
         AUTHENTICATED_PRINCIPAL_ONE,
       ).block()
@@ -132,7 +132,7 @@ class GlobalPrincipalReactiveOAuth2AuthorizedClientServiceTest {
       whenever(reactiveClientRegistrationRepositoryMock.findByRegistrationId(TEST_REGISTRATION_ID))
         .thenReturn(Mono.just<ClientRegistration>(TEST_CLIENT_REGISTRATION))
 
-      globalPrincipalReactiveOAuth2AuthorizedClientService.saveAuthorizedClient(
+      reactiveGlobalPrincipalOAuth2AuthorizedClientService.saveAuthorizedClient(
         TEST_AUTHORIZED_CLIENT,
         null,
       ).block()
@@ -154,7 +154,7 @@ class GlobalPrincipalReactiveOAuth2AuthorizedClientServiceTest {
 
     @Test
     fun `removeAuthorizedClient removes an OAuth2AuthorizedClient cached by a different authenticated principal`() {
-      globalPrincipalReactiveOAuth2AuthorizedClientService.saveAuthorizedClient(
+      reactiveGlobalPrincipalOAuth2AuthorizedClientService.saveAuthorizedClient(
         TEST_AUTHORIZED_CLIENT,
         AUTHENTICATED_PRINCIPAL_ONE,
       ).block()
@@ -164,7 +164,7 @@ class GlobalPrincipalReactiveOAuth2AuthorizedClientServiceTest {
         TEST_AUTHORIZED_CLIENT,
       )
 
-      globalPrincipalReactiveOAuth2AuthorizedClientService.removeAuthorizedClient(
+      reactiveGlobalPrincipalOAuth2AuthorizedClientService.removeAuthorizedClient(
         TEST_REGISTRATION_ID,
         TEST_PRINCIPAL_TWO,
       ).block()
@@ -180,7 +180,7 @@ class GlobalPrincipalReactiveOAuth2AuthorizedClientServiceTest {
 
     @Test
     fun `removeAuthorizedClient removes an OAuth2AuthorizedClient cached by a same authenticated principal`() {
-      globalPrincipalReactiveOAuth2AuthorizedClientService.saveAuthorizedClient(
+      reactiveGlobalPrincipalOAuth2AuthorizedClientService.saveAuthorizedClient(
         TEST_AUTHORIZED_CLIENT,
         AUTHENTICATED_PRINCIPAL_ONE,
       ).block()
@@ -190,7 +190,7 @@ class GlobalPrincipalReactiveOAuth2AuthorizedClientServiceTest {
         TEST_AUTHORIZED_CLIENT,
       )
 
-      globalPrincipalReactiveOAuth2AuthorizedClientService.removeAuthorizedClient(
+      reactiveGlobalPrincipalOAuth2AuthorizedClientService.removeAuthorizedClient(
         TEST_REGISTRATION_ID,
         TEST_PRINCIPAL_ONE,
       ).block()
@@ -206,7 +206,7 @@ class GlobalPrincipalReactiveOAuth2AuthorizedClientServiceTest {
 
     @Test
     fun `removeAuthorizedClient removes a cached OAuth2AuthorizedClient when the authenticated principal is null`() {
-      globalPrincipalReactiveOAuth2AuthorizedClientService.saveAuthorizedClient(
+      reactiveGlobalPrincipalOAuth2AuthorizedClientService.saveAuthorizedClient(
         TEST_AUTHORIZED_CLIENT,
         null,
       ).block()
@@ -216,7 +216,7 @@ class GlobalPrincipalReactiveOAuth2AuthorizedClientServiceTest {
         TEST_AUTHORIZED_CLIENT,
       )
 
-      globalPrincipalReactiveOAuth2AuthorizedClientService.removeAuthorizedClient(
+      reactiveGlobalPrincipalOAuth2AuthorizedClientService.removeAuthorizedClient(
         TEST_REGISTRATION_ID,
         null,
       ).block()
@@ -237,7 +237,7 @@ class GlobalPrincipalReactiveOAuth2AuthorizedClientServiceTest {
   ) {
     for (testPrincipal in testPrincipals) {
       val returnedClient: OAuth2AuthorizedClient? =
-        globalPrincipalReactiveOAuth2AuthorizedClientService.loadAuthorizedClient<OAuth2AuthorizedClient?>(
+        reactiveGlobalPrincipalOAuth2AuthorizedClientService.loadAuthorizedClient<OAuth2AuthorizedClient?>(
           clientRegistrationId = TEST_REGISTRATION_ID,
           principalName = testPrincipal,
         ).block()

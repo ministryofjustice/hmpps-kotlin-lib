@@ -33,7 +33,7 @@ import org.springframework.web.client.RestTemplate
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.netty.http.client.HttpClient
 import uk.gov.justice.hmpps.kotlin.auth.service.GlobalPrincipalOAuth2AuthorizedClientService
-import uk.gov.justice.hmpps.kotlin.auth.service.GlobalPrincipalReactiveOAuth2AuthorizedClientService
+import uk.gov.justice.hmpps.kotlin.auth.service.ReactiveGlobalPrincipalOAuth2AuthorizedClientService
 import java.time.Duration
 import kotlin.apply as kotlinApply
 
@@ -89,7 +89,7 @@ class HmppsReactiveWebClientConfiguration {
   /**
    * This method generates an instance of the [AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager]
    * class configured to cache all OAuth2 tokens under a single **principalName** using the
-   * [GlobalPrincipalReactiveOAuth2AuthorizedClientService].
+   * [ReactiveGlobalPrincipalOAuth2AuthorizedClientService].
    *
    * The purpose of this [ReactiveOAuth2AuthorizedClientManager] is to avoid unnecessary token requests to HMPPS Auth,
    * and it should be used for web clients where a username is being injected to the token request.
@@ -104,7 +104,7 @@ class HmppsReactiveWebClientConfiguration {
     reactiveOAuth2AuthorizedClientProvider: ReactiveOAuth2AuthorizedClientProvider,
   ): ReactiveOAuth2AuthorizedClientManager = AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager(
     reactiveClientRegistrationRepository,
-    GlobalPrincipalReactiveOAuth2AuthorizedClientService(reactiveClientRegistrationRepository),
+    ReactiveGlobalPrincipalOAuth2AuthorizedClientService(reactiveClientRegistrationRepository),
   ).kotlinApply {
     setAuthorizedClientProvider(reactiveOAuth2AuthorizedClientProvider)
   }

@@ -8,7 +8,7 @@ import org.springframework.security.oauth2.client.registration.ReactiveClientReg
 import reactor.core.publisher.Mono
 import java.util.concurrent.ConcurrentHashMap
 
-class GlobalPrincipalReactiveOAuth2AuthorizedClientService(
+class ReactiveGlobalPrincipalOAuth2AuthorizedClientService(
   private val clientRegistrationRepository: ReactiveClientRegistrationRepository,
 ) : ReactiveOAuth2AuthorizedClientService {
 
