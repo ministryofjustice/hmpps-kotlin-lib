@@ -94,23 +94,10 @@ class HmppsReactiveWebClientConfiguration {
   ): ReactiveOAuth2AuthorizedClientProvider = builder.reactiveOAuth2AuthorizedClientProvider(Duration.ofSeconds(DEFAULT_TIMEOUT_SECONDS))
 }
 
-fun oAuth2AuthorizedClientProvider(clientCredentialsClientTimeout: Duration): OAuth2AuthorizedClientProvider {
-  // TODO We have to use a deprecated class here because that's what Spring Security uses. If Spring Security switches to RestClientClientCredentialsTokenResponseClient then we can do the same.
-  val accessTokenResponseClient = DefaultClientCredentialsTokenResponseClient().kotlinApply {
-    setRestOperations(
-      RestTemplate(listOf(FormHttpMessageConverter(), OAuth2AccessTokenResponseHttpMessageConverter())).kotlinApply {
-        errorHandler = OAuth2ErrorResponseErrorHandler()
-        requestFactory = SimpleClientHttpRequestFactory().kotlinApply {
-          setReadTimeout(clientCredentialsClientTimeout)
-        }
-      },
-    )
-  }
-  return OAuth2AuthorizedClientProviderBuilder
-    .builder()
-    .clientCredentials { it.accessTokenResponseClient(accessTokenResponseClient).build() }
-    .build()
-}
+fun oAuth2AuthorizedClientProvider(clientCredentialsClientTimeout: Duration): OAuth2AuthorizedClientProvider = OAuth2AuthorizedClientProviderBuilder
+  .builder()
+  .clientCredentials { it.accessTokenResponseClient(RestClientClientCredentialsTokenResponseClient().setupClientCredentialsTokenRequestTimeout(clientCredentialsClientTimeout)) }
+  .build()
 
 fun WebClient.Builder.reactiveOAuth2AuthorizedClientProvider(clientCredentialsClientTimeout: Duration): ReactiveOAuth2AuthorizedClientProvider {
   val accessTokenResponseClient = WebClientReactiveClientCredentialsTokenResponseClient().kotlinApply {
