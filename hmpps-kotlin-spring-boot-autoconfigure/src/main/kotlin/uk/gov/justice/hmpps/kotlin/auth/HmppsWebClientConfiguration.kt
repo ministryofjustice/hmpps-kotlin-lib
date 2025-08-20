@@ -144,7 +144,7 @@ private fun createAccessTokenResponseClient(clientCredentialsClientTimeout: Dura
       }
       .defaultStatusHandler(OAuth2ErrorResponseErrorHandler())
       .requestFactory(requestFactory)
-      .build()
+  .build()
 
     setRestClient(restClient)
   }
