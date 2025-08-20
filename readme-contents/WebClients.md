@@ -18,6 +18,10 @@ For reactive based web servers:
 
 For an example of how to create `WebClient` instances see class `WebClientConfiguration` in subproject `test-app-reactive`
 
+By default, the `OAuth2AuthorizedClientManager` and `ReactiveOAuth2AuthorizedClientManager` beans are configured to use `GlobalPrincipalOAuth2AuthorizedClientService` and `ReactiveGlobalPrincipalOAuth2AuthorizedClientService` respectively.
+These `AuthorizedClientServices` will cache client credentials tokens under a "global" principal name ("global-system-principal") instead of the name of the authenticate principal 
+in the Spring `SecurityContextHolder`. This is to avoid unnecessary token requests to HMPPS Auth.
+
 ## What can I customize?
 
 It is possible to customize the default timeouts for the `WebClient` instances created. This would be done in the `@Bean` definition when creating web clients. For examples see class `WebClientConfiguration` in either `test-app` or `test-app-reavtive`.
