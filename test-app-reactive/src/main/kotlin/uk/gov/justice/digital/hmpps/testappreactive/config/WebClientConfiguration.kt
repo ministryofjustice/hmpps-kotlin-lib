@@ -9,7 +9,7 @@ import org.springframework.security.oauth2.client.registration.ReactiveClientReg
 import org.springframework.web.reactive.function.client.WebClient
 import uk.gov.justice.hmpps.kotlin.auth.reactiveAuthorisedWebClient
 import uk.gov.justice.hmpps.kotlin.auth.reactiveHealthWebClient
-import uk.gov.justice.hmpps.kotlin.auth.usernameAwareReactiveTokenRequestOAuth2AuthorizedClientManager
+import uk.gov.justice.hmpps.kotlin.auth.reactiveUsernameAwareTokenRequestOAuth2AuthorizedClientManager
 import java.time.Duration
 
 @Configuration
@@ -40,9 +40,10 @@ class WebClientConfiguration(
     reactiveOAuth2AuthorizedClientService: ReactiveOAuth2AuthorizedClientService,
     builder: WebClient.Builder,
   ): WebClient = builder.reactiveAuthorisedWebClient(
-    usernameAwareReactiveTokenRequestOAuth2AuthorizedClientManager(
+    reactiveUsernameAwareTokenRequestOAuth2AuthorizedClientManager(
       reactiveClientRegistrationRepository,
       reactiveOAuth2AuthorizedClientService,
+      timeout,
     ),
     registrationId = "prison-api",
     url = prisonApiBaseUri,
