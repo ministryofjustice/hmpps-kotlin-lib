@@ -1,13 +1,19 @@
 package uk.gov.justice.hmpps.kotlin.auth
 
 import org.springframework.boot.autoconfigure.AutoConfigureAfter
+import org.springframework.boot.autoconfigure.AutoConfigureBefore
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type.REACTIVE
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type.SERVLET
+import org.springframework.boot.autoconfigure.security.oauth2.client.ConditionalOnOAuth2ClientRegistrationProperties
+import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientAutoConfiguration
+import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties
+import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientPropertiesMapper
 import org.springframework.boot.autoconfigure.security.oauth2.client.reactive.ReactiveOAuth2ClientWebSecurityAutoConfiguration
 import org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientWebSecurityAutoConfiguration
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.client.SimpleClientHttpRequestFactory
@@ -24,7 +30,9 @@ import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClient
 import org.springframework.security.oauth2.client.endpoint.DefaultClientCredentialsTokenResponseClient
 import org.springframework.security.oauth2.client.endpoint.WebClientReactiveClientCredentialsTokenResponseClient
 import org.springframework.security.oauth2.client.http.OAuth2ErrorResponseErrorHandler
+import org.springframework.security.oauth2.client.registration.ClientRegistration
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
+import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository
 import org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction
 import org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction
@@ -40,9 +48,9 @@ import kotlin.apply as kotlinApply
 private const val DEFAULT_TIMEOUT_SECONDS: Long = 30
 private const val DEFAULT_HEALTH_TIMEOUT_SECONDS: Long = 2
 
-@AutoConfigureAfter(OAuth2ClientWebSecurityAutoConfiguration::class)
+@AutoConfigureBefore(OAuth2ClientAutoConfiguration::class)
 @ConditionalOnWebApplication(type = SERVLET)
-@ConditionalOnBean(ClientRegistrationRepository::class)
+@EnableConfigurationProperties(OAuth2ClientProperties::class)
 @Configuration
 class HmppsWebClientConfiguration {
 
@@ -78,6 +86,16 @@ class HmppsWebClientConfiguration {
   fun authorizedClientProvider(): OAuth2AuthorizedClientProvider = oAuth2AuthorizedClientProvider(
     Duration.ofSeconds(DEFAULT_TIMEOUT_SECONDS),
   )
+
+  @Bean
+  @ConditionalOnMissingBean()
+  fun clientRegistrationRepository(properties: OAuth2ClientProperties?): InMemoryClientRegistrationRepository {
+    val registrations: MutableList<ClientRegistration?> = ArrayList<ClientRegistration?>(
+      OAuth2ClientPropertiesMapper(properties).asClientRegistrations().values,
+    )
+    return InMemoryClientRegistrationRepository(registrations)
+  }
+
 }
 
 @AutoConfigureAfter(ReactiveOAuth2ClientWebSecurityAutoConfiguration::class)
