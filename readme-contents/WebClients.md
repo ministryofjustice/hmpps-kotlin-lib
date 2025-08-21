@@ -13,6 +13,9 @@ the name of the authenticate principal in the Spring `SecurityContextHolder`. Th
 
 For an example of how to create `WebClient` instances see class `WebClientConfiguration` in subproject `test-app`.
 
+> **NOTE** If your application requires client credentials tokens to be cached per principal e.g. if the principal name is being injected into the token request
+> then the default `OAuth2AuthorizedClientManager` will not be appropriate and should be overridden.
+
 For reactive based web servers:
 * a `ReactiveOAuth2AuthorizedClientManager` bean is created. This client manager will be configured to use the `ReactiveGlobalPrincipalOAuth2AuthorizedClientService`
 as the `ReactiveOAuth2AuthorizedClientService` which caches client credentials tokens under a "global" principal name ("global-system-principal") instead of
@@ -22,6 +25,9 @@ the name of the authenticate principal in the Spring `ReactiveSecurityContextHol
 * a default timeout of 30 seconds when fetching client credentials
 
 For an example of how to create `WebClient` instances see class `WebClientConfiguration` in subproject `test-app-reactive`
+
+> **NOTE** If your application requires client credentials tokens to be cached per principal e.g. if the principal name is being injected into the token request
+> then the default `ReactiveOAuth2AuthorizedClientManager` will not be appropriate and should be overridden.
 
 ## What can I customize?
 
