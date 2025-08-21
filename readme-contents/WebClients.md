@@ -3,20 +3,31 @@
 ## What is provided?
 
 For servlet based web servers:
-* an `OAuth2AuthorizedClientManager` bean is created
+
+* an `OAuth2AuthorizedClientManager` bean is created. This client manager will be configured to use the `GlobalPrincipalOAuth2AuthorizedClientService` 
+as the `OAuth2AuthorizedClientService` which caches client credentials tokens under a "global" principal name ("global-system-principal") instead of 
+the name of the authenticate principal in the Spring `SecurityContextHolder`. This is to avoid unnecessary token requests to HMPPS Auth.
 * an extension function to `WebClient.Builder` called `authorisedWebClient` for creating `WebClient`s that are authorized with an OAuth2 token
 * an extension function to `WebClient.Builder` called `healthWebClient` for creating `WebClient`s that are unauthorized and are used to call `/health` endpoints
-* a default timeout of 30 seconds when fetching client credentials
+* a default timeout of 30 seconds when fetching client credentials 
 
 For an example of how to create `WebClient` instances see class `WebClientConfiguration` in subproject `test-app`.
 
+> **NOTE** If your application requires client credentials tokens to be cached per principal e.g. if the principal name is being injected into the token request
+> then the default `OAuth2AuthorizedClientManager` will not be appropriate and should be overridden.
+
 For reactive based web servers:
-* a `ReactiveOAuth2AuthorizedClientManager` bean is created
+* a `ReactiveOAuth2AuthorizedClientManager` bean is created. This client manager will be configured to use the `ReactiveGlobalPrincipalOAuth2AuthorizedClientService`
+as the `ReactiveOAuth2AuthorizedClientService` which caches client credentials tokens under a "global" principal name ("global-system-principal") instead of
+the name of the authenticate principal in the Spring `ReactiveSecurityContextHolder`. This is to avoid unnecessary token requests to HMPPS Auth.
 * an extension function to `WebClient.Builder` called `reactiveAuthorisedWebClient` for creating `WebClient`s that are authorized with an OAuth2 token
 * an extension function to `WebClient.Builder` called `reactiveHealthWebClient` for creating `WebClient`s that are unauthorized and are used to call /health endpoints
 * a default timeout of 30 seconds when fetching client credentials
 
 For an example of how to create `WebClient` instances see class `WebClientConfiguration` in subproject `test-app-reactive`
+
+> **NOTE** If your application requires client credentials tokens to be cached per principal e.g. if the principal name is being injected into the token request
+> then the default `ReactiveOAuth2AuthorizedClientManager` will not be appropriate and should be overridden.
 
 ## What can I customize?
 

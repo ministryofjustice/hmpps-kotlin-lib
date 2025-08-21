@@ -2,15 +2,20 @@ package uk.gov.justice.digital.hmpps.testappreactive.integration.wiremock
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
+import com.github.tomakehurst.wiremock.client.WireMock.exactly
 import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.post
+import com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
+import com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching
 import com.github.tomakehurst.wiremock.http.HttpHeader
 import com.github.tomakehurst.wiremock.http.HttpHeaders
 import org.junit.jupiter.api.extension.AfterAllCallback
 import org.junit.jupiter.api.extension.BeforeAllCallback
 import org.junit.jupiter.api.extension.BeforeEachCallback
 import org.junit.jupiter.api.extension.ExtensionContext
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 class HmppsAuthApiExtension :
   BeforeAllCallback,
@@ -51,7 +56,8 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
               """
                 {
                   "token_type": "bearer",
-                  "access_token": "ABCDE"
+                  "access_token": "ABCDE",
+                  "expires_in": ${LocalDateTime.now().plusHours(1).toEpochSecond(ZoneOffset.UTC)}
                 }
               """.trimIndent(),
             )
@@ -69,5 +75,9 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
           .withStatus(status),
       ),
     )
+  }
+
+  fun assertNumberStubGrantTokenCalls(numberOfCalls: Int) {
+    verify(exactly(numberOfCalls), postRequestedFor(urlPathMatching("/auth/oauth/token")))
   }
 }

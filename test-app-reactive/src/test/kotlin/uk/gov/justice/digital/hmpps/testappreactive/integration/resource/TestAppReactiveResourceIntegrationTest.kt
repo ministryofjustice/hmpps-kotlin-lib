@@ -1,9 +1,12 @@
 package uk.gov.justice.digital.hmpps.testappreactive.integration.resource
 
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import uk.gov.justice.digital.hmpps.testappreactive.integration.IntegrationTestBase
+import uk.gov.justice.digital.hmpps.testappreactive.integration.wiremock.HmppsAuthApiExtension
+import uk.gov.justice.digital.hmpps.testappreactive.integration.wiremock.PrisonApiExtension
 import java.time.LocalDate
 
 class TestAppReactiveResourceIntegrationTest : IntegrationTestBase() {
@@ -121,6 +124,33 @@ class TestAppReactiveResourceIntegrationTest : IntegrationTestBase() {
         .isOk
         .expectBody()
         .jsonPath("greeting").isEqualTo("Hello there test-client-id")
+    }
+  }
+
+  @Nested
+  inner class BookingEndpoint {
+    @BeforeEach
+    fun setup() {
+      HmppsAuthApiExtension.hmppsAuth.stubGrantToken(0)
+      PrisonApiExtension.prisonApi.stubGetPrisonerLatestBooking("ABC123C")
+    }
+
+    @Test
+    fun `should only make a single oauth token request call when making multiple requests for booking data with different authenticated principals`() {
+      val listOfTestUsers = listOf("user1", "user2", "user3", "user4")
+      for (user in listOfTestUsers) {
+        webTestClient.get().uri { uriBuilder ->
+          uriBuilder
+            .path("/prisoner/{prisonNumber}/booking")
+            .build("ABC123C")
+        }
+          .headers(setAuthorisation(user = user, roles = listOf("ROLE_TEST_APP_REACTIVE")))
+          .exchange()
+          .expectStatus()
+          .isOk
+      }
+
+      HmppsAuthApiExtension.hmppsAuth.assertNumberStubGrantTokenCalls(1)
     }
   }
 }
