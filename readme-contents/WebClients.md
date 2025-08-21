@@ -3,36 +3,25 @@
 ## What is provided?
 
 For servlet based web servers:
-* a `ClientRegistrationRepository` bean is created
-* a `OAuth2AuthorizedClientManager` bean is created
-* a `OAuth2AuthorizedClientService` bean is created. This will be an instance of the `GlobalPrincipalOAuth2AuthorizedClientService` which
-  caches client credentials tokens under a "global" principal name ("global-system-principal") instead of the name of the authenticate principal
-  in the Spring `SecurityContextHolder`. This is to avoid unnecessary token requests to HMPPS Auth.
+
+* an `OAuth2AuthorizedClientManager` bean is created. This client manager will be configured to use the `GlobalPrincipalOAuth2AuthorizedClientService` 
+as the `OAuth2AuthorizedClientService` which caches client credentials tokens under a "global" principal name ("global-system-principal") instead of 
+the name of the authenticate principal in the Spring `SecurityContextHolder`. This is to avoid unnecessary token requests to HMPPS Auth.
 * an extension function to `WebClient.Builder` called `authorisedWebClient` for creating `WebClient`s that are authorized with an OAuth2 token
 * an extension function to `WebClient.Builder` called `healthWebClient` for creating `WebClient`s that are unauthorized and are used to call `/health` endpoints
 * a default timeout of 30 seconds when fetching client credentials 
 
 For an example of how to create `WebClient` instances see class `WebClientConfiguration` in subproject `test-app`.
 
-> **_NOTE:_**  The `GlobalPrincipalOAuth2AuthorizedClientService` should be the default `OAuth2AuthorizedClientService` unless is it being used with a `WebClient`
-> which is configured to inject the name of the authenticated principal into the client credentials token request. In this scenario the tokens
-> will be unique per user and should be cached under the authenticated principal. For this the `InMemoryOAuth2AuthorizedClientService` should be used instead.
-
 For reactive based web servers:
-* a `ClientRegistrationRepository` bean is created
-* a `ReactiveOAuth2AuthorizedClientManager` bean is created
-* a `ReactiveOAuth2AuthorizedClientService` bean is created. This will be an instance of the `ReactiveGlobalPrincipalOAuth2AuthorizedClientService` which
-  caches client credentials tokens under a "global" principal name ("global-system-principal") instead of the name of the authenticate principal
-  in the Spring `ReactiveSecurityContextHolder`. This is to avoid unnecessary token requests to HMPPS Auth.
+* a `ReactiveOAuth2AuthorizedClientManager` bean is created. This client manager will be configured to use the `ReactiveGlobalPrincipalOAuth2AuthorizedClientService`
+as the `ReactiveOAuth2AuthorizedClientService` which caches client credentials tokens under a "global" principal name ("global-system-principal") instead of
+the name of the authenticate principal in the Spring `ReactiveSecurityContextHolder`. This is to avoid unnecessary token requests to HMPPS Auth.
 * an extension function to `WebClient.Builder` called `reactiveAuthorisedWebClient` for creating `WebClient`s that are authorized with an OAuth2 token
 * an extension function to `WebClient.Builder` called `reactiveHealthWebClient` for creating `WebClient`s that are unauthorized and are used to call /health endpoints
 * a default timeout of 30 seconds when fetching client credentials
 
 For an example of how to create `WebClient` instances see class `WebClientConfiguration` in subproject `test-app-reactive`
-
-> **_NOTE:_**  The `ReactiveGlobalPrincipalOAuth2AuthorizedClientService` should be the default `ReactiveOAuth2AuthorizedClientService` unless is it being used with a `WebClient`
-> which is configured to inject the name of the authenticated principal into the client credentials token request. In this scenario the tokens
-> will be unique per user and should be cached under the authenticated principal. For this the `InMemoryReactiveOAuth2AuthorizedClientService` should be used instead.
 
 ## What can I customize?
 

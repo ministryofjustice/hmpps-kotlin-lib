@@ -51,8 +51,7 @@ class HmppsWebClientConfiguration {
    * class configured to cache all OAuth2 tokens under a single **principalName** using the
    * [GlobalPrincipalOAuth2AuthorizedClientService].
    *
-   * The purpose of this [OAuth2AuthorizedClientManager] is to avoid unnecessary token requests to HMPPS Auth,
-   * and it should be used for web clients where a username is being injected to the token request.
+   * The purpose of this [OAuth2AuthorizedClientManager] is to avoid unnecessary token requests to HMPPS Auth.
    *
    * @param clientRegistrationRepository
    * @param oAuth2AuthorizedClientProvider
@@ -91,8 +90,7 @@ class HmppsReactiveWebClientConfiguration {
    * class configured to cache all OAuth2 tokens under a single **principalName** using the
    * [ReactiveGlobalPrincipalOAuth2AuthorizedClientService].
    *
-   * The purpose of this [ReactiveOAuth2AuthorizedClientManager] is to avoid unnecessary token requests to HMPPS Auth,
-   * and it should be used for web clients where a username is being injected to the token request.
+   * The purpose of this [ReactiveOAuth2AuthorizedClientManager] is to avoid unnecessary token requests to HMPPS Auth.
    *
    * @param reactiveClientRegistrationRepository
    * @param reactiveOAuth2AuthorizedClientProvider
