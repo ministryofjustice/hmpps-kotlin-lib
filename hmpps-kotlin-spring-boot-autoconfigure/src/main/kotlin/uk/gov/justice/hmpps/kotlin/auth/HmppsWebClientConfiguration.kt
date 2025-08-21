@@ -1,14 +1,18 @@
 package uk.gov.justice.hmpps.kotlin.auth
 
+import org.springframework.boot.autoconfigure.AutoConfigureAfter
 import org.springframework.boot.autoconfigure.AutoConfigureBefore
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type.REACTIVE
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type.SERVLET
+import org.springframework.boot.autoconfigure.security.oauth2.client.ConditionalOnOAuth2ClientRegistrationProperties
 import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientAutoConfiguration
 import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties
 import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientPropertiesMapper
-import org.springframework.boot.autoconfigure.security.oauth2.client.reactive.ReactiveOAuth2ClientAutoConfiguration
+import org.springframework.boot.autoconfigure.security.oauth2.client.reactive.ReactiveOAuth2ClientWebSecurityAutoConfiguration
+import org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientWebSecurityAutoConfiguration
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -20,18 +24,15 @@ import org.springframework.security.oauth2.client.AuthorizedClientServiceReactiv
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProviderBuilder
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientManager
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientProvider
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientProviderBuilder
-import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientService
 import org.springframework.security.oauth2.client.endpoint.DefaultClientCredentialsTokenResponseClient
 import org.springframework.security.oauth2.client.endpoint.WebClientReactiveClientCredentialsTokenResponseClient
 import org.springframework.security.oauth2.client.http.OAuth2ErrorResponseErrorHandler
 import org.springframework.security.oauth2.client.registration.ClientRegistration
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository
-import org.springframework.security.oauth2.client.registration.InMemoryReactiveClientRegistrationRepository
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository
 import org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction
 import org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction
@@ -53,34 +54,32 @@ private const val DEFAULT_HEALTH_TIMEOUT_SECONDS: Long = 2
 @Configuration
 class HmppsWebClientConfiguration {
 
+  /**
+   * This method generates an instance of the [AuthorizedClientServiceOAuth2AuthorizedClientManager]
+   * class configured to cache all OAuth2 tokens under a single **principalName** using the
+   * [GlobalPrincipalOAuth2AuthorizedClientService].
+   *
+   * The purpose of this [OAuth2AuthorizedClientManager] is to avoid unnecessary token requests to HMPPS Auth,
+   * and it should be used for web clients where a username is being injected to the token request.
+   *
+   * @param clientRegistrationRepository
+   * @param oAuth2AuthorizedClientProvider
+   */
   @ConditionalOnMissingBean
   @Bean
   fun authorizedClientManager(
     clientRegistrationRepository: ClientRegistrationRepository,
-    oAuth2AuthorizedClientService: OAuth2AuthorizedClientService,
     oAuth2AuthorizedClientProvider: OAuth2AuthorizedClientProvider,
-  ): OAuth2AuthorizedClientManager = AuthorizedClientServiceOAuth2AuthorizedClientManager(
-    clientRegistrationRepository,
-    oAuth2AuthorizedClientService,
-  ).kotlinApply {
-    setAuthorizedClientProvider(oAuth2AuthorizedClientProvider)
+  ): OAuth2AuthorizedClientManager {
+    val globalPrincipalOAuth2AuthorizedClientService =
+      GlobalPrincipalOAuth2AuthorizedClientService(clientRegistrationRepository)
+    return AuthorizedClientServiceOAuth2AuthorizedClientManager(
+      clientRegistrationRepository,
+      globalPrincipalOAuth2AuthorizedClientService,
+    ).kotlinApply {
+      setAuthorizedClientProvider(oAuth2AuthorizedClientProvider)
+    }
   }
-
-  /**
-   * This method generates an instance of the [GlobalPrincipalOAuth2AuthorizedClientService]
-   * class configured to cache all OAuth2 tokens under a single **principalName**.
-   *
-   * The purpose of this [OAuth2AuthorizedClientService] is to avoid unnecessary token requests to HMPPS Auth.
-   * This should be the default [OAuth2AuthorizedClientService] unless the [WebClient] using it is configured to
-   * inject the name of the authenticated principal into the client credentials token request. In this scenario the tokens
-   * will be unique per user so a [org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService]
-   * should be used instead.
-   *
-   * @param clientRegistrationRepository
-   */
-  @ConditionalOnMissingBean
-  @Bean
-  fun globalPrincipalOAuth2AuthorizedClientService(clientRegistrationRepository: ClientRegistrationRepository): OAuth2AuthorizedClientService = GlobalPrincipalOAuth2AuthorizedClientService(clientRegistrationRepository)
 
   @ConditionalOnMissingBean
   @Bean
@@ -88,58 +87,44 @@ class HmppsWebClientConfiguration {
     Duration.ofSeconds(DEFAULT_TIMEOUT_SECONDS),
   )
 
-  @ConditionalOnMissingBean
   @Bean
+  @ConditionalOnMissingBean()
   fun clientRegistrationRepository(properties: OAuth2ClientProperties?): InMemoryClientRegistrationRepository {
     val registrations: MutableList<ClientRegistration?> = ArrayList<ClientRegistration?>(
       OAuth2ClientPropertiesMapper(properties).asClientRegistrations().values,
     )
     return InMemoryClientRegistrationRepository(registrations)
   }
+
 }
 
-@AutoConfigureBefore(ReactiveOAuth2ClientAutoConfiguration::class)
+@AutoConfigureAfter(ReactiveOAuth2ClientWebSecurityAutoConfiguration::class)
 @ConditionalOnWebApplication(type = REACTIVE)
-@EnableConfigurationProperties(OAuth2ClientProperties::class)
+@ConditionalOnBean(ReactiveClientRegistrationRepository::class)
 @Configuration
 class HmppsReactiveWebClientConfiguration {
 
+  /**
+   * This method generates an instance of the [AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager]
+   * class configured to cache all OAuth2 tokens under a single **principalName** using the
+   * [ReactiveGlobalPrincipalOAuth2AuthorizedClientService].
+   *
+   * The purpose of this [ReactiveOAuth2AuthorizedClientManager] is to avoid unnecessary token requests to HMPPS Auth,
+   * and it should be used for web clients where a username is being injected to the token request.
+   *
+   * @param reactiveClientRegistrationRepository
+   * @param reactiveOAuth2AuthorizedClientProvider
+   */
   @ConditionalOnMissingBean
   @Bean
   fun reactiveOAuth2AuthorizedClientManager(
     reactiveClientRegistrationRepository: ReactiveClientRegistrationRepository,
-    reactiveOAuth2AuthorizedClientService: ReactiveOAuth2AuthorizedClientService,
     reactiveOAuth2AuthorizedClientProvider: ReactiveOAuth2AuthorizedClientProvider,
   ): ReactiveOAuth2AuthorizedClientManager = AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager(
     reactiveClientRegistrationRepository,
-    reactiveOAuth2AuthorizedClientService,
+    ReactiveGlobalPrincipalOAuth2AuthorizedClientService(reactiveClientRegistrationRepository),
   ).kotlinApply {
     setAuthorizedClientProvider(reactiveOAuth2AuthorizedClientProvider)
-  }
-
-  /**
-   * This method generates an instance of the [ReactiveGlobalPrincipalOAuth2AuthorizedClientService]
-   * class configured to cache all OAuth2 tokens under a single **principalName**.
-   *
-   * The purpose of this [ReactiveOAuth2AuthorizedClientService] is to avoid unnecessary token requests to HMPPS Auth.
-   * This should be the default [ReactiveOAuth2AuthorizedClientService] unless the [WebClient] using it is configured to
-   * inject the name of the authenticated principal into the client credentials token request. In this scenario the tokens
-   * will be unique per user so a [org.springframework.security.oauth2.client.InMemoryReactiveOAuth2AuthorizedClientService]
-   * should be used instead.
-   *
-   * @param reactiveClientRegistrationRepository
-   */
-  @ConditionalOnMissingBean
-  @Bean
-  fun reactiveGlobalPrincipalOAuth2AuthorizedClientService(reactiveClientRegistrationRepository: ReactiveClientRegistrationRepository): ReactiveOAuth2AuthorizedClientService = ReactiveGlobalPrincipalOAuth2AuthorizedClientService(reactiveClientRegistrationRepository)
-
-  @ConditionalOnMissingBean
-  @Bean
-  fun reactiveClientRegistrationRepository(properties: OAuth2ClientProperties): InMemoryReactiveClientRegistrationRepository {
-    val registrations: MutableList<ClientRegistration?> = java.util.ArrayList<ClientRegistration?>(
-      OAuth2ClientPropertiesMapper(properties).asClientRegistrations().values,
-    )
-    return InMemoryReactiveClientRegistrationRepository(registrations)
   }
 
   @ConditionalOnMissingBean
