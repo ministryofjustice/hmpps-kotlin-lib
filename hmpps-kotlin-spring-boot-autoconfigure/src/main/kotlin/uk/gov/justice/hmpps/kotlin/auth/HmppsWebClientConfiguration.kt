@@ -5,6 +5,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type.REACTIVE
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type.SERVLET
+import org.springframework.boot.autoconfigure.security.oauth2.client.ConditionalOnOAuth2ClientRegistrationProperties
 import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientAutoConfiguration
 import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties
 import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientPropertiesMapper
@@ -47,6 +48,7 @@ import kotlin.apply as kotlinApply
 private const val DEFAULT_TIMEOUT_SECONDS: Long = 30
 private const val DEFAULT_HEALTH_TIMEOUT_SECONDS: Long = 2
 
+@ConditionalOnOAuth2ClientRegistrationProperties
 @AutoConfigureBefore(OAuth2ClientAutoConfiguration::class)
 @ConditionalOnWebApplication(type = SERVLET)
 @EnableConfigurationProperties(OAuth2ClientProperties::class)
@@ -98,6 +100,7 @@ class HmppsWebClientConfiguration {
   }
 }
 
+@ConditionalOnOAuth2ClientRegistrationProperties
 @AutoConfigureBefore(ReactiveOAuth2ClientAutoConfiguration::class)
 @ConditionalOnWebApplication(type = REACTIVE)
 @EnableConfigurationProperties(OAuth2ClientProperties::class)
