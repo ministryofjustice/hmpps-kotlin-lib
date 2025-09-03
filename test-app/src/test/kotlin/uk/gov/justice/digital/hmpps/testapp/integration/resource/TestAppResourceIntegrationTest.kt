@@ -153,4 +153,31 @@ class TestAppResourceIntegrationTest : IntegrationTestBase() {
       HmppsAuthApiExtension.hmppsAuth.assertNumberStubGrantTokenCalls(1)
     }
   }
+
+  @Nested
+  inner class BookingEndpointWithUserContext {
+
+    @BeforeEach
+    fun setup() {
+      HmppsAuthApiExtension.hmppsAuth.resetAll()
+      // The HMPPS Auth Token Endpoint stub will only match a request containing the provided
+      // username in the request body.
+      HmppsAuthApiExtension.hmppsAuth.stubUsernameEnhancedGrantToken("AUTH_ADM")
+      PrisonApiExtension.prisonApi.stubGetPrisonerLatestBooking("ABC123C")
+    }
+
+    @Test
+    fun `should pass username in context when requesting client credentials token`() {
+      webTestClient.get().uri { uriBuilder ->
+        uriBuilder
+          .path("/prisoner/{prisonNumber}/booking")
+          .queryParam("userContext", true)
+          .build("ABC123C")
+      }
+        .headers(setAuthorisation(roles = listOf("ROLE_TEST_APP")))
+        .exchange()
+        .expectStatus()
+        .isOk
+    }
+  }
 }

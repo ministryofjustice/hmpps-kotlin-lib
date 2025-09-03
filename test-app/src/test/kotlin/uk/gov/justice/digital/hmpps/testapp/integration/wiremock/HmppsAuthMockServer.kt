@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.testapp.integration.wiremock
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
+import com.github.tomakehurst.wiremock.client.WireMock.containing
 import com.github.tomakehurst.wiremock.client.WireMock.exactly
 import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.post
@@ -79,5 +80,25 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
 
   fun assertNumberStubGrantTokenCalls(numberOfCalls: Int) {
     verify(exactly(numberOfCalls), postRequestedFor(urlPathMatching("/auth/oauth/token")))
+  }
+
+  fun stubUsernameEnhancedGrantToken(username: String) {
+    stubFor(
+      post(urlEqualTo("/auth/oauth/token"))
+        .withRequestBody(containing("grant_type=client_credentials"))
+        .withRequestBody(containing("username=$username"))
+        .willReturn(
+          aResponse()
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              """
+                {
+                  "token_type": "bearer",
+                  "access_token": "ABCDE"
+                }
+              """.trimIndent(),
+            ),
+        ),
+    )
   }
 }
