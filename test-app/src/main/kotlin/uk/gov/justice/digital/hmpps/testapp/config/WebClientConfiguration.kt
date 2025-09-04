@@ -48,7 +48,6 @@ class WebClientConfiguration(
     usernameAwareTokenRequestOAuth2AuthorizedClientManager(
       clientRegistrationRepository,
       oAuth2AuthorizedClientService,
-      timeout,
     ),
     registrationId = "prison-api",
     url = prisonApiBaseUri,

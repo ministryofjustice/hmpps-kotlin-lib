@@ -43,7 +43,6 @@ class WebClientConfiguration(
     reactiveUsernameAwareTokenRequestOAuth2AuthorizedClientManager(
       reactiveClientRegistrationRepository,
       reactiveOAuth2AuthorizedClientService,
-      timeout,
     ),
     registrationId = "prison-api",
     url = prisonApiBaseUri,
