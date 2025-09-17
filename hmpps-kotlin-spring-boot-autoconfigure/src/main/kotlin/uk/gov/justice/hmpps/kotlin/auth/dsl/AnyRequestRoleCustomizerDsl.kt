@@ -11,7 +11,7 @@ annotation class AnyRequestRoleCustomizerDslMarker
  * ```
  *   @Bean
  *   fun resourceServerCustomizer() = ResourceServerConfigurationCustomizer {
- *     anyRequestRole { defaultRole("ROLE_MY_ROLE") }
+ *     anyRequestRole { defaultRole = "MY_ROLE" }
  *   }
  * ```
  */
