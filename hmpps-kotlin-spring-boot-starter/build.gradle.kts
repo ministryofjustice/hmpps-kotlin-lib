@@ -1,7 +1,7 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
 plugins {
-  kotlin("jvm") version "2.2.10"
+  kotlin("jvm") version "2.2.20"
   id("maven-publish")
   id("signing")
   id("com.github.ben-manes.versions") version "0.52.0"
@@ -10,7 +10,7 @@ plugins {
 
 dependencies {
   api(project(":hmpps-kotlin-spring-boot-autoconfigure"))
-  api(platform("org.springframework.boot:spring-boot-dependencies:3.5.5"))
+  api(platform("org.springframework.boot:spring-boot-dependencies:3.5.6"))
   api("org.springframework.boot:spring-boot-starter-security")
   api("org.springframework.boot:spring-boot-starter-oauth2-client")
   api("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
