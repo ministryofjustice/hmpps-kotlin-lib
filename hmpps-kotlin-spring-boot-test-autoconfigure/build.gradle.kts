@@ -11,7 +11,6 @@ plugins {
   id("se.patrikerdes.use-latest-versions") version "0.2.19"
   id("io.spring.dependency-management") version "1.1.7"
   id("org.jlleitschuh.gradle.ktlint") version "13.1.0"
-  id("org.owasp.dependencycheck") version "12.1.3"
   id("org.springframework.boot") version "3.5.6"
 }
 
@@ -126,13 +125,6 @@ project.getTasksByName("check", false).forEach {
     ""
   }
   it.dependsOn("$prefix:ktlintCheck")
-}
-
-dependencyCheck {
-  failBuildOnCVSS = 5f
-  suppressionFiles = listOf("dps-gradle-spring-boot-suppressions.xml", "hmpps-kotlin-spring-boot-test-autoconfigure/test-suppressions.xml")
-  format = "ALL"
-  analyzers.assemblyEnabled = false
 }
 
 ktlint {
