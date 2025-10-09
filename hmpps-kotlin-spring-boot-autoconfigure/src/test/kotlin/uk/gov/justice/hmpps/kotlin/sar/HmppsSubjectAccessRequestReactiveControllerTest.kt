@@ -22,7 +22,7 @@ class HmppsSubjectAccessRequestReactiveControllerTest : AbstractHmppsSubjectAcce
       assertErrorResponse(
         response = controller.getServiceTemplate(),
         expectedStatusCode = INTERNAL_SERVER_ERROR,
-        expectedErrorMessage = TEMPLATE_BLANK_ERROR_MESSAGE,
+        expectedErrorMessage = templateBlankErrorMessage,
       )
     }
 
@@ -36,7 +36,7 @@ class HmppsSubjectAccessRequestReactiveControllerTest : AbstractHmppsSubjectAcce
       assertErrorResponse(
         response = controller.getServiceTemplate(),
         expectedStatusCode = NOT_FOUND,
-        expectedErrorMessage = TEMPLATE_NOT_FOUND_ERROR_MESSAGE,
+        expectedErrorMessage = templateNotFoundErrorMessage,
       )
     }
 
@@ -44,7 +44,7 @@ class HmppsSubjectAccessRequestReactiveControllerTest : AbstractHmppsSubjectAcce
     fun `should return expected template content`() {
       val controller = HmppsSubjectAccessRequestReactiveController(
         service = subjectAccessRequestReactiveService,
-        subjectAccessRequestTemplatePath = TEST_TEMPLATE_PATH,
+        subjectAccessRequestTemplatePath = testTemplatePath,
       )
 
       assertSuccessResponse(response = controller.getServiceTemplate())

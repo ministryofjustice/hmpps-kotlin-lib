@@ -35,7 +35,7 @@ import java.time.LocalDate
 class HmppsSubjectAccessRequestController(
   private val service: HmppsSubjectAccessRequestService,
   @Value("\${subject-access-request.template-path:}") private val subjectAccessRequestTemplatePath: String,
-  ) {
+) {
 
   private companion object {
     private val LOG = LoggerFactory.getLogger(HmppsSubjectAccessRequestController::class.java)

@@ -8,15 +8,15 @@ import uk.gov.justice.hmpps.kotlin.common.ErrorResponse
 
 abstract class AbstractHmppsSubjectAccessRequestReactiveControllerTest {
 
-  protected val TEMPLATE_BLANK_ERROR_MESSAGE =
+  protected val templateBlankErrorMessage =
     "A subject access request mustache template has not been configured for this service."
 
-  protected val TEMPLATE_NOT_FOUND_ERROR_MESSAGE =
+  protected val templateNotFoundErrorMessage =
     "Configured subject access request mustache template not found"
 
-  protected val TEST_TEMPLATE_PATH = "/sar/test-template.mustache"
+  protected val testTemplatePath = "/sar/test-template.mustache"
 
-  protected val EXPECTED_TEMPLATE_BODY = "Subject Access Request: Test Template"
+  protected val expectedTemplateBody = "Subject Access Request: Test Template"
 
   protected fun assertErrorResponse(
     response: ResponseEntity<Any>,
@@ -42,6 +42,6 @@ abstract class AbstractHmppsSubjectAccessRequestReactiveControllerTest {
     assertThat(response.body).isInstanceOf(ByteArray::class.java)
 
     val actualTemplate = String((response.body as ByteArray))
-    assertThat(actualTemplate).isEqualTo(EXPECTED_TEMPLATE_BODY)
+    assertThat(actualTemplate).isEqualTo(expectedTemplateBody)
   }
 }
