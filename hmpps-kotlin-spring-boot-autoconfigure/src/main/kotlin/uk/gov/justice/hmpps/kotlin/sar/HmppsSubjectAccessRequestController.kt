@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -121,29 +122,79 @@ class HmppsSubjectAccessRequestController(
   }
 
   @GetMapping("/template")
+  @Operation(
+    summary = "Get the Subject Access Request report formatting template for this service",
+    description = "Requires role SAR_DATA_ACCESS or additional role as specified by hmpps.sar.additionalAccessRole configuration.",
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "Request successfully processed - return template file content",
+        content = [
+          Content(
+            mediaType = "plain/text",
+            schema = Schema(implementation = String::class),
+          ),
+        ],
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "The client does not have authorisation to make this request",
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+      ),
+      ApiResponse(
+        responseCode = "403",
+        description = "Forbidden, requires an appropriate role",
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+      ),
+      ApiResponse(
+        responseCode = "404",
+        description = "Not Found, configured template file not found",
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+      ),
+      ApiResponse(
+        responseCode = "500",
+        description = "Unexpected error occurred",
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+      ),
+    ],
+  )
   fun getServiceTemplate(): ResponseEntity<Any> = if (subjectAccessRequestTemplatePath.isBlank()) {
     LOG.warn("subject-access-request.template-path configuration value is blank")
+    val headers = HttpHeaders()
+    headers.contentType = MediaType.APPLICATION_JSON
 
-    ResponseEntity.internalServerError().body(
-      ErrorResponse(
-        status = HttpStatus.INTERNAL_SERVER_ERROR,
-        userMessage = "A subject access request mustache template has not been configured for this service.",
-        developerMessage = "A subject access request mustache template has not been configured for this service.",
-      ),
-    )
+    ResponseEntity.internalServerError()
+      .headers(headers)
+      .body(
+        ErrorResponse(
+          status = HttpStatus.INTERNAL_SERVER_ERROR,
+          userMessage = "A subject access request mustache template has not been configured for this service.",
+          developerMessage = "A subject access request mustache template has not been configured for this service.",
+        ),
+      )
   } else {
     HmppsSubjectAccessRequestController::class.java.getResourceAsStream(subjectAccessRequestTemplatePath)
-      ?.let { ResponseEntity(it.readAllBytes(), HttpStatus.OK) }
+      ?.let {
+        val headers = HttpHeaders()
+        headers.contentType = MediaType.TEXT_PLAIN
+        ResponseEntity(it.readAllBytes(), headers, HttpStatus.OK)
+      }
       ?: run {
         LOG.warn("subject-access-request.template-path: '{}' file not found", subjectAccessRequestTemplatePath)
 
-        ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-          ErrorResponse(
-            status = HttpStatus.NOT_FOUND,
-            userMessage = "Configured subject access request mustache template not found",
-            developerMessage = "Configured subject access request mustache template not found",
-          ),
-        )
+        val headers = HttpHeaders()
+        headers.contentType = MediaType.APPLICATION_JSON
+        ResponseEntity.status(HttpStatus.NOT_FOUND)
+          .headers(headers)
+          .body(
+            ErrorResponse(
+              status = HttpStatus.NOT_FOUND,
+              userMessage = "Configured subject access request mustache template not found",
+              developerMessage = "Configured subject access request mustache template not found",
+            ),
+          )
       }
   }
 }
