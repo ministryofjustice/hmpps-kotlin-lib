@@ -1,12 +1,21 @@
-# Subject Access Request Endpoint
+# Subject Access Request Endpoints
 
 ## What is provided?
 
-If you implement one of the three subject access request interfaces then a `/subject-access-request` endpoint will
-be automatically created and call your service.  The endpoint will be protected by a `SAR_DATA_ACCESS` role and
+If you implement one of the three subject access request interfaces then 2 `/subject-access-request` endpoints will
+be automatically created and call your service:
+
+### Endpoints:
+- `/subject-access-request` this endpoint should return SAR data held by your service for the specified identifier 
+within the provided date range.
+- `/subject-access-request/template` should return your service's subject access request report mustache 
+template file. This template is used to present your service's raw data in human-readable format for use in the 
+generated Subject Access Request report PDF.
+
+The endpoint will be protected by a `SAR_DATA_ACCESS` role and
 an additional role can be added if required.
 
-If you do not implement the service then no endpoint will be created.
+If you do not implement the service then these endpoints will not be created.
 
 ## What can I customize?
 In terms of service implementations there are options:
@@ -20,6 +29,33 @@ If either a prison number or case reference number is supplied to the endpoint t
 
 The default controller endpoint will be protected by `SAR_DATA_ACCESS`.  Specifying a `hmpps.sar.additionalAccessRole`
 property in `application.yml` will then add in the additional access role as well.
+
+## Subject Access Request Template configuration
+To configure you service subject access request report template:
+
+- Create a `sar_template.mustache` file in your project `resources` dir. There is no mandatory directory structure or 
+naming/versioning convention for the template file. However, we recommend adopting a versioned naming convention to 
+easily differentiate updates/changes in your template over time. The only **mandatory requirement** is the template file 
+must accessible as a resource at runtime.
+
+
+- Add the following to your application properties (update as required): 
+    ```yaml
+    subject-access-request:
+      template-path: /path_to_your_template/sar_template_v1.mustache
+    ```
+
+- If correctly configure calling GET `/subject-access-request/template` on your service will return the template body.
+
+To use a different template in an environment simply create a new template file in your project resources directory and 
+override the `subject-access-request.template-path` property in the target environment's configuration. This gives you 
+the flexibility to use/test work in progress templates locally or in the Dev environment without impacting the live 
+template.
+
+
+### Troubleshooting
+- Endpoint will return status **500** if the `subject-access-request.template-path` property has not been set/is blank
+- Endpoint will return status **404** if the configured template file is not found.
 
 ## How do I opt out?
 
