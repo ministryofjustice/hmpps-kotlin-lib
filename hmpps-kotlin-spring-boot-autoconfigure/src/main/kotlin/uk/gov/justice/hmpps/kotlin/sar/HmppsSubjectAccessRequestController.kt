@@ -7,6 +7,8 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -30,7 +32,14 @@ import java.time.LocalDate
 @PreAuthorize("hasAnyRole('SAR_DATA_ACCESS', @environment.getProperty('hmpps.sar.additionalAccessRole', 'SAR_DATA_ACCESS'))")
 @RequestMapping("/subject-access-request", produces = [MediaType.APPLICATION_JSON_VALUE])
 @ConditionalOnBean(HmppsSubjectAccessRequestService::class)
-class HmppsSubjectAccessRequestController(private val service: HmppsSubjectAccessRequestService) {
+class HmppsSubjectAccessRequestController(
+  private val service: HmppsSubjectAccessRequestService,
+  @Value("\${subject-access-request.template-path:}") private val subjectAccessRequestTemplatePath: String,
+  ) {
+
+  private companion object {
+    private val LOG = LoggerFactory.getLogger(HmppsSubjectAccessRequestController::class.java)
+  }
 
   @GetMapping
   @Operation(
@@ -109,5 +118,32 @@ class HmppsSubjectAccessRequestController(private val service: HmppsSubjectAcces
     }
 
     return content?.let { ResponseEntity.ok(it) } ?: ResponseEntity.noContent().build()
+  }
+
+  @GetMapping("/template")
+  fun getServiceTemplate(): ResponseEntity<Any> = if (subjectAccessRequestTemplatePath.isBlank()) {
+    LOG.warn("subject-access-request.template-path configuration value is blank")
+
+    ResponseEntity.internalServerError().body(
+      ErrorResponse(
+        status = HttpStatus.INTERNAL_SERVER_ERROR,
+        userMessage = "A subject access request mustache template has not been configured for this service.",
+        developerMessage = "A subject access request mustache template has not been configured for this service.",
+      ),
+    )
+  } else {
+    HmppsSubjectAccessRequestController::class.java.getResourceAsStream(subjectAccessRequestTemplatePath)
+      ?.let { ResponseEntity(it.readAllBytes(), HttpStatus.OK) }
+      ?: run {
+        LOG.warn("subject-access-request.template-path: '{}' file not found", subjectAccessRequestTemplatePath)
+
+        ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+          ErrorResponse(
+            status = HttpStatus.NOT_FOUND,
+            userMessage = "Configured subject access request mustache template not found",
+            developerMessage = "Configured subject access request mustache template not found",
+          ),
+        )
+      }
   }
 }
