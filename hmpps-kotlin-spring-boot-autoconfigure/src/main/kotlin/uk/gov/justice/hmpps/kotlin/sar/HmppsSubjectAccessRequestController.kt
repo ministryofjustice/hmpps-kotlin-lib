@@ -7,9 +7,11 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.annotation.PostConstruct
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
+import org.springframework.core.io.ClassPathResource
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -40,6 +42,17 @@ class HmppsSubjectAccessRequestController(
 
   private companion object {
     private val LOG = LoggerFactory.getLogger(HmppsSubjectAccessRequestController::class.java)
+  }
+
+  @PostConstruct
+  private fun validateTemplateConfiguration() {
+    if (subjectAccessRequestTemplatePath.isBlank()) {
+      throw sarTemplateConfigurationMissingException()
+    }
+
+    if (!ClassPathResource(subjectAccessRequestTemplatePath).exists()) {
+      throw sarTemplateConfigurationInvalidException()
+    }
   }
 
   @GetMapping
@@ -161,12 +174,11 @@ class HmppsSubjectAccessRequestController(
     ],
   )
   fun getServiceTemplate(): ResponseEntity<Any> = if (subjectAccessRequestTemplatePath.isBlank()) {
-    LOG.warn("subject-access-request.template-path configuration value is blank")
-    val headers = HttpHeaders()
-    headers.contentType = MediaType.APPLICATION_JSON
+    LOG.error("subject-access-request.template-path configuration value is blank")
 
-    ResponseEntity.internalServerError()
-      .headers(headers)
+    ResponseEntity
+      .internalServerError()
+      .headers(HttpHeaders().apply { contentType = MediaType.APPLICATION_JSON })
       .body(
         ErrorResponse(
           status = HttpStatus.INTERNAL_SERVER_ERROR,
@@ -175,19 +187,21 @@ class HmppsSubjectAccessRequestController(
         ),
       )
   } else {
-    HmppsSubjectAccessRequestController::class.java.getResourceAsStream(subjectAccessRequestTemplatePath)
-      ?.let {
-        val headers = HttpHeaders()
-        headers.contentType = MediaType.TEXT_PLAIN
-        ResponseEntity(it.readAllBytes(), headers, HttpStatus.OK)
+    this::class.java.getResourceAsStream(subjectAccessRequestTemplatePath)
+      ?.bufferedReader(Charsets.UTF_8)
+      ?.use {
+        ResponseEntity(
+          it.readText(),
+          HttpHeaders().apply { contentType = MediaType.TEXT_PLAIN },
+          HttpStatus.OK,
+        )
       }
       ?: run {
-        LOG.warn("subject-access-request.template-path: '{}' file not found", subjectAccessRequestTemplatePath)
+        LOG.error("subject-access-request.template-path: '{}' file not found", subjectAccessRequestTemplatePath)
 
-        val headers = HttpHeaders()
-        headers.contentType = MediaType.APPLICATION_JSON
-        ResponseEntity.status(HttpStatus.NOT_FOUND)
-          .headers(headers)
+        ResponseEntity
+          .status(HttpStatus.NOT_FOUND)
+          .headers(HttpHeaders().apply { contentType = MediaType.APPLICATION_JSON })
           .body(
             ErrorResponse(
               status = HttpStatus.NOT_FOUND,
@@ -197,4 +211,15 @@ class HmppsSubjectAccessRequestController(
           )
       }
   }
+
+  private fun sarTemplateConfigurationMissingException() = IllegalStateException(
+    "Mandatory configuration blank/missing: HMPPS services implementing the " +
+      "${HmppsSubjectAccessRequestService::class.simpleName} interface MUST provide configuration " +
+      "'subject-access-request.template-path' to return a Subject Access Request template file",
+  )
+
+  private fun sarTemplateConfigurationInvalidException() = IllegalStateException(
+    "Invalid subject access request configuration. The configured subject access request template file: " +
+      "'subject-access-request.template-path': $subjectAccessRequestTemplatePath does not exists",
+    )
 }

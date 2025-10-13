@@ -6,7 +6,7 @@ import org.mockito.kotlin.mock
 import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import org.springframework.http.HttpStatus.NOT_FOUND
 
-class HmppsSubjectAccessRequestReactiveControllerTest : AbstractHmppsSubjectAccessRequestReactiveControllerTest() {
+class HmppsSubjectAccessRequestReactiveControllerTest : AbstractHmppsSubjectAccessRequestControllerTest() {
   private val subjectAccessRequestReactiveService: HmppsSubjectAccessRequestReactiveService = mock()
 
   @Nested

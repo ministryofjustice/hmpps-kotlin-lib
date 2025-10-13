@@ -31,26 +31,25 @@ The default controller endpoint will be protected by `SAR_DATA_ACCESS`.  Specify
 property in `application.yml` will then add in the additional access role as well.
 
 ## Subject Access Request Template configuration
-To configure you service subject access request report template:
+To configure your service subject access request report template endpoint:
 
-- Create a `sar_template.mustache` file in your project `resources` dir. There is no mandatory directory structure or 
-naming/versioning convention for the template file. However, we recommend adopting a versioned naming convention to 
-easily differentiate updates/changes in your template over time. The only **mandatory requirement** is the template file 
-must accessible as a resource at runtime.
+- Create a `sar_template.mustache` file under your project `resources` dir (name as desired). There is no mandatory 
+directory structure or naming/versioning convention for the template file. The only **mandatory requirement** is the 
+template file must be accessible as a resource at runtime.
 
 
 - Add the following to your application properties (update as required): 
     ```yaml
     subject-access-request:
-      template-path: /path_to_your_template/sar_template_v1.mustache
+      template-path: /path_to_your_template/sar_template.mustache
     ```
 
 - If correctly configure calling GET `/subject-access-request/template` on your service will return the template body.
 
 To use a different template in an environment simply create a new template file in your project resources directory and 
 override the `subject-access-request.template-path` property in the target environment's configuration. This gives you 
-the flexibility to use/test work in progress templates locally or in the Dev environment without impacting the live 
-template.
+the flexibility to use/test work-in-progress templates locally or in the Dev environment without impacting the live 
+production template.
 
 
 ### Troubleshooting

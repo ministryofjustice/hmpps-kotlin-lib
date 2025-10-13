@@ -7,9 +7,11 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.annotation.PostConstruct
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
+import org.springframework.core.io.ClassPathResource
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -40,6 +42,17 @@ class HmppsSubjectAccessRequestReactiveController(
 
   private companion object {
     private val LOG = LoggerFactory.getLogger(HmppsSubjectAccessRequestReactiveController::class.java)
+  }
+
+  @PostConstruct
+  private fun validateTemplateConfiguration() {
+    if (subjectAccessRequestTemplatePath.isBlank()) {
+      throw IllegalStateException("Required property subject-access-request.template-path cannot be blank")
+    }
+
+    if (!ClassPathResource(subjectAccessRequestTemplatePath).exists()) {
+      throw IllegalStateException("Subject access request template file: $subjectAccessRequestTemplatePath does not exist")
+    }
   }
 
   @GetMapping
@@ -157,12 +170,11 @@ class HmppsSubjectAccessRequestReactiveController(
     ],
   )
   fun getServiceTemplate(): ResponseEntity<Any> = if (subjectAccessRequestTemplatePath.isBlank()) {
-    LOG.warn("subject-access-request.template-path configuration value is blank")
-    val headers = HttpHeaders()
-    headers.contentType = MediaType.APPLICATION_JSON
+    LOG.error("subject-access-request.template-path configuration value is blank")
 
-    ResponseEntity.internalServerError()
-      .headers(headers)
+    ResponseEntity
+      .internalServerError()
+      .headers(HttpHeaders().apply { contentType = MediaType.APPLICATION_JSON })
       .body(
         ErrorResponse(
           status = HttpStatus.INTERNAL_SERVER_ERROR,
@@ -171,19 +183,21 @@ class HmppsSubjectAccessRequestReactiveController(
         ),
       )
   } else {
-    HmppsSubjectAccessRequestController::class.java.getResourceAsStream(subjectAccessRequestTemplatePath)
-      ?.let {
-        val headers = HttpHeaders()
-        headers.contentType = MediaType.TEXT_PLAIN
-        ResponseEntity(it.readAllBytes(), headers, HttpStatus.OK)
+    this::class.java.getResourceAsStream(subjectAccessRequestTemplatePath)
+      ?.bufferedReader(Charsets.UTF_8)
+      ?.use {
+        ResponseEntity(
+          it.readText(),
+          HttpHeaders().apply { contentType = MediaType.TEXT_PLAIN },
+          HttpStatus.OK,
+        )
       }
       ?: run {
-        LOG.warn("subject-access-request.template-path: '{}' file not found", subjectAccessRequestTemplatePath)
+        LOG.error("subject-access-request.template-path: '{}' file not found", subjectAccessRequestTemplatePath)
 
-        val headers = HttpHeaders()
-        headers.contentType = MediaType.APPLICATION_JSON
-        ResponseEntity.status(HttpStatus.NOT_FOUND)
-          .headers(headers)
+        ResponseEntity
+          .status(HttpStatus.NOT_FOUND)
+          .headers(HttpHeaders().apply { contentType = MediaType.APPLICATION_JSON })
           .body(
             ErrorResponse(
               status = HttpStatus.NOT_FOUND,
