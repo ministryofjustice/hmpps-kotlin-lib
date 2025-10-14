@@ -2,15 +2,15 @@
 
 ## What is provided?
 
-If you implement one of the three subject access request interfaces then 2 `/subject-access-request` endpoints will
-be automatically created and call your service:
+If you implement one of the three subject access request interfaces the `/subject-access-request` endpoint will
+be automatically created in your service:
 
 ### Endpoints:
 - `/subject-access-request` this endpoint should return SAR data held by your service for the specified identifier 
 within the provided date range.
-- `/subject-access-request/template` should return your service's subject access request report mustache 
-template file. This template is used to present your service's raw data in human-readable format for use in the 
-generated Subject Access Request report PDF.
+- Additionally you can configure your application to create the `/subject-access-request/template` endpoint. See
+[Subject Access Request Template Endpoint Configuration](#subject-access-request-template-endpoint-configuration) for 
+details
 
 The endpoint will be protected by a `SAR_DATA_ACCESS` role and
 an additional role can be added if required.

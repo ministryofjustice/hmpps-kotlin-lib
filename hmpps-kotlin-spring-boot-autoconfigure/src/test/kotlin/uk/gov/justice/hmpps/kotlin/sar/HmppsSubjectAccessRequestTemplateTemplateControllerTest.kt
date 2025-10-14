@@ -4,8 +4,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import org.springframework.http.HttpStatus.NOT_FOUND
 
-class HmppsSubjectAccessRequestTemplateTemplateControllerTest :
-  AbstractHmppsSubjectAccessRequestTemplateControllerTest() {
+class HmppsSubjectAccessRequestTemplateTemplateControllerTest : AbstractHmppsSubjectAccessRequestTemplateControllerTest() {
 
   @Test
   fun `should return status 500 when template is blank`() {
