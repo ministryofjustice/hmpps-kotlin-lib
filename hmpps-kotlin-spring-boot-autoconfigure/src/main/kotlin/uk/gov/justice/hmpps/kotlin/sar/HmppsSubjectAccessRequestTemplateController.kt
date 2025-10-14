@@ -34,10 +34,11 @@ class HmppsSubjectAccessRequestTemplateController(
 
   protected companion object {
     private val LOG = LoggerFactory.getLogger(HmppsSubjectAccessRequestTemplateController::class.java)
+    private const val TEMPLATE_PATH_PROPERTY = "hmpps.sar.template.path"
   }
 
   @PostConstruct
-  protected fun validateTemplateConfiguration() {
+  fun validateTemplateConfiguration() {
     if (subjectAccessRequestTemplatePath.isBlank()) {
       throw sarTemplateConfigurationMissingException()
     }
@@ -125,13 +126,12 @@ class HmppsSubjectAccessRequestTemplateController(
   }
 
   protected fun sarTemplateConfigurationMissingException() = IllegalStateException(
-    "Mandatory configuration blank/missing: HMPPS services implementing the " +
-      "${HmppsSubjectAccessRequestService::class.simpleName} interface MUST provide a configuration value for" +
-      "'subject-access-request.template-path'",
+    "Mandatory configuration blank/missing: HMPPS services implementing the HmppsSubjectAccessRequestService interface " +
+      "MUST provide a configuration value for '$TEMPLATE_PATH_PROPERTY'",
   )
 
   protected fun sarTemplateConfigurationInvalidException() = IllegalStateException(
     "Invalid subject access request configuration. Configured subject access request template file: " +
-      "'subject-access-request.template-path': ${ClassPathResource(subjectAccessRequestTemplatePath).path} not found",
+      "'$TEMPLATE_PATH_PROPERTY=$subjectAccessRequestTemplatePath' not found",
   )
 }

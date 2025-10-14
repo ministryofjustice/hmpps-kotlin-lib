@@ -6,11 +6,11 @@ import org.junit.jupiter.api.assertThrows
 import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import org.springframework.http.HttpStatus.NOT_FOUND
 
-class HmppsSubjectAccessRequestReactiveTemplateControllerTest : AbstractHmppsSubjectAccessRequestTemplateControllerTest() {
+class HmppsSubjectAccessRequestTemplateControllerTest : AbstractHmppsSubjectAccessRequestTemplateControllerTest() {
 
   @Test
   fun `should return status 500 when template is blank`() {
-    val controller = HmppsSubjectAccessRequestReactiveTemplateController(
+    val controller = HmppsSubjectAccessRequestTemplateController(
       subjectAccessRequestTemplatePath = "",
     )
 
@@ -23,7 +23,7 @@ class HmppsSubjectAccessRequestReactiveTemplateControllerTest : AbstractHmppsSub
 
   @Test
   fun `should return status 404 when configured template does not exist`() {
-    val controller = HmppsSubjectAccessRequestReactiveTemplateController(
+    val controller = HmppsSubjectAccessRequestTemplateController(
       subjectAccessRequestTemplatePath = "fictitious-template.mustache",
     )
 
@@ -36,7 +36,7 @@ class HmppsSubjectAccessRequestReactiveTemplateControllerTest : AbstractHmppsSub
 
   @Test
   fun `should return expected template content`() {
-    val controller = HmppsSubjectAccessRequestReactiveTemplateController(
+    val controller = HmppsSubjectAccessRequestTemplateController(
       subjectAccessRequestTemplatePath = testTemplatePath,
     )
 
@@ -44,21 +44,21 @@ class HmppsSubjectAccessRequestReactiveTemplateControllerTest : AbstractHmppsSub
   }
 
   @Test
-  fun `validate throws exception if path is empty`() {
-    val controller = HmppsSubjectAccessRequestReactiveTemplateController(
+  fun `validate throw exception if path is empty`() {
+    val controller = HmppsSubjectAccessRequestTemplateController(
       subjectAccessRequestTemplatePath = "",
     )
     val ex = assertThrows<IllegalStateException> { controller.validateTemplateConfiguration() }
 
     assertThat(ex.message).isEqualTo(
-      "Mandatory configuration blank/missing: HMPPS services implementing the HmppsSubjectAccessRequestReactiveService " +
-        "interface MUST provide a configuration value for 'hmpps.sar.template.path'",
+      "Mandatory configuration blank/missing: HMPPS services implementing the HmppsSubjectAccessRequestService interface" +
+        " MUST provide a configuration value for 'hmpps.sar.template.path'",
     )
   }
 
   @Test
-  fun `validate throws exception if template file does not exist`() {
-    val controller = HmppsSubjectAccessRequestReactiveTemplateController(
+  fun `validate throw exception if template file does not exist`() {
+    val controller = HmppsSubjectAccessRequestTemplateController(
       subjectAccessRequestTemplatePath = "fictitious-template.mustache",
     )
     val ex = assertThrows<IllegalStateException> { controller.validateTemplateConfiguration() }
