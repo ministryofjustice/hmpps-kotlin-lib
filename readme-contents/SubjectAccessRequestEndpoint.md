@@ -30,31 +30,50 @@ If either a prison number or case reference number is supplied to the endpoint t
 The default controller endpoint will be protected by `SAR_DATA_ACCESS`.  Specifying a `hmpps.sar.additionalAccessRole`
 property in `application.yml` will then add in the additional access role as well.
 
-## Subject Access Request Template configuration
-To configure your service subject access request report template endpoint:
+## Subject Access Request Template Endpoint Configuration
+The subject access request service uses mustache templates to convert raw API data into a human-readable format when 
+generating the report PDFs. These templates currently live in the SAR service however, the long term goal is to move 
+these templates into the service repositories where they will be owned and maintained by the service teams. The SAR 
+service will use the `/subject-access-request/template` endpoint to retrieve the templates at runtime. The template 
+endpoint is currently disabled by default to avoid introducing a breaking change and to allow teams some flexibility 
+around when they move to this model. 
 
-- Create a `sar_template.mustache` file under your project `resources` dir (name as desired). There is no mandatory 
-directory structure or naming/versioning convention for the template file. The only **mandatory requirement** is the 
-template file must be accessible as a resource at runtime.
+To enable and register the subject access request template endpoint:
+
+- Ensure your service is implementing one of the HMPPS Subject Access Request service interfaces:
+  - `HmppsSubjectAccessRequestReactiveService`
+  - `HmppsSubjectAccessRequestService`
 
 
-- Add the following to your application properties (update as required): 
+- Create a `sar_template.mustache` file under your project `resources` dir (name as desired). There is no mandatory
+  directory structure or naming/versioning convention for the template file. The only **mandatory requirement** is the
+  template file must be accessible as a resource at runtime.
+
+- Add the following to your application properties (update as required):
     ```yaml
-    subject-access-request:
-      template-path: /path_to_your_template/sar_template.mustache
+    hmpps:
+      sar:
+        template:
+          path: /path_to_template/sar_template.mustache
+          enabled: true
     ```
 
-- If correctly configure calling GET `/subject-access-request/template` on your service will return the template body.
+If correctly configure calling GET `/subject-access-request/template` on your service will return the template body. The
+application will fail on start up if: 
+- The feature is enabled and no template path is configured.
+- The feature is enabled and the template path is invalid/file does not exist.
 
-To use a different template in an environment simply create a new template file in your project resources directory and 
-override the `subject-access-request.template-path` property in the target environment's configuration. This gives you 
-the flexibility to use/test work-in-progress templates locally or in the Dev environment without impacting the live 
+
+To use a different version of your template between environments simply create a new template file in your project 
+resources directory and override the `hmpps.sar.template.path` property in the target environment's configuration. This 
+gives you the flexibility to test work-in-progress templates locally/in the Dev environment without impacting the live 
 production template.
 
 
 ### Troubleshooting
-- Endpoint will return status **500** if the `subject-access-request.template-path` property has not been set/is blank
-- Endpoint will return status **404** if the configured template file is not found.
+Although these scenarios should not be possible the endpoint will return: 
+- Status **500** if the `hmpps.sar.template.path` property has not been set/is blank
+- Status **404** if the configured template file is not found.
 
 ## How do I opt out?
 

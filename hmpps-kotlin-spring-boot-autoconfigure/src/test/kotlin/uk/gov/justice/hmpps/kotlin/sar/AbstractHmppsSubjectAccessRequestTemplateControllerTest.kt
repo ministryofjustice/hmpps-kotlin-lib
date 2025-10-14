@@ -7,7 +7,7 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import uk.gov.justice.hmpps.kotlin.common.ErrorResponse
 
-abstract class AbstractHmppsSubjectAccessRequestControllerTest {
+abstract class AbstractHmppsSubjectAccessRequestTemplateControllerTest {
 
   protected val templateBlankErrorMessage =
     "A subject access request mustache template has not been configured for this service."
