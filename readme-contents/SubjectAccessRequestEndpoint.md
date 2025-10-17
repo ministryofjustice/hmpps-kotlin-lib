@@ -69,12 +69,6 @@ resources directory and override the `hmpps.sar.template.path` property in the t
 gives you the flexibility to test work-in-progress templates locally/in the Dev environment without impacting the live 
 production template.
 
-
-### Troubleshooting
-Although these scenarios should not be possible the endpoint will return: 
-- Status **500** if the `hmpps.sar.template.path` property has not been set/is blank
-- Status **404** if the configured template file is not found.
-
 ## How do I opt out?
 
 If you do not implement the service interface then no endpoint will be created.
