@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.annotation.PostConstruct
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
@@ -20,7 +21,22 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.hmpps.kotlin.common.ErrorResponse
+import java.io.BufferedReader
 
+/**
+ * Subject Access Request (SAR) template controller returns a mustache template to be used by the SAR service to format
+ * the raw SAR data into human-readable format when producing the report PDF. Endpoint is disabled by default.
+ *
+ * To enable endpoint:
+ * - Ensure your service implements one of the [uk.gov.justice.hmpps.kotlin.sar.HmppsSubjectAccessRequestReactiveService]
+ * interfaces.
+ * - Add a template file under your service's resources dir.
+ * - Add 'hmpps.sar.template.enabled=true' to your application properties.
+ * - Add 'hmpps.sar.template.path=/PATH_TO_YOUR_TEMPLATE' to your application properties.
+ *
+ * The application will throw an [IllegalStateException] on start up if the feature is enabled but incorrectly
+ * configured.
+ */
 @Suppress("SpringJavaInjectionPointsAutowiringInspection")
 @RestController
 @Tag(name = "Subject Access Request")
@@ -29,21 +45,21 @@ import uk.gov.justice.hmpps.kotlin.common.ErrorResponse
 @ConditionalOnBean(HmppsSubjectAccessRequestReactiveService::class)
 @ConditionalOnBooleanProperty(value = ["hmpps.sar.template.enabled"], havingValue = true)
 class HmppsSubjectAccessRequestReactiveTemplateController(
-  @Value("\${hmpps.sar.template.path:}") private val subjectAccessRequestTemplatePath: String,
+  @Value("\${hmpps.sar.template.path:}") private val templatePath: String,
 ) {
 
   protected companion object {
-    private val LOG = LoggerFactory.getLogger(HmppsSubjectAccessRequestReactiveTemplateController::class.java)
-    private const val TEMPLATE_PATH_PROPERTY = "hmpps.sar.template.path"
+    private val LOG: Logger = LoggerFactory.getLogger(HmppsSubjectAccessRequestReactiveTemplateController::class.java)
+    private const val TEMPLATE_PATH_PROPERTY_KEY = "hmpps.sar.template.path"
   }
 
   @PostConstruct
   fun validateTemplateConfiguration() {
-    if (subjectAccessRequestTemplatePath.isBlank()) {
+    if (templatePath.isBlank()) {
       throw sarTemplateConfigurationMissingException()
     }
 
-    if (!ClassPathResource(subjectAccessRequestTemplatePath).exists()) {
+    if (!ClassPathResource(templatePath).exists()) {
       throw sarTemplateConfigurationInvalidException()
     }
   }
@@ -72,19 +88,22 @@ class HmppsSubjectAccessRequestReactiveTemplateController(
         content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
       ),
       ApiResponse(
-        responseCode = "404",
-        description = "Not Found, configured template file not found",
-        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
-      ),
-      ApiResponse(
         responseCode = "500",
         description = "Unexpected error occurred",
         content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
       ),
     ],
   )
-  fun getServiceTemplate(): ResponseEntity<Any> = if (subjectAccessRequestTemplatePath.isBlank()) {
-    LOG.error("subject-access-request.template-path configuration value is blank")
+  suspend fun getServiceTemplate(): ResponseEntity<Any> = try {
+    getTemplateResource().use {
+      ResponseEntity(
+        it.readText(),
+        HttpHeaders().apply { contentType = MediaType.TEXT_PLAIN },
+        HttpStatus.OK,
+      )
+    }
+  } catch (e: Exception) {
+    LOG.error("error getting subject access request template: path=$templatePath", e)
 
     ResponseEntity
       .internalServerError()
@@ -92,46 +111,25 @@ class HmppsSubjectAccessRequestReactiveTemplateController(
       .body(
         ErrorResponse(
           status = HttpStatus.INTERNAL_SERVER_ERROR,
-          userMessage = "A subject access request mustache template has not been configured for this service.",
-          developerMessage = "A subject access request mustache template has not been configured for this service.",
+          userMessage = "Unexpected error getting subject access request template",
+          developerMessage = "Unexpected error getting subject access request template",
         ),
       )
-  } else {
-    this::class.java.getResourceAsStream(subjectAccessRequestTemplatePath)
-      ?.bufferedReader(Charsets.UTF_8)
-      ?.use {
-        ResponseEntity(
-          it.readText(),
-          HttpHeaders().apply { contentType = MediaType.TEXT_PLAIN },
-          HttpStatus.OK,
-        )
-      }
-      ?: run {
-        LOG.error(
-          "subject-access-request.template-path: '{}' file not found",
-          ClassPathResource(subjectAccessRequestTemplatePath).path,
-        )
-
-        ResponseEntity
-          .status(HttpStatus.NOT_FOUND)
-          .headers(HttpHeaders().apply { contentType = MediaType.APPLICATION_JSON })
-          .body(
-            ErrorResponse(
-              status = HttpStatus.NOT_FOUND,
-              userMessage = "Configured subject access request mustache template not found",
-              developerMessage = "Configured subject access request mustache template not found",
-            ),
-          )
-      }
   }
 
-  protected fun sarTemplateConfigurationMissingException() = IllegalStateException(
-    "Mandatory configuration blank/missing: HMPPS services implementing the HmppsSubjectAccessRequestReactiveService " +
-      "interface MUST provide a configuration value for '$TEMPLATE_PATH_PROPERTY'",
-  )
+  protected fun getTemplateResource(): BufferedReader = templatePath.takeIf { it.isNotBlank() }
+    ?.let { this::class.java.getResourceAsStream(templatePath) }
+    ?.bufferedReader(Charsets.UTF_8)
+    ?: throw RuntimeException("get template resource: $templatePath returned null")
 
   protected fun sarTemplateConfigurationInvalidException() = IllegalStateException(
     "Invalid subject access request configuration. Configured subject access request template file: " +
-      "'$TEMPLATE_PATH_PROPERTY=$subjectAccessRequestTemplatePath' not found",
+      "'$TEMPLATE_PATH_PROPERTY_KEY=$templatePath' not found",
+  )
+
+  protected fun sarTemplateConfigurationMissingException() = IllegalStateException(
+    "Mandatory configuration blank/missing: HMPPS services implementing the " +
+      "${HmppsSubjectAccessRequestReactiveService::class.java.simpleName} interface MUST provide a configuration " +
+      "value for '$TEMPLATE_PATH_PROPERTY_KEY'",
   )
 }

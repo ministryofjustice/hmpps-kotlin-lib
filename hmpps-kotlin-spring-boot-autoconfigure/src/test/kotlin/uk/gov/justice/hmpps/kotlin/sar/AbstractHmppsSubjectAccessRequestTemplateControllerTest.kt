@@ -9,11 +9,7 @@ import uk.gov.justice.hmpps.kotlin.common.ErrorResponse
 
 abstract class AbstractHmppsSubjectAccessRequestTemplateControllerTest {
 
-  protected val templateBlankErrorMessage =
-    "A subject access request mustache template has not been configured for this service."
-
-  protected val templateNotFoundErrorMessage =
-    "Configured subject access request mustache template not found"
+  protected val unexpectedErrorMessage = "Unexpected error getting subject access request template"
 
   protected val testTemplatePath = "/sar/test-template.mustache"
 

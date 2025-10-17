@@ -13,3 +13,9 @@ prison-api:
   client:
     id: prison-api-client
     secret: prison-api-client-secret
+
+hmpps:
+  sar:
+    template:
+      enabled: true
+      path: /sar-templates/test_template.mustache

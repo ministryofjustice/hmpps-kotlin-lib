@@ -4,40 +4,39 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
-import org.springframework.http.HttpStatus.NOT_FOUND
 
 class HmppsSubjectAccessRequestTemplateControllerTest : AbstractHmppsSubjectAccessRequestTemplateControllerTest() {
 
   @Test
   fun `should return status 500 when template is blank`() {
     val controller = HmppsSubjectAccessRequestTemplateController(
-      subjectAccessRequestTemplatePath = "",
+      templatePath = "",
     )
 
     assertErrorResponse(
       response = controller.getServiceTemplate(),
       expectedStatusCode = INTERNAL_SERVER_ERROR,
-      expectedErrorMessage = templateBlankErrorMessage,
+      expectedErrorMessage = unexpectedErrorMessage,
     )
   }
 
   @Test
-  fun `should return status 404 when configured template does not exist`() {
+  fun `should return status 500 when configured template does not exist`() {
     val controller = HmppsSubjectAccessRequestTemplateController(
-      subjectAccessRequestTemplatePath = "fictitious-template.mustache",
+      templatePath = "fictitious-template.mustache",
     )
 
     assertErrorResponse(
       response = controller.getServiceTemplate(),
-      expectedStatusCode = NOT_FOUND,
-      expectedErrorMessage = templateNotFoundErrorMessage,
+      expectedStatusCode = INTERNAL_SERVER_ERROR,
+      expectedErrorMessage = unexpectedErrorMessage,
     )
   }
 
   @Test
   fun `should return expected template content`() {
     val controller = HmppsSubjectAccessRequestTemplateController(
-      subjectAccessRequestTemplatePath = testTemplatePath,
+      templatePath = testTemplatePath,
     )
 
     assertSuccessResponse(response = controller.getServiceTemplate())
@@ -46,7 +45,7 @@ class HmppsSubjectAccessRequestTemplateControllerTest : AbstractHmppsSubjectAcce
   @Test
   fun `validate throw exception if path is empty`() {
     val controller = HmppsSubjectAccessRequestTemplateController(
-      subjectAccessRequestTemplatePath = "",
+      templatePath = "",
     )
     val ex = assertThrows<IllegalStateException> { controller.validateTemplateConfiguration() }
 
@@ -59,7 +58,7 @@ class HmppsSubjectAccessRequestTemplateControllerTest : AbstractHmppsSubjectAcce
   @Test
   fun `validate throw exception if template file does not exist`() {
     val controller = HmppsSubjectAccessRequestTemplateController(
-      subjectAccessRequestTemplatePath = "fictitious-template.mustache",
+      templatePath = "fictitious-template.mustache",
     )
     val ex = assertThrows<IllegalStateException> { controller.validateTemplateConfiguration() }
 
