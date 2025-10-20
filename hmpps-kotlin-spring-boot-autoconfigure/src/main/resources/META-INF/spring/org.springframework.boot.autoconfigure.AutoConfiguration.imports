@@ -9,3 +9,5 @@ uk.gov.justice.hmpps.kotlin.clienttracking.HmppsReactiveClientTrackingConfigurat
 uk.gov.justice.hmpps.kotlin.health.ProductIdInfoContributor
 uk.gov.justice.hmpps.kotlin.sar.HmppsSubjectAccessRequestController
 uk.gov.justice.hmpps.kotlin.sar.HmppsSubjectAccessRequestReactiveController
+uk.gov.justice.hmpps.kotlin.sar.HmppsSubjectAccessRequestTemplateController
+uk.gov.justice.hmpps.kotlin.sar.HmppsSubjectAccessRequestReactiveTemplateController

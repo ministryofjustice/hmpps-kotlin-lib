@@ -1,8 +1,10 @@
 package uk.gov.justice.digital.hmpps.testapp.integration.resource
 
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.springframework.http.MediaType
 import uk.gov.justice.digital.hmpps.testapp.integration.IntegrationTestBase
 
 /**
@@ -22,14 +24,21 @@ class SubjectAccessRequestInternalIntegrationTest : IntegrationTestBase() {
     @Nested
     inner class Security {
       @Test
-      fun `access forbidden when no authority`() {
+      fun `get data access forbidden when no authority`() {
         webTestClient.get().uri("/subject-access-request?prn=A12345")
           .exchange()
           .expectStatus().isUnauthorized
       }
 
       @Test
-      fun `access forbidden when no role`() {
+      fun `get template access forbidden when no authority`() {
+        webTestClient.get().uri("/subject-access-request/template")
+          .exchange()
+          .expectStatus().isUnauthorized
+      }
+
+      @Test
+      fun `get data access forbidden when no role`() {
         webTestClient.get().uri("/subject-access-request?prn=A12345")
           .headers(setAuthorisation(roles = listOf()))
           .exchange()
@@ -37,8 +46,24 @@ class SubjectAccessRequestInternalIntegrationTest : IntegrationTestBase() {
       }
 
       @Test
-      fun `access forbidden with wrong role`() {
+      fun `get template access forbidden when no role`() {
+        webTestClient.get().uri("/subject-access-request/template")
+          .headers(setAuthorisation(roles = listOf()))
+          .exchange()
+          .expectStatus().isForbidden
+      }
+
+      @Test
+      fun `get data access forbidden with wrong role`() {
         webTestClient.get().uri("/subject-access-request?prn=A12345")
+          .headers(setAuthorisation(roles = listOf("ROLE_BANANAS")))
+          .exchange()
+          .expectStatus().isForbidden
+      }
+
+      @Test
+      fun `get template access forbidden with wrong role`() {
+        webTestClient.get().uri("/subject-access-request/template")
           .headers(setAuthorisation(roles = listOf("ROLE_BANANAS")))
           .exchange()
           .expectStatus().isForbidden
@@ -100,6 +125,19 @@ class SubjectAccessRequestInternalIntegrationTest : IntegrationTestBase() {
           .exchange()
           .expectStatus().isEqualTo(400)
       }
+    }
+
+    @Test
+    fun `should return expected template`() {
+      webTestClient.get().uri("/subject-access-request/template")
+        .headers(setAuthorisation(roles = listOf("ROLE_SAR_DATA_ACCESS")))
+        .exchange()
+        .expectStatus().isEqualTo(200)
+        .expectHeader().contentType(MediaType.TEXT_PLAIN_VALUE)
+        .expectBody(String::class.java)
+        .value { body ->
+          assertThat(body).isEqualTo("""<h1>Subject Access Request Test Template</h1>""")
+        }
     }
   }
 }
