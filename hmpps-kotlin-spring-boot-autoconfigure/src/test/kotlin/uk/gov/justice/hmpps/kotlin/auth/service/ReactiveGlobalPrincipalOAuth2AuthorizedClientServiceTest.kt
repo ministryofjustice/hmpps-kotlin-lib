@@ -237,7 +237,7 @@ class ReactiveGlobalPrincipalOAuth2AuthorizedClientServiceTest {
   ) {
     for (testPrincipal in testPrincipals) {
       val returnedClient: OAuth2AuthorizedClient? =
-        reactiveGlobalPrincipalOAuth2AuthorizedClientService.loadAuthorizedClient<OAuth2AuthorizedClient?>(
+        reactiveGlobalPrincipalOAuth2AuthorizedClientService.loadAuthorizedClient<OAuth2AuthorizedClient>(
           clientRegistrationId = TEST_REGISTRATION_ID,
           principalName = testPrincipal,
         ).block()

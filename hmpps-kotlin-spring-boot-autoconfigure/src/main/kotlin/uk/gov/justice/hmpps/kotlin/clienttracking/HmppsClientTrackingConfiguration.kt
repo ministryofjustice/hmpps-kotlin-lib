@@ -4,10 +4,10 @@ import com.nimbusds.jwt.SignedJWT
 import io.opentelemetry.api.trace.Span
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingFilterBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type.REACTIVE
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type.SERVLET
-import org.springframework.boot.autoconfigure.web.servlet.ConditionalOnMissingFilterBean
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import

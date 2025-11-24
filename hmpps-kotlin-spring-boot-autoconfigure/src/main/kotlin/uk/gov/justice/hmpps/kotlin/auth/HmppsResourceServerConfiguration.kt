@@ -3,12 +3,12 @@ package uk.gov.justice.hmpps.kotlin.auth
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.AutoConfigureBefore
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingFilterBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type.REACTIVE
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type.SERVLET
-import org.springframework.boot.autoconfigure.web.reactive.WebFluxAutoConfiguration
-import org.springframework.boot.autoconfigure.web.servlet.ConditionalOnMissingFilterBean
-import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration
+import org.springframework.boot.webflux.autoconfigure.WebFluxAutoConfiguration
+import org.springframework.boot.webmvc.autoconfigure.WebMvcAutoConfiguration
 import org.springframework.cache.concurrent.ConcurrentMapCache
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

@@ -9,17 +9,21 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import org.mockito.Mockito.mock
+import org.springframework.context.ApplicationContext
 import org.springframework.security.authentication.InsufficientAuthenticationException
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.test.context.TestSecurityContextHolder
 import org.springframework.security.test.context.support.ReactorContextTestExecutionListener
+import org.springframework.test.annotation.DirtiesContext
+import org.springframework.test.context.TestContext
 import org.springframework.test.context.TestExecutionListeners
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import uk.gov.justice.hmpps.kotlin.auth.AuthSource.NOMIS
 import uk.gov.justice.hmpps.kotlin.auth.AuthSource.NONE
 import uk.gov.justice.hmpps.kotlin.auth.HmppsReactiveAuthenticationHolder.Companion.hasRoles
+import java.lang.reflect.Method
 
 @ExtendWith(SpringExtension::class)
 @TestExecutionListeners(ReactorContextTestExecutionListener::class)
@@ -34,7 +38,7 @@ class HmppsReactiveAuthenticationHolderTest {
   @Test
   fun `should throw exception if not a AuthAwareAuthenticationToken`() = runTest {
     TestSecurityContextHolder.setAuthentication(TestingAuthenticationToken("user", "pass"))
-    ReactorContextTestExecutionListener().beforeTestMethod(null)
+    ReactorContextTestExecutionListener().beforeTestMethod(TestContextImpl())
 
     assertThrows<InsufficientAuthenticationException> { holder.getAuthentication() }
   }
@@ -42,7 +46,7 @@ class HmppsReactiveAuthenticationHolderTest {
   @Test
   fun `authenticationOrNull should return null if not a AuthAwareAuthenticationToken`() = runTest {
     TestSecurityContextHolder.setAuthentication(TestingAuthenticationToken("user", "pass"))
-    ReactorContextTestExecutionListener().beforeTestMethod(null)
+    ReactorContextTestExecutionListener().beforeTestMethod(TestContextImpl())
 
     assertThat(holder.getAuthenticationOrNull()).isNull()
   }
@@ -162,6 +166,60 @@ class HmppsReactiveAuthenticationHolderTest {
     ).apply {
       TestSecurityContextHolder.setAuthentication(this)
     }
-    ReactorContextTestExecutionListener().beforeTestMethod(null)
+    ReactorContextTestExecutionListener().beforeTestMethod(TestContextImpl())
+  }
+}
+
+class TestContextImpl : TestContext {
+  override fun getApplicationContext(): ApplicationContext {
+    TODO("Not yet implemented")
+  }
+
+  override fun getTestClass(): Class<*> {
+    TODO("Not yet implemented")
+  }
+
+  override fun getTestInstance(): Any {
+    TODO("Not yet implemented")
+  }
+
+  override fun getTestMethod(): Method {
+    TODO("Not yet implemented")
+  }
+
+  override fun getTestException(): Throwable? {
+    TODO("Not yet implemented")
+  }
+
+  override fun markApplicationContextDirty(hierarchyMode: DirtiesContext.HierarchyMode?) {
+    TODO("Not yet implemented")
+  }
+
+  override fun updateState(
+    testInstance: Any?,
+    testMethod: Method?,
+    testException: Throwable?,
+  ) {
+    TODO("Not yet implemented")
+  }
+
+  override fun setAttribute(name: String, value: Any?) {
+    TODO("Not yet implemented")
+  }
+
+  override fun getAttribute(name: String): Any? {
+    TODO("Not yet implemented")
+  }
+
+  override fun removeAttribute(name: String): Any? {
+    TODO("Not yet implemented")
+  }
+
+  override fun hasAttribute(name: String): Boolean {
+    TODO("Not yet implemented")
+  }
+
+  override fun attributeNames(): Array<out String> {
+    TODO("Not yet implemented")
   }
 }

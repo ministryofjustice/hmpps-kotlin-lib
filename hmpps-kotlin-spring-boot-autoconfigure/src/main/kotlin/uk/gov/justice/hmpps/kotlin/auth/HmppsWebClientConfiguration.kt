@@ -6,14 +6,13 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type.REACTIVE
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type.SERVLET
-import org.springframework.boot.autoconfigure.security.oauth2.client.reactive.ReactiveOAuth2ClientWebSecurityAutoConfiguration
-import org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientWebSecurityAutoConfiguration
+import org.springframework.boot.security.oauth2.client.autoconfigure.reactive.ReactiveOAuth2ClientWebSecurityAutoConfiguration
+import org.springframework.boot.security.oauth2.client.autoconfigure.servlet.OAuth2ClientWebSecurityAutoConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.client.ReactorClientHttpRequestFactory
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.http.converter.FormHttpMessageConverter
-import org.springframework.http.converter.HttpMessageConverter
 import org.springframework.security.core.context.ReactiveSecurityContextHolder
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.oauth2.client.AuthorizedClientServiceOAuth2AuthorizedClientManager
@@ -135,10 +134,9 @@ private fun createAccessTokenResponseClient(clientCredentialsClientTimeout: Dura
   // code duplicated from AbstractRestClientOAuth2AccessTokenResponseClient.restClient
   // so that we can set our requestFactory
   val restClient = RestClient.builder()
-    .messageConverters { messageConverters: MutableList<HttpMessageConverter<*>?> ->
-      messageConverters.clear()
-      messageConverters.add(FormHttpMessageConverter())
-      messageConverters.add(OAuth2AccessTokenResponseHttpMessageConverter())
+    .configureMessageConverters { configurer ->
+      configurer.addCustomConverter(FormHttpMessageConverter())
+      configurer.addCustomConverter(OAuth2AccessTokenResponseHttpMessageConverter())
     }
     .defaultStatusHandler(OAuth2ErrorResponseErrorHandler())
     .requestFactory(requestFactory)
@@ -228,7 +226,7 @@ fun usernameAwareTokenRequestOAuth2AuthorizedClientManager(
 ): OAuth2AuthorizedClientManager {
   val usernameAwareRestClientClientCredentialsTokenResponseClient =
     createAccessTokenResponseClient(clientCredentialsTokenRequestTimeout).kotlinApply {
-      val username = SecurityContextHolder.getContext().authentication.name
+      val username = SecurityContextHolder.getContext().authentication!!.name
 
       setParametersCustomizer { it.add("username", username) }
     }

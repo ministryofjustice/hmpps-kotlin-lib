@@ -1,8 +1,8 @@
 package uk.gov.justice.hmpps.kotlin.health
 
-import org.springframework.boot.actuate.health.Health
-import org.springframework.boot.actuate.health.HealthIndicator
-import org.springframework.boot.actuate.health.ReactiveHealthIndicator
+import org.springframework.boot.health.contributor.Health
+import org.springframework.boot.health.contributor.HealthIndicator
+import org.springframework.boot.health.contributor.ReactiveHealthIndicator
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import reactor.core.publisher.Mono
@@ -19,7 +19,7 @@ private fun WebClient.ping(): Mono<Health> = get()
   .uri("/health/ping")
   .retrieve()
   .toEntity(String::class.java)
-  .flatMap { Mono.just(Health.up().withDetail("HttpStatus", it?.statusCode).build()) }
+  .flatMap { Mono.just(Health.up().withDetail("HttpStatus", it.statusCode).build()) }
   .onErrorResume(WebClientResponseException::class.java) {
     Mono.just(
       Health.down(it).withDetail("body", it.responseBodyAsString).withDetail("HttpStatus", it.statusCode).build(),

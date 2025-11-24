@@ -19,10 +19,10 @@ class ReactiveGlobalPrincipalOAuth2AuthorizedClientService(
   private val authorizedClients: MutableMap<OAuth2AuthorizedClientId, OAuth2AuthorizedClient> =
     ConcurrentHashMap()
 
-  override fun <T : OAuth2AuthorizedClient?> loadAuthorizedClient(
+  override fun <T : OAuth2AuthorizedClient> loadAuthorizedClient(
     clientRegistrationId: String?,
     principalName: String?,
-  ): Mono<T?> = Mono.justOrEmpty(clientRegistrationId)
+  ): Mono<T> = Mono.justOrEmpty(clientRegistrationId)
     .flatMap { id -> clientRegistrationRepository.findByRegistrationId(id) }
     .mapNotNull { clientRegistration ->
       @Suppress("UNCHECKED_CAST")
