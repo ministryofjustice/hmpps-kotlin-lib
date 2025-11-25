@@ -16,7 +16,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.test.context.TestSecurityContextHolder
 import org.springframework.security.test.context.annotation.SecurityTestExecutionListeners
-import org.springframework.security.test.context.support.ReactorContextTestExecutionListener
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import uk.gov.justice.hmpps.kotlin.auth.AuthSource.NONE
 import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder.Companion.hasRoles
@@ -34,7 +33,6 @@ class HmppsAuthenticationHolderTest {
   @Test
   fun `should throw exception if not a AuthAwareAuthenticationToken`() {
     TestSecurityContextHolder.setAuthentication(TestingAuthenticationToken("user", "pass"))
-    ReactorContextTestExecutionListener().beforeTestMethod(null)
 
     assertThrows<InsufficientAuthenticationException> { holder.authentication }
   }
@@ -47,7 +45,6 @@ class HmppsAuthenticationHolderTest {
   @Test
   fun `authenticationOrNull should return null if not a AuthAwareAuthenticationToken`() {
     TestSecurityContextHolder.setAuthentication(TestingAuthenticationToken("user", "pass"))
-    ReactorContextTestExecutionListener().beforeTestMethod(null)
 
     assertThat(holder.authenticationOrNull).isNull()
   }

@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
 import org.springframework.context.annotation.Primary
@@ -20,6 +21,7 @@ import java.security.interfaces.RSAPublicKey
   webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
   properties = ["hmpps.test.jwt-helper-enabled=false"],
 )
+@AutoConfigureWebTestClient
 @ActiveProfiles("test")
 class JwtAuthorisationHelperBeanTest {
   @Autowired
