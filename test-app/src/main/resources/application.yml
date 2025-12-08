@@ -62,8 +62,4 @@ management:
       cache:
         time-to-live: 2000ms
 
-hmpps:
-  sar:
-    additionalAccessRole: TEST_DATA_ACCESS
-
 product-id: DPS000
