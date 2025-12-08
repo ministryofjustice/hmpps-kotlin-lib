@@ -5,6 +5,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.http.MediaType
+import org.springframework.test.context.TestPropertySource
 import uk.gov.justice.digital.hmpps.testapp.integration.IntegrationTestBase
 
 /**
@@ -14,10 +15,9 @@ import uk.gov.justice.digital.hmpps.testapp.integration.IntegrationTestBase
  * Also see SubjectAccessRequestServiceSampleTest for a sample service implementation.
  */
 class SubjectAccessRequestSampleIntegrationTest : IntegrationTestBase() {
-
+  @DisplayName("/subject-access-request with no property set")
   @Nested
-  @DisplayName("/subject-access-request")
-  inner class SubjectAccessRequestEndpoint {
+  inner class SAREndpointWithNoProperty {
     @Nested
     inner class Security {
       @Test
@@ -82,6 +82,93 @@ class SubjectAccessRequestSampleIntegrationTest : IntegrationTestBase() {
       }
 
       @Test
+      fun `should return service template`() {
+        webTestClient.get().uri("/subject-access-request/template")
+          .headers(setAuthorisation(roles = listOf("ROLE_SAR_DATA_ACCESS")))
+          .exchange()
+          .expectStatus().isEqualTo(200)
+          .expectHeader().contentType(MediaType.TEXT_PLAIN_VALUE)
+          .expectBody(String::class.java)
+          .value { body ->
+            assertThat(body).isEqualTo("""<h1>Subject Access Request Test Template</h1>""")
+          }
+      }
+
+      @Test
+      fun `should not return data for additional TEST_DATA_ACCESS role`() {
+        // service will return data for prisoners that start with A
+        webTestClient.get().uri("/subject-access-request?prn=A12345")
+          .headers(setAuthorisation(roles = listOf("ROLE_TEST_DATA_ACCESS")))
+          .exchange()
+          .expectStatus().isForbidden
+      }
+
+      @Test
+      fun `should not return service template for additional TEST_DATA_ACCESS role`() {
+        webTestClient.get().uri("/subject-access-request/template")
+          .headers(setAuthorisation(roles = listOf("ROLE_TEST_DATA_ACCESS")))
+          .exchange()
+          .expectStatus().isForbidden
+      }
+    }
+  }
+
+  @DisplayName("/subject-access-request with property set")
+  @Nested
+  @TestPropertySource(properties = ["hmpps.sar.additionalAccessRole: TEST_DATA_ACCESS"])
+  inner class SAREndpointWithProperty {
+    @Nested
+    inner class Security {
+      @Test
+      fun `get data access forbidden when no authority`() {
+        webTestClient.get().uri("/subject-access-request?prn=A12345")
+          .exchange()
+          .expectStatus().isUnauthorized
+      }
+
+      @Test
+      fun `get template access forbidden when no authority`() {
+        webTestClient.get().uri("/subject-access-request/template")
+          .exchange()
+          .expectStatus().isUnauthorized
+      }
+
+      @Test
+      fun `get data access forbidden when no role`() {
+        webTestClient.get().uri("/subject-access-request?prn=A12345")
+          .headers(setAuthorisation(roles = listOf()))
+          .exchange()
+          .expectStatus().isForbidden
+      }
+
+      @Test
+      fun `get template access forbidden when no role`() {
+        webTestClient.get().uri("/subject-access-request/template")
+          .headers(setAuthorisation(roles = listOf()))
+          .exchange()
+          .expectStatus().isForbidden
+      }
+
+      @Test
+      fun `get data access forbidden with wrong role`() {
+        webTestClient.get().uri("/subject-access-request?prn=A12345")
+          .headers(setAuthorisation(roles = listOf("ROLE_BANANAS")))
+          .exchange()
+          .expectStatus().isForbidden
+      }
+
+      @Test
+      fun `get template access forbidden with wrong role`() {
+        webTestClient.get().uri("/subject-access-request/template")
+          .headers(setAuthorisation(roles = listOf("ROLE_BANANAS")))
+          .exchange()
+          .expectStatus().isForbidden
+      }
+    }
+
+    @Nested
+    inner class HappyPath {
+      @Test
       fun `should return data for additional TEST_DATA_ACCESS role`() {
         // service will return data for prisoners that start with A
         webTestClient.get().uri("/subject-access-request?prn=A12345")
@@ -97,6 +184,30 @@ class SubjectAccessRequestSampleIntegrationTest : IntegrationTestBase() {
       fun `should return service template`() {
         webTestClient.get().uri("/subject-access-request/template")
           .headers(setAuthorisation(roles = listOf("ROLE_TEST_DATA_ACCESS")))
+          .exchange()
+          .expectStatus().isEqualTo(200)
+          .expectHeader().contentType(MediaType.TEXT_PLAIN_VALUE)
+          .expectBody(String::class.java)
+          .value { body ->
+            assertThat(body).isEqualTo("""<h1>Subject Access Request Test Template</h1>""")
+          }
+      }
+
+      @Test
+      fun `should still return service data when SAR role set`() {
+        webTestClient.get().uri("/subject-access-request?prn=A12345")
+          .headers(setAuthorisation(roles = listOf("ROLE_SAR_DATA_ACCESS")))
+          .exchange()
+          .expectStatus().isEqualTo(200)
+          .expectBody()
+          .jsonPath("$.content.prisonerNumber").isEqualTo("A12345")
+          .jsonPath("$.content.commentText").isEqualTo("some useful comment")
+      }
+
+      @Test
+      fun `should still return template when SAR role set`() {
+        webTestClient.get().uri("/subject-access-request/template")
+          .headers(setAuthorisation(roles = listOf("ROLE_SAR_DATA_ACCESS")))
           .exchange()
           .expectStatus().isEqualTo(200)
           .expectHeader().contentType(MediaType.TEXT_PLAIN_VALUE)
