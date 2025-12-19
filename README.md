@@ -26,7 +26,7 @@ To include this library in your project add the following to your `build.gradle.
 
 ```kotlin
 dependencies {
-  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:1.8.2")
+  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:2.0.0")
 }
 ```
 
@@ -40,7 +40,7 @@ To include the test library in your project then add the following to your `buil
 
 ```kotlin
 dependencies {
-  testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:1.7.0")
+  testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:2.0.0")
 }
 ```
 
