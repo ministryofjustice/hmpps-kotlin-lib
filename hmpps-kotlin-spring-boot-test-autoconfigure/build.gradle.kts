@@ -2,8 +2,8 @@ import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-  kotlin("jvm") version "2.2.21"
-  kotlin("plugin.spring") version "2.2.21"
+  kotlin("jvm") version "2.3.0"
+  kotlin("plugin.spring") version "2.3.0"
   id("maven-publish")
   id("signing")
   id("com.adarshr.test-logger") version "4.0.0"
@@ -11,7 +11,7 @@ plugins {
   id("se.patrikerdes.use-latest-versions") version "0.2.19"
   id("io.spring.dependency-management") version "1.1.7"
   id("org.jlleitschuh.gradle.ktlint") version "14.0.1"
-  id("org.springframework.boot") version "4.0.0"
+  id("org.springframework.boot") version "4.0.1"
 }
 
 dependencies {
