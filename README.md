@@ -10,6 +10,7 @@ The library is a Spring Boot Starter that provides opinionated default configura
 
 ## Release Notes
 
+##### [2.x](release-notes/2.x.md)
 ##### [1.x](release-notes/1.x.md)
 
 ## Usage
