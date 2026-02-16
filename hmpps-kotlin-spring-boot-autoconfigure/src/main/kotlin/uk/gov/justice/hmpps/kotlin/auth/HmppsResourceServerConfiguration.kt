@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingFilt
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type.REACTIVE
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type.SERVLET
+import org.springframework.boot.security.autoconfigure.web.servlet.PathRequest
 import org.springframework.boot.webflux.autoconfigure.WebFluxAutoConfiguration
 import org.springframework.boot.webmvc.autoconfigure.WebMvcAutoConfiguration
 import org.springframework.cache.concurrent.ConcurrentMapCache
@@ -49,7 +50,12 @@ class HmppsResourceServerConfiguration {
         ?.also { dsl -> dsl.invoke(this) }
         // apply specific customizations to the default authorizeHttpRequests DSL
         ?: also {
-          customizer.unauthorizedRequestPathsCustomizer.unauthorizedRequestPaths.forEach { authorize(it, permitAll) }
+          customizer.unauthorizedRequestPathsCustomizer.unauthorizedRequestPaths.forEach {
+            when (it.contains("h2-console")) {
+              true -> authorize(PathRequest.toH2Console(), permitAll)
+              else -> authorize(it, permitAll)
+            }
+          }
           customizer.anyRequestRoleCustomizer.defaultRole
             ?.also { authorize(anyRequest, hasRole(it)) }
             ?: also { authorize(anyRequest, authenticated) }
