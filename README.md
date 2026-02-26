@@ -41,7 +41,7 @@ To include the test library in your project then add the following to your `buil
 
 ```kotlin
 dependencies {
-  testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:2.0.1")
+  testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:2.0.2")
 }
 ```
 

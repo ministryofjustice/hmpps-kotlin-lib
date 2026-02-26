@@ -29,7 +29,7 @@ dependencies {
 
   implementation("io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations:2.21.0")
 
-  testImplementation("org.assertj:assertj-core:3.27.6")
+  testImplementation("org.assertj:assertj-core:3.27.7")
   testImplementation("org.junit.jupiter:junit-jupiter:6.0.1")
   testImplementation("org.mockito:mockito-junit-jupiter:5.21.0")
   testImplementation("org.springframework.boot:spring-boot-starter-test")
