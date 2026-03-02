@@ -59,6 +59,7 @@ class JwtAuthorisationHelper {
   fun createJwtAccessToken(
     clientId: String = "test-client-id",
     username: String? = null,
+    userUUID: UUID? = null,
     scope: List<String>? = listOf(),
     roles: List<String>? = listOf(),
     expiryTime: Duration = Duration.ofHours(2),
@@ -72,6 +73,7 @@ class JwtAuthorisationHelper {
     "grant_type" to grantType,
   ).apply {
     username?.let { this["user_name"] = username }
+    userUUID?.let { this["user_uuid"] = userUUID }
     scope?.let { this["scope"] = scope }
     roles?.let {
       // ensure that all roles have a ROLE_ prefix
