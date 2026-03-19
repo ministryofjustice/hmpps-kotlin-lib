@@ -2,16 +2,16 @@ import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-  kotlin("jvm") version "2.3.10"
-  kotlin("plugin.spring") version "2.3.10"
+  kotlin("jvm") version "2.3.20"
+  kotlin("plugin.spring") version "2.3.20"
   id("maven-publish")
   id("signing")
   id("com.adarshr.test-logger") version "4.0.0"
   id("com.github.ben-manes.versions") version "0.53.0"
   id("se.patrikerdes.use-latest-versions") version "0.2.19"
   id("io.spring.dependency-management") version "1.1.7"
-  id("org.jlleitschuh.gradle.ktlint") version "14.0.1"
-  id("org.springframework.boot") version "4.0.3"
+  id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
+  id("org.springframework.boot") version "4.0.4"
 }
 
 dependencies {
@@ -22,7 +22,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-security-oauth2-resource-server")
   implementation("org.springframework.boot:spring-boot-starter-actuator")
 
-  implementation("org.springdoc:springdoc-openapi-starter-common:3.0.1")
+  implementation("org.springdoc:springdoc-openapi-starter-common:3.0.2")
 
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8")
