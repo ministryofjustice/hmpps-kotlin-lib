@@ -25,7 +25,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
       - name: Run rename-project script
         run: ./rename-project.bash ${{ github.event.repository.name }} ${{ inputs.slack_releases_channel }} ${{ inputs.pipeline_security_slack_channel }} ${{ inputs.non_prod_alerts_prometheus_severity_label }} ${{ inputs.prod_alerts_prometheus_severity_label }} ${{ inputs.product_id }}
@@ -34,7 +34,7 @@ jobs:
         run: rm .github/workflows/rename_template_project*
 
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v5
+        uses: peter-evans/create-pull-request@4e1beaa7521e8b457b572c090b25bd3db56bf1c5 # v5
         with:
           commit-message: updating project name after deployment from template repository
           title: Update template project name/references
