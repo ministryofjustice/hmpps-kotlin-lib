@@ -83,7 +83,7 @@ class HmppsWebClientConfigurationTest {
   }
 
   @Test
-  fun `should fall back to system non proxy hosts when no proxy env var is missing`() {
+  fun `should fall back to system non proxy hosts when NO_PROXY env var is missing`() {
     val result = resolveProxyConfiguration(
       environment = mapOf("HTTPS_PROXY" to "http://envoy-https-proxy:3128"),
       systemProperties = Properties().apply {
