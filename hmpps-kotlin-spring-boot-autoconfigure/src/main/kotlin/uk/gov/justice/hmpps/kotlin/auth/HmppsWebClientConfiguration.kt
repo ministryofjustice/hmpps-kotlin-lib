@@ -356,7 +356,7 @@ internal fun toReactorNonProxyHostsPattern(nonProxyHosts: String?): String? = to
 
 internal fun toReactorNoProxyHostsPattern(noProxyHosts: String?): String? = toReactorNonProxyHostsPattern(noProxyHosts, ',') {
   if (it.startsWith(".")) {
-    "*${it}".toReactorRegexFragment()
+    "*$it".toReactorRegexFragment()
   } else {
     it.toReactorRegexFragment()
   }
