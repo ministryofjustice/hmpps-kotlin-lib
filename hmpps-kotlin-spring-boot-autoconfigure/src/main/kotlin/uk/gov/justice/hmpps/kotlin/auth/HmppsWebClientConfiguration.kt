@@ -334,7 +334,7 @@ internal fun resolveProxyConfiguration(
 ): ProxyConfiguration? {
   parseProxyConfigurationFromEnvironment(environment)?.let { proxyConfiguration ->
     val nonProxyHostsPattern =
-      toReactorNoProxyHostsPattern(environment["NO_PROXY"])
+      toReactorNoProxyHostsPattern(getEnvironmentValue(environment, "NO_PROXY"))
         ?: toReactorNonProxyHostsPattern(firstNonBlank(systemProperties.getProperty("https.nonProxyHosts"), systemProperties.getProperty("http.nonProxyHosts")))
 
     return proxyConfiguration.copy(nonProxyHostsPattern = nonProxyHostsPattern)
@@ -374,9 +374,12 @@ private fun toReactorNonProxyHostsPattern(hosts: String?, separator: Char, regex
 }
 
 private fun parseProxyConfigurationFromEnvironment(environment: Map<String, String>): ProxyConfiguration? = firstNonBlank(
-  environment["HTTPS_PROXY"],
-  environment["HTTP_PROXY"],
+  getEnvironmentValue(environment, "HTTPS_PROXY"),
+  getEnvironmentValue(environment, "HTTP_PROXY"),
 )?.let(::parseProxyConfiguration)
+
+private fun getEnvironmentValue(environment: Map<String, String>, key: String): String? =
+  environment.entries.firstOrNull { it.key.equals(key, ignoreCase = true) }?.value
 
 private fun parseProxyConfiguration(proxyUrl: String): ProxyConfiguration? = runCatching {
   URI(proxyUrl.takeIf { "://" in it } ?: "http://$proxyUrl")

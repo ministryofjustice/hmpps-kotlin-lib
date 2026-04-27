@@ -44,8 +44,8 @@ class HmppsWebClientConfigurationTest {
   fun `should prefer proxy environment variables`() {
     val result = resolveProxyConfiguration(
       environment = mapOf(
-        "HTTPS_PROXY" to "http://envoy-https-proxy:3128",
-        "NO_PROXY" to "localhost,.svc",
+        "https_proxy" to "http://envoy-https-proxy:3128",
+        "no_proxy" to "localhost,.svc",
       ),
       systemProperties = Properties().apply {
         setProperty("https.proxyHost", "ignored-proxy")
@@ -89,6 +89,25 @@ class HmppsWebClientConfigurationTest {
       systemProperties = Properties().apply {
         setProperty("https.nonProxyHosts", "localhost|*.svc")
       },
+    )
+
+    assertThat(result).isEqualTo(
+      ProxyConfiguration(
+        host = "envoy-https-proxy",
+        port = 3128,
+        nonProxyHostsPattern = "^localhost$|^.*\\.svc$",
+      ),
+    )
+  }
+
+  @Test
+  fun `should resolve mixed case proxy environment variables`() {
+    val result = resolveProxyConfiguration(
+      environment = mapOf(
+        "Https_Proxy" to "http://envoy-https-proxy:3128",
+        "No_Proxy" to "localhost,.svc",
+      ),
+      systemProperties = Properties(),
     )
 
     assertThat(result).isEqualTo(
