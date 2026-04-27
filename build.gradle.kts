@@ -11,7 +11,7 @@ plugins {
 
 allprojects {
   group = "uk.gov.justice.service.hmpps"
-  version = "2.1.1-beta"
+  version = "2.2.0-beta"
 
   repositories {
     mavenCentral()
