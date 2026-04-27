@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.kotlin.auth
 
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 import java.util.Properties
 
@@ -98,6 +99,21 @@ class HmppsWebClientConfigurationTest {
         nonProxyHostsPattern = "^localhost$|^.*\\.svc$",
       ),
     )
+  }
+
+  @Test
+  fun `should fail fast when matching system proxy port is invalid`() {
+    assertThatThrownBy {
+      resolveProxyConfiguration(
+        environment = emptyMap(),
+        systemProperties = Properties().apply {
+          setProperty("https.proxyHost", "envoy-https-proxy")
+          setProperty("https.proxyPort", "not-a-number")
+        },
+      )
+    }
+      .isInstanceOf(IllegalArgumentException::class.java)
+      .hasMessage("Invalid proxy port 'not-a-number' configured for system property 'https.proxyPort'")
   }
 
   @Test

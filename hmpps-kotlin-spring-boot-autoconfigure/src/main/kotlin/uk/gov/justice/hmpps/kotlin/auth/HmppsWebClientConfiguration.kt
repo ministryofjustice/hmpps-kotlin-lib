@@ -340,14 +340,30 @@ internal fun resolveProxyConfiguration(
     return proxyConfiguration.copy(nonProxyHostsPattern = nonProxyHostsPattern)
   }
 
-  val proxyHost = firstNonBlank(systemProperties.getProperty("https.proxyHost"), systemProperties.getProperty("http.proxyHost")) ?: return null
-  val proxyPort = listOf(systemProperties.getProperty("https.proxyPort"), systemProperties.getProperty("http.proxyPort"))
-    .firstNotNullOfOrNull { it?.toIntOrNull() } ?: DEFAULT_PROXY_PORT
+  val proxyHostPropertyName = when {
+    !systemProperties.getProperty("https.proxyHost").isNullOrBlank() -> "https.proxyHost"
+    !systemProperties.getProperty("http.proxyHost").isNullOrBlank() -> "http.proxyHost"
+    else -> return null
+  }
+  val proxyHost = systemProperties.getProperty(proxyHostPropertyName)
+  val proxyPort = parseSystemPropertyProxyPort(systemProperties, proxyHostPropertyName)
   val nonProxyHostsPattern = toReactorNonProxyHostsPattern(
     firstNonBlank(systemProperties.getProperty("https.nonProxyHosts"), systemProperties.getProperty("http.nonProxyHosts")),
   )
 
   return ProxyConfiguration(proxyHost, proxyPort, nonProxyHostsPattern)
+}
+
+private fun parseSystemPropertyProxyPort(systemProperties: Properties, proxyHostPropertyName: String): Int {
+  val proxyPortPropertyName = proxyHostPropertyName.replace("Host", "Port")
+  val proxyPortPropertyValue = systemProperties.getProperty(proxyPortPropertyName)
+
+  if (proxyPortPropertyValue.isNullOrBlank()) {
+    return DEFAULT_PROXY_PORT
+  }
+
+  return proxyPortPropertyValue.toIntOrNull()
+    ?: throw IllegalArgumentException("Invalid proxy port '$proxyPortPropertyValue' configured for system property '$proxyPortPropertyName'")
 }
 
 internal fun toReactorNonProxyHostsPattern(nonProxyHosts: String?): String? = toReactorNonProxyHostsPattern(nonProxyHosts, '|') {
