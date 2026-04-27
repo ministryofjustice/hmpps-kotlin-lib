@@ -378,8 +378,7 @@ private fun parseProxyConfigurationFromEnvironment(environment: Map<String, Stri
   getEnvironmentValue(environment, "HTTP_PROXY"),
 )?.let(::parseProxyConfiguration)
 
-private fun getEnvironmentValue(environment: Map<String, String>, key: String): String? =
-  environment.entries.firstOrNull { it.key.equals(key, ignoreCase = true) }?.value
+private fun getEnvironmentValue(environment: Map<String, String>, key: String): String? = environment.entries.firstOrNull { it.key.equals(key, ignoreCase = true) }?.value
 
 private fun parseProxyConfiguration(proxyUrl: String): ProxyConfiguration? = runCatching {
   URI(proxyUrl.takeIf { "://" in it } ?: "http://$proxyUrl")
