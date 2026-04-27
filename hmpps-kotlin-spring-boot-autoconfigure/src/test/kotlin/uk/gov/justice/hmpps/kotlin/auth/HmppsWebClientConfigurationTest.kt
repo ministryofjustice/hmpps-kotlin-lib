@@ -134,4 +134,51 @@ class HmppsWebClientConfigurationTest {
       ),
     )
   }
+
+  @Test
+  fun `should prefer deterministic environment variable precedence when proxy vars exist in multiple casings`() {
+    val result = resolveProxyConfiguration(
+      environment = linkedMapOf(
+        "https_proxy" to "http://lowercase-proxy:3128",
+        "HTTPS_PROXY" to "http://uppercase-proxy:3129",
+      ),
+      systemProperties = Properties(),
+    )
+
+    assertThat(result).isEqualTo(
+      ProxyConfiguration(
+        host = "uppercase-proxy",
+        port = 3129,
+        nonProxyHostsPattern = null,
+      ),
+    )
+  }
+
+  @Test
+  fun `should use default proxy port when environment proxy URL omits port`() {
+    val result = resolveProxyConfiguration(
+      environment = mapOf("HTTPS_PROXY" to "envoy-https-proxy"),
+      systemProperties = Properties(),
+    )
+
+    assertThat(result).isEqualTo(
+      ProxyConfiguration(
+        host = "envoy-https-proxy",
+        port = 3128,
+        nonProxyHostsPattern = null,
+      ),
+    )
+  }
+
+  @Test
+  fun `should fail fast when environment proxy URL is invalid`() {
+    assertThatThrownBy {
+      resolveProxyConfiguration(
+        environment = mapOf("HTTPS_PROXY" to "http://bad proxy url"),
+        systemProperties = Properties(),
+      )
+    }
+      .isInstanceOf(IllegalArgumentException::class.java)
+      .hasMessageContaining("Invalid proxy URL in environment configuration")
+  }
 }

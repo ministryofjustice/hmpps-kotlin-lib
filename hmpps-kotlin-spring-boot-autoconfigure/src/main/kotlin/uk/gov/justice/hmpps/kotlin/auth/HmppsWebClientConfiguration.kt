@@ -394,19 +394,31 @@ private fun parseProxyConfigurationFromEnvironment(environment: Map<String, Stri
   getEnvironmentValue(environment, "HTTP_PROXY"),
 )?.let(::parseProxyConfiguration)
 
-private fun getEnvironmentValue(environment: Map<String, String>, key: String): String? = environment.entries.firstOrNull { it.key.equals(key, ignoreCase = true) }?.value
+private fun getEnvironmentValue(environment: Map<String, String>, key: String): String? = firstNonBlank(
+  environment[key],
+  environment[key.lowercase()],
+  environment[key.uppercase()],
+)
+  ?: environment.entries
+    .asSequence()
+    .filter { it.key.equals(key, ignoreCase = true) }
+    .sortedBy { it.key }
+    .map { it.value }
+    .firstOrNull { it.isNotBlank() }
 
-private fun parseProxyConfiguration(proxyUrl: String): ProxyConfiguration? = runCatching {
-  URI(proxyUrl.takeIf { "://" in it } ?: "http://$proxyUrl")
-}.getOrNull()?.let { uri ->
-  val host = uri.host ?: return null
-  val port = when {
-    uri.port > 0 -> uri.port
-    uri.scheme.equals("https", ignoreCase = true) -> 443
-    else -> 80
+private fun parseProxyConfiguration(proxyUrl: String): ProxyConfiguration {
+  val normalizedProxyUrl = proxyUrl.takeIf { "://" in it } ?: "http://$proxyUrl"
+  val uri = try {
+    URI(normalizedProxyUrl)
+  } catch (e: Exception) {
+    throw IllegalArgumentException("Invalid proxy URL in environment configuration: '$proxyUrl'", e)
   }
 
-  ProxyConfiguration(host, port)
+  val host = uri.host
+    ?: throw IllegalArgumentException("Invalid proxy URL in environment configuration: '$proxyUrl' does not contain a valid host")
+  val port = if (uri.port > 0) uri.port else DEFAULT_PROXY_PORT
+
+  return ProxyConfiguration(host, port)
 }
 
 private fun firstNonBlank(vararg values: String?): String? = values.firstOrNull { !it.isNullOrBlank() }
