@@ -22,4 +22,13 @@ data class Attachment(
   val filesize: Int,
   @field:Schema(description = "The filename of attachment file")
   val filename: String,
+  @field:Schema(description = "The additional headers to use when calling the url for fetching this attachment")
+  val headers: List<AttachmentHeader>? = null,
+)
+
+data class AttachmentHeader(
+  @field:Schema(description = "The name of the header")
+  val name: String,
+  @field:Schema(description = "The value of the header")
+  val value: String,
 )
