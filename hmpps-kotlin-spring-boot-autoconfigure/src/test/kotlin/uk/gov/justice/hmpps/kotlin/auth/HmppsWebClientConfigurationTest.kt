@@ -84,6 +84,26 @@ class HmppsWebClientConfigurationTest {
   }
 
   @Test
+  fun `should apply NO_PROXY environment variable when proxy host comes from system properties`() {
+    val result = resolveProxyConfiguration(
+      environment = mapOf("NO_PROXY" to "localhost,.svc"),
+      systemProperties = Properties().apply {
+        setProperty("https.proxyHost", "envoy-https-proxy")
+        setProperty("https.proxyPort", "3128")
+        setProperty("https.nonProxyHosts", "ignored|*.cluster.local")
+      },
+    )
+
+    assertThat(result).isEqualTo(
+      ProxyConfiguration(
+        host = "envoy-https-proxy",
+        port = 3128,
+        nonProxyHostsPattern = "^localhost$|^.*\\.svc$",
+      ),
+    )
+  }
+
+  @Test
   fun `should fall back to system non proxy hosts when NO_PROXY env var is missing`() {
     val result = resolveProxyConfiguration(
       environment = mapOf("HTTPS_PROXY" to "http://envoy-https-proxy:3128"),

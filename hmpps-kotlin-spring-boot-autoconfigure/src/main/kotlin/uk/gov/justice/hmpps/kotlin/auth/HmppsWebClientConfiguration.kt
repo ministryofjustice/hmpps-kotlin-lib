@@ -332,11 +332,11 @@ internal fun resolveProxyConfiguration(
   environment: Map<String, String> = System.getenv(),
   systemProperties: Properties = System.getProperties(),
 ): ProxyConfiguration? {
-  parseProxyConfigurationFromEnvironment(environment)?.let { proxyConfiguration ->
-    val nonProxyHostsPattern =
-      toReactorNoProxyHostsPattern(getEnvironmentValue(environment, "NO_PROXY"))
-        ?: toReactorNonProxyHostsPattern(firstNonBlank(systemProperties.getProperty("https.nonProxyHosts"), systemProperties.getProperty("http.nonProxyHosts")))
+  val nonProxyHostsPattern =
+    toReactorNoProxyHostsPattern(getEnvironmentValue(environment, "NO_PROXY"))
+      ?: toReactorNonProxyHostsPattern(firstNonBlank(systemProperties.getProperty("https.nonProxyHosts"), systemProperties.getProperty("http.nonProxyHosts")))
 
+  parseProxyConfigurationFromEnvironment(environment)?.let { proxyConfiguration ->
     return proxyConfiguration.copy(nonProxyHostsPattern = nonProxyHostsPattern)
   }
 
@@ -347,9 +347,6 @@ internal fun resolveProxyConfiguration(
   }
   val proxyHost = systemProperties.getProperty(proxyHostPropertyName)
   val proxyPort = parseSystemPropertyProxyPort(systemProperties, proxyHostPropertyName)
-  val nonProxyHostsPattern = toReactorNonProxyHostsPattern(
-    firstNonBlank(systemProperties.getProperty("https.nonProxyHosts"), systemProperties.getProperty("http.nonProxyHosts")),
-  )
 
   return ProxyConfiguration(proxyHost, proxyPort, nonProxyHostsPattern)
 }
