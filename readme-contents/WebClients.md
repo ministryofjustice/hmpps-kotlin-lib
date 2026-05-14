@@ -13,7 +13,7 @@ the name of the authenticate principal in the Spring `SecurityContextHolder`. Th
 * a method for constructing a "usernameAware" `OAuth2AuthorizedClientManager`. The `OAuth2AuthorizedClientManager` can be added to a request scoped
 `WebClient` and will add the username of the authenticated principal as a parameter in the client credentials token request. This is
 used to embed the username in context within the token so it can be passed to downstream services.
-* outbound API calls and OAuth2 client credentials token acquisition honour `HTTP_PROXY` / `HTTPS_PROXY` / `NO_PROXY` environment variables and the equivalent Java proxy system properties
+* outbound API calls and OAuth2 client credentials token acquisition honour `HTTP_PROXY` / `HTTPS_PROXY` / `NO_PROXY` environment variables and the equivalent Java proxy system properties (case insensitive)
 * For an example of how to create `WebClient` instances see class `WebClientConfiguration` in subproject `test-app`.
 
 > **NOTE** If your application requires client credentials tokens to be cached per principal e.g. if the principal name is being injected into the token request
