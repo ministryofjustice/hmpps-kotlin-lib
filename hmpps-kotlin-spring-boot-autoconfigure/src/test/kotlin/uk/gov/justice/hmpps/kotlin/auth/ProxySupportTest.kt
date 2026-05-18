@@ -5,7 +5,7 @@ import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 import java.util.Properties
 
-class HmppsWebClientConfigurationTest {
+class ProxySupportTest {
 
   @Test
   fun `should convert java non proxy hosts syntax to reactor regex`() {
