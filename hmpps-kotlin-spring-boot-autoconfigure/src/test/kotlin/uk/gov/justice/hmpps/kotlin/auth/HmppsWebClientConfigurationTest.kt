@@ -42,6 +42,13 @@ class HmppsWebClientConfigurationTest {
   }
 
   @Test
+  fun `should escape regex alternation characters in no proxy entries`() {
+    val result = toReactorNoProxyHostsPattern("foo|bar,.svc")
+
+    assertThat(result).isEqualTo("^foo\\|bar$|^.*\\.svc$")
+  }
+
+  @Test
   fun `should prefer proxy environment variables`() {
     val result = resolveProxyConfiguration(
       environment = mapOf(

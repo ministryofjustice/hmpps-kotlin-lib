@@ -50,7 +50,7 @@ import kotlin.apply as kotlinApply
 private const val DEFAULT_TIMEOUT_SECONDS: Long = 30
 private const val DEFAULT_HEALTH_TIMEOUT_SECONDS: Long = 2
 private const val DEFAULT_PROXY_PORT: Int = 3128
-private val regexMetaCharacters = setOf('\\', '.', '^', '$', '+', '?', '(', ')', '[', ']', '{', '}')
+private val regexMetaCharacters = setOf('\\', '.', '^', '$', '+', '?', '(', ')', '[', ']', '{', '}', '|')
 
 internal data class ProxyConfiguration(
   val host: String,
