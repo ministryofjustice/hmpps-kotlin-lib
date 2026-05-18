@@ -38,7 +38,6 @@ import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.ClientRequest
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction
 import org.springframework.web.reactive.function.client.WebClient
-import reactor.netty.http.client.HttpClient
 import uk.gov.justice.hmpps.kotlin.auth.service.GlobalPrincipalOAuth2AuthorizedClientService
 import uk.gov.justice.hmpps.kotlin.auth.service.ReactiveGlobalPrincipalOAuth2AuthorizedClientService
 import java.time.Duration
@@ -127,7 +126,7 @@ fun oAuth2AuthorizedClientProvider(clientCredentialsClientTimeout: Duration): OA
   .build()
 
 private fun createAccessTokenResponseClient(clientCredentialsClientTimeout: Duration): RestClientClientCredentialsTokenResponseClient = RestClientClientCredentialsTokenResponseClient().kotlinApply {
-  val requestFactory = ReactorClientHttpRequestFactory().kotlinApply {
+  val requestFactory = ReactorClientHttpRequestFactory(proxyAwareHttpClient(clientCredentialsClientTimeout)).kotlinApply {
     setReadTimeout(clientCredentialsClientTimeout)
   }
 
@@ -149,9 +148,7 @@ fun WebClient.Builder.reactiveOAuth2AuthorizedClientProvider(clientCredentialsCl
   val accessTokenResponseClient = WebClientReactiveClientCredentialsTokenResponseClient().kotlinApply {
     setWebClient(
       clientConnector(
-        ReactorClientHttpConnector(
-          HttpClient.create().responseTimeout(clientCredentialsClientTimeout),
-        ),
+        ReactorClientHttpConnector(proxyAwareHttpClient(clientCredentialsClientTimeout)),
       ).build(),
     )
   }
@@ -172,7 +169,7 @@ fun WebClient.Builder.authorisedWebClient(
   }
 
   return baseUrl(url)
-    .clientConnector(ReactorClientHttpConnector(HttpClient.create().responseTimeout(timeout)))
+    .clientConnector(ReactorClientHttpConnector(proxyAwareHttpClient(timeout)))
     .filter(oauth2Client)
     .build()
 }
@@ -181,7 +178,7 @@ fun WebClient.Builder.healthWebClient(
   url: String,
   healthTimeout: Duration = Duration.ofSeconds(DEFAULT_HEALTH_TIMEOUT_SECONDS),
 ): WebClient = baseUrl(url)
-  .clientConnector(ReactorClientHttpConnector(HttpClient.create().responseTimeout(healthTimeout)))
+  .clientConnector(ReactorClientHttpConnector(proxyAwareHttpClient(healthTimeout)))
   .build()
 
 fun WebClient.Builder.reactiveAuthorisedWebClient(
@@ -190,7 +187,7 @@ fun WebClient.Builder.reactiveAuthorisedWebClient(
   url: String,
   timeout: Duration = Duration.ofSeconds(DEFAULT_TIMEOUT_SECONDS),
 ): WebClient = baseUrl(url)
-  .clientConnector(ReactorClientHttpConnector(HttpClient.create().responseTimeout(timeout)))
+  .clientConnector(ReactorClientHttpConnector(proxyAwareHttpClient(timeout)))
   .filter(
     ServerOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager).kotlinApply {
       setDefaultClientRegistrationId(registrationId)
@@ -202,7 +199,7 @@ fun WebClient.Builder.reactiveHealthWebClient(
   url: String,
   healthTimeout: Duration = Duration.ofSeconds(DEFAULT_HEALTH_TIMEOUT_SECONDS),
 ): WebClient = baseUrl(url)
-  .clientConnector(ReactorClientHttpConnector(HttpClient.create().responseTimeout(healthTimeout)))
+  .clientConnector(ReactorClientHttpConnector(proxyAwareHttpClient(healthTimeout)))
   .build()
 
 /**
@@ -298,7 +295,7 @@ fun usernameInjectingReactiveExchangeFilterFunction(): ExchangeFilterFunction = 
 private fun WebClientReactiveClientCredentialsTokenResponseClient.configureWebClient(clientCredentialsRequestTimeout: Duration, filterFunctions: Collection<ExchangeFilterFunction> = emptyList<ExchangeFilterFunction>()): WebClientReactiveClientCredentialsTokenResponseClient = this.kotlinApply {
   setWebClient(
     WebClient.builder()
-      .clientConnector(ReactorClientHttpConnector(HttpClient.create().responseTimeout(clientCredentialsRequestTimeout)))
+      .clientConnector(ReactorClientHttpConnector(proxyAwareHttpClient(clientCredentialsRequestTimeout)))
       .filters { it.addAll(filterFunctions) }
       .build(),
   )
