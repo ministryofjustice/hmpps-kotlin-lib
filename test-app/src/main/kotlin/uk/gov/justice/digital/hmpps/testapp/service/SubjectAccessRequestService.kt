@@ -30,6 +30,13 @@ class SubjectAccessRequestService : HmppsPrisonSubjectAccessRequestService {
             ),
           ),
         ),
+        Attachment(
+          attachmentNumber = 2,
+          name = "Attachment Image Two",
+          contentType = "image/jpeg",
+          url = "http://url/image.jpg",
+          filename = "image.jpg",
+        ),
       ),
     )
   }

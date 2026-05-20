@@ -28,7 +28,7 @@ class SubjectAccessRequestServiceSampleTest {
   fun `returns attachment data if found`() {
     val attachments = service.getPrisonContentFor("A12345", null, null)?.attachments
 
-    assertThat(attachments).singleElement().isEqualTo(
+    assertThat(attachments).containsExactly(
       Attachment(
         attachmentNumber = 1,
         name = "Attachment Image",
@@ -42,6 +42,13 @@ class SubjectAccessRequestServiceSampleTest {
             value = "header-value",
           ),
         ),
+      ),
+      Attachment(
+        attachmentNumber = 2,
+        name = "Attachment Image Two",
+        contentType = "image/jpeg",
+        url = "http://url/image.jpg",
+        filename = "image.jpg",
       ),
     )
   }
