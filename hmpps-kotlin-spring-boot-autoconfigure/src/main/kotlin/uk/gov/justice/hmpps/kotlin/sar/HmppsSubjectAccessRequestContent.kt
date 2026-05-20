@@ -19,7 +19,7 @@ data class Attachment(
   @field:Schema(description = "The url to be used to download the attachment file")
   val url: String,
   @field:Schema(description = "The size of the attachment file in bytes")
-  val filesize: Int,
+  val filesize: Int? = null,
   @field:Schema(description = "The filename of attachment file")
   val filename: String,
   @field:Schema(description = "The additional headers to use when calling the url for fetching this attachment")
