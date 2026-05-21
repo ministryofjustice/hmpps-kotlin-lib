@@ -13,6 +13,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder
 import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder
 import org.springframework.stereotype.Component
+import uk.gov.justice.hmpps.kotlin.auth.AuthSource
 import java.security.KeyPair
 import java.security.KeyPairGenerator
 import java.security.interfaces.RSAPublicKey
@@ -45,12 +46,14 @@ class JwtAuthorisationHelper {
     username: String? = null,
     scope: List<String> = listOf(),
     roles: List<String> = listOf(),
+    authSource: AuthSource = AuthSource.NONE,
   ): (HttpHeaders) -> Unit {
     val token = createJwtAccessToken(
       clientId = clientId,
       username = username,
       scope = scope,
       roles = roles,
+      authSource = authSource.source,
     )
     return { it.setBearerAuth(token) }
   }
