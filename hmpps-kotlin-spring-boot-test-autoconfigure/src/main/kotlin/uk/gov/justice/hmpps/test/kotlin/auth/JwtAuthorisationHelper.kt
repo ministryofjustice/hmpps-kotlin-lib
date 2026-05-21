@@ -53,7 +53,7 @@ class JwtAuthorisationHelper {
       username = username,
       scope = scope,
       roles = roles,
-      authSource = authSource.name.lowercase(),
+      authSource = authSource.source,
     )
     return { it.setBearerAuth(token) }
   }
