@@ -46,7 +46,7 @@ class JwtAuthorisationHelper {
     username: String? = null,
     scope: List<String> = listOf(),
     roles: List<String> = listOf(),
-    authSource: AuthSource = AuthSource.NOMIS,
+    authSource: AuthSource = AuthSource.NONE,
   ): (HttpHeaders) -> Unit {
     val token = createJwtAccessToken(
       clientId = clientId,
