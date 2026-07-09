@@ -1,5 +1,9 @@
 package uk.gov.justice.hmpps.kotlin.auth
 
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
+import org.apache.catalina.connector.RequestFacade
+import org.apache.catalina.connector.ResponseFacade
 import org.springframework.boot.autoconfigure.AutoConfigureAfter
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
@@ -36,11 +40,15 @@ import org.springframework.security.oauth2.core.http.converter.OAuth2AccessToken
 import org.springframework.web.client.RestClient
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.ClientRequest
+import org.springframework.web.reactive.function.client.ClientResponse
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction
+import org.springframework.web.reactive.function.client.ExchangeFunction
 import org.springframework.web.reactive.function.client.WebClient
+import reactor.core.publisher.Mono
 import uk.gov.justice.hmpps.kotlin.auth.service.GlobalPrincipalOAuth2AuthorizedClientService
 import uk.gov.justice.hmpps.kotlin.auth.service.ReactiveGlobalPrincipalOAuth2AuthorizedClientService
 import java.time.Duration
+import kotlin.jvm.optionals.getOrNull
 import kotlin.apply as kotlinApply
 
 private const val DEFAULT_TIMEOUT_SECONDS: Long = 30
@@ -170,6 +178,7 @@ fun WebClient.Builder.authorisedWebClient(
 
   return baseUrl(url)
     .clientConnector(ReactorClientHttpConnector(proxyAwareHttpClient(timeout)))
+    .filter(ServletRequestResponseNonNullFilterFunction())
     .filter(oauth2Client)
     .build()
 }
@@ -214,7 +223,7 @@ fun WebClient.Builder.reactiveHealthWebClient(
  * This should be used for web clients where the user context is required.
  *
  * @param clientRegistrationRepository
- * @param OAuth2AuthorizedClientService
+ * @param oAuth2AuthorizedClientService
  */
 fun usernameAwareTokenRequestOAuth2AuthorizedClientManager(
   clientRegistrationRepository: ClientRegistrationRepository,
@@ -281,7 +290,7 @@ fun reactiveUsernameAwareTokenRequestOAuth2AuthorizedClientManager(
 
 fun usernameInjectingReactiveExchangeFilterFunction(): ExchangeFilterFunction = ExchangeFilterFunction.ofRequestProcessor { request ->
   ReactiveSecurityContextHolder.getContext().map { securityContext ->
-    val username = securityContext?.authentication?.name
+    val username = securityContext.authentication?.name
     val builder = ClientRequest.from(request)
     val body = request.body()
     if (!username.isNullOrEmpty() && body is BodyInserters.FormInserter<*>) {
@@ -299,4 +308,22 @@ private fun WebClientReactiveClientCredentialsTokenResponseClient.configureWebCl
       .filters { it.addAll(filterFunctions) }
       .build(),
   )
+}
+
+class ServletRequestResponseNonNullFilterFunction : ExchangeFilterFunction {
+  private companion object {
+    private val HTTP_SERVLET_REQUEST_ATTR_NAME: String = HttpServletRequest::class.java.getName()
+    private val HTTP_SERVLET_RESPONSE_ATTR_NAME: String = HttpServletResponse::class.java.getName()
+  }
+
+  override fun filter(request: ClientRequest, next: ExchangeFunction): Mono<ClientResponse> {
+    val servletRequest = request.attribute(HTTP_SERVLET_REQUEST_ATTR_NAME).getOrNull() ?: RequestFacade(null)
+    val servletResponse = request.attribute(HTTP_SERVLET_RESPONSE_ATTR_NAME).getOrNull() ?: ResponseFacade(null)
+    return next.exchange(
+      ClientRequest.from(request)
+        .attribute(HTTP_SERVLET_REQUEST_ATTR_NAME, servletRequest)
+        .attribute(HTTP_SERVLET_RESPONSE_ATTR_NAME, servletResponse)
+        .build(),
+    )
+  }
 }

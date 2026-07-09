@@ -43,7 +43,7 @@ class ReactiveGlobalPrincipalOAuth2AuthorizedClientServiceTest {
     val TEST_AUTHORIZED_CLIENT =
       OAuth2AuthorizedClient(TEST_CLIENT_REGISTRATION, TEST_SYSTEM_USERNAME, TEST_CLIENT_TOKEN)
     val AUTHENTICATED_PRINCIPAL_ONE = UsernamePasswordAuthenticationToken(TEST_PRINCIPAL_ONE, null)
-    val TEST_PRINCIPAL_LIST = listOf(TEST_PRINCIPAL_ONE, TEST_PRINCIPAL_TWO, null)
+    val TEST_PRINCIPAL_LIST = listOf(TEST_PRINCIPAL_ONE, TEST_PRINCIPAL_TWO)
   }
 
   @Mock
@@ -63,7 +63,7 @@ class ReactiveGlobalPrincipalOAuth2AuthorizedClientServiceTest {
     @Test
     fun `loadAuthorizedClient returns the expected cached OAuth2AuthorizedClient for a given registration id even if the authenticated principal is different`() {
       whenever(reactiveClientRegistrationRepositoryMock.findByRegistrationId(TEST_REGISTRATION_ID))
-        .thenReturn(Mono.just<ClientRegistration>(TEST_CLIENT_REGISTRATION))
+        .thenReturn(Mono.just(TEST_CLIENT_REGISTRATION))
 
       reactiveGlobalPrincipalOAuth2AuthorizedClientService.saveAuthorizedClient(
         TEST_AUTHORIZED_CLIENT,
@@ -82,7 +82,7 @@ class ReactiveGlobalPrincipalOAuth2AuthorizedClientServiceTest {
     @Test
     fun `loadAuthorizedClient returns null if the requested registration id is not found in the registered clients repository`() {
       whenever(reactiveClientRegistrationRepositoryMock.findByRegistrationId(TEST_REGISTRATION_ID))
-        .thenReturn(Mono.empty<ClientRegistration>())
+        .thenReturn(Mono.empty())
 
       assertCachedAuthorizedClientsStateIsCorrect(
         TEST_PRINCIPAL_LIST,
@@ -96,7 +96,7 @@ class ReactiveGlobalPrincipalOAuth2AuthorizedClientServiceTest {
     @Test
     fun `loadAuthorizedClient returns null if the requested OAuth2AuthorizedClient has not been cached under the system username`() {
       whenever(reactiveClientRegistrationRepositoryMock.findByRegistrationId(TEST_REGISTRATION_ID))
-        .thenReturn(Mono.just<ClientRegistration>(TEST_CLIENT_REGISTRATION))
+        .thenReturn(Mono.just(TEST_CLIENT_REGISTRATION))
 
       assertCachedAuthorizedClientsStateIsCorrect(
         TEST_PRINCIPAL_LIST,
@@ -114,7 +114,7 @@ class ReactiveGlobalPrincipalOAuth2AuthorizedClientServiceTest {
     @Test
     fun `saveAuthorizedClient stores OAuth2AuthorizedClient under the system username instead of the authenticated principal`() {
       whenever(reactiveClientRegistrationRepositoryMock.findByRegistrationId(TEST_REGISTRATION_ID))
-        .thenReturn(Mono.just<ClientRegistration>(TEST_CLIENT_REGISTRATION))
+        .thenReturn(Mono.just(TEST_CLIENT_REGISTRATION))
 
       reactiveGlobalPrincipalOAuth2AuthorizedClientService.saveAuthorizedClient(
         TEST_AUTHORIZED_CLIENT,
@@ -126,22 +126,6 @@ class ReactiveGlobalPrincipalOAuth2AuthorizedClientServiceTest {
         TEST_AUTHORIZED_CLIENT,
       )
     }
-
-    @Test
-    fun `saveAuthorizedClient stores OAuth2AuthorizedClient under the system username when the authenticated principal is null`() {
-      whenever(reactiveClientRegistrationRepositoryMock.findByRegistrationId(TEST_REGISTRATION_ID))
-        .thenReturn(Mono.just<ClientRegistration>(TEST_CLIENT_REGISTRATION))
-
-      reactiveGlobalPrincipalOAuth2AuthorizedClientService.saveAuthorizedClient(
-        TEST_AUTHORIZED_CLIENT,
-        null,
-      ).block()
-
-      assertCachedAuthorizedClientsStateIsCorrect(
-        TEST_PRINCIPAL_LIST,
-        TEST_AUTHORIZED_CLIENT,
-      )
-    }
   }
 
   @Nested
@@ -149,7 +133,7 @@ class ReactiveGlobalPrincipalOAuth2AuthorizedClientServiceTest {
     @BeforeEach
     fun setup() {
       whenever(reactiveClientRegistrationRepositoryMock.findByRegistrationId(TEST_REGISTRATION_ID))
-        .thenReturn(Mono.just<ClientRegistration>(TEST_CLIENT_REGISTRATION))
+        .thenReturn(Mono.just(TEST_CLIENT_REGISTRATION))
     }
 
     @Test
@@ -174,7 +158,7 @@ class ReactiveGlobalPrincipalOAuth2AuthorizedClientServiceTest {
         null,
       )
 
-      verify(reactiveClientRegistrationRepositoryMock, times(5))
+      verify(reactiveClientRegistrationRepositoryMock, times(4))
         .findByRegistrationId(TEST_REGISTRATION_ID)
     }
 
@@ -200,39 +184,13 @@ class ReactiveGlobalPrincipalOAuth2AuthorizedClientServiceTest {
         null,
       )
 
-      verify(reactiveClientRegistrationRepositoryMock, times(5))
-        .findByRegistrationId(TEST_REGISTRATION_ID)
-    }
-
-    @Test
-    fun `removeAuthorizedClient removes a cached OAuth2AuthorizedClient when the authenticated principal is null`() {
-      reactiveGlobalPrincipalOAuth2AuthorizedClientService.saveAuthorizedClient(
-        TEST_AUTHORIZED_CLIENT,
-        null,
-      ).block()
-
-      assertCachedAuthorizedClientsStateIsCorrect(
-        listOf(null),
-        TEST_AUTHORIZED_CLIENT,
-      )
-
-      reactiveGlobalPrincipalOAuth2AuthorizedClientService.removeAuthorizedClient(
-        TEST_REGISTRATION_ID,
-        null,
-      ).block()
-
-      assertCachedAuthorizedClientsStateIsCorrect(
-        TEST_PRINCIPAL_LIST,
-        null,
-      )
-
-      verify(reactiveClientRegistrationRepositoryMock, times(5))
+      verify(reactiveClientRegistrationRepositoryMock, times(4))
         .findByRegistrationId(TEST_REGISTRATION_ID)
     }
   }
 
   private fun assertCachedAuthorizedClientsStateIsCorrect(
-    testPrincipals: Collection<String?>,
+    testPrincipals: Collection<String>,
     expectedClient: OAuth2AuthorizedClient?,
   ) {
     for (testPrincipal in testPrincipals) {

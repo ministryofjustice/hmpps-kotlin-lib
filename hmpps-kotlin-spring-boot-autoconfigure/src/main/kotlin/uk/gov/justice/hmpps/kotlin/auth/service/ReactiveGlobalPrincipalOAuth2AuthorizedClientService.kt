@@ -20,8 +20,8 @@ class ReactiveGlobalPrincipalOAuth2AuthorizedClientService(
     ConcurrentHashMap()
 
   override fun <T : OAuth2AuthorizedClient> loadAuthorizedClient(
-    clientRegistrationId: String?,
-    principalName: String?,
+    clientRegistrationId: String,
+    principalName: String,
   ): Mono<T> = Mono.justOrEmpty(clientRegistrationId)
     .flatMap { id -> clientRegistrationRepository.findByRegistrationId(id) }
     .mapNotNull { clientRegistration ->
@@ -29,14 +29,14 @@ class ReactiveGlobalPrincipalOAuth2AuthorizedClientService(
       authorizedClients[OAuth2AuthorizedClientId(clientRegistration.registrationId, GLOBAL_SYSTEM_PRINCIPAL)] as? T
     }
 
-  override fun saveAuthorizedClient(authorizedClient: OAuth2AuthorizedClient, principal: Authentication?): Mono<Void> {
+  override fun saveAuthorizedClient(authorizedClient: OAuth2AuthorizedClient, principal: Authentication): Mono<Void> {
     authorizedClients[
       OAuth2AuthorizedClientId(authorizedClient.clientRegistration.registrationId, GLOBAL_SYSTEM_PRINCIPAL),
     ] = authorizedClient
     return Mono.empty()
   }
 
-  override fun removeAuthorizedClient(clientRegistrationId: String?, principalName: String?): Mono<Void> = Mono.justOrEmpty(clientRegistrationId)
+  override fun removeAuthorizedClient(clientRegistrationId: String, principalName: String): Mono<Void> = Mono.justOrEmpty(clientRegistrationId)
     .flatMap { id -> clientRegistrationRepository.findByRegistrationId(id) }
     .doOnNext { registration ->
       authorizedClients.remove(OAuth2AuthorizedClientId(registration.registrationId, GLOBAL_SYSTEM_PRINCIPAL))
