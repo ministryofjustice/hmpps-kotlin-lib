@@ -190,6 +190,13 @@ fun WebClient.Builder.healthWebClient(
   .clientConnector(ReactorClientHttpConnector(proxyAwareHttpClient(healthTimeout)))
   .build()
 
+fun WebClient.Builder.unauthenticatedWebClient(
+  url: String,
+  timeout: Duration = Duration.ofSeconds(DEFAULT_TIMEOUT_SECONDS),
+): WebClient = baseUrl(url)
+  .clientConnector(ReactorClientHttpConnector(proxyAwareHttpClient(timeout)))
+  .build()
+
 fun WebClient.Builder.reactiveAuthorisedWebClient(
   authorizedClientManager: ReactiveOAuth2AuthorizedClientManager,
   registrationId: String,
