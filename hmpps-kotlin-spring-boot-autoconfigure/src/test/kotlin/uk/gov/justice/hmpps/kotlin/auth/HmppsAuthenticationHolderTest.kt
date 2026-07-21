@@ -18,7 +18,8 @@ import org.springframework.security.test.context.TestSecurityContextHolder
 import org.springframework.security.test.context.annotation.SecurityTestExecutionListeners
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import uk.gov.justice.hmpps.kotlin.auth.AuthSource.NONE
-import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder.Companion.hasRoles
+import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder.Companion.hasAllRoles
+import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder.Companion.hasAnyRoles
 
 @ExtendWith(SpringExtension::class)
 @SecurityTestExecutionListeners
@@ -122,20 +123,28 @@ class HmppsAuthenticationHolderTest {
 
   @ParameterizedTest
   @CsvSource("ROLE_SYSTEM_USER,true", "SYSTEM_USER,true", "SYSTEMUSER,false")
-  fun hasRolesTest(role: String, expected: Boolean) {
+  fun hasAnyRolesTest(role: String, expected: Boolean) {
     setAuthentication(setOf("ROLE_SYSTEM_USER"), username = "joe")
-    assertThat(hasRoles(role)).isEqualTo(expected)
+    assertThat(hasAnyRoles(role)).isEqualTo(expected)
     assertThat(holder.isOverrideRole(role)).isEqualTo(expected)
     assertThat(holder.isClientOnly).isFalse
   }
 
   @ParameterizedTest
   @CsvSource("ROLE_SYSTEM_USER,true", "SYSTEM_USER,true", "SYSTEMUSER,false")
-  fun hasClientRolesTest(role: String, expected: Boolean) {
+  fun hasAnyClientRolesTest(role: String, expected: Boolean) {
     setAuthentication(setOf("ROLE_SYSTEM_USER"))
-    assertThat(hasRoles(role)).isEqualTo(expected)
+    assertThat(hasAnyRoles(role)).isEqualTo(expected)
     assertThat(holder.isOverrideRole(role)).isEqualTo(expected)
     assertThat(holder.isClientOnly).isTrue
+  }
+
+  @ParameterizedTest
+  @CsvSource("ROLE_ONE|ROLE_TWO,true", "SYSTEM_USER,false", "ROLE_ONE|ROLE_TWO|ROLE_THREE,false", "ONE,true", "ONE|TWO,true", "TWO|ONE,true")
+  fun hasAllRolesTest(role: String, expected: Boolean) {
+    val roles = role.split("|")
+    setAuthentication(setOf("ROLE_ONE", "ROLE_TWO"))
+    assertThat(hasAllRoles(*roles.toTypedArray())).isEqualTo(expected)
   }
 
   @Test
@@ -145,9 +154,15 @@ class HmppsAuthenticationHolderTest {
   }
 
   @Test
-  fun hasRoles_NoAllowedRoleSet() {
+  fun hasAnyRoles_NoAllowedRoleSet() {
     setAuthentication()
-    assertThat(hasRoles()).isFalse()
+    assertThat(hasAnyRoles()).isFalse()
+  }
+
+  @Test
+  fun hasAllRoles_NoAllowedRoleSet() {
+    setAuthentication()
+    assertThat(hasAllRoles()).isFalse()
   }
 
   private fun setAuthentication(
