@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.kotlin.auth
 
+import io.netty.channel.ChannelOption
 import reactor.netty.http.client.HttpClient
 import reactor.netty.transport.ProxyProvider
 import java.net.URI
@@ -15,11 +16,12 @@ internal data class ProxyConfiguration(
   val nonProxyHostsPattern: String? = null,
 )
 
-internal fun proxyAwareHttpClient(responseTimeout: Duration): HttpClient {
+internal fun proxyAwareHttpClient(responseTimeout: Duration, connectionTimeout: Duration): HttpClient {
   val proxyConfiguration = resolveProxyConfiguration() ?: return HttpClient.create().responseTimeout(responseTimeout)
 
   return HttpClient.create()
     .responseTimeout(responseTimeout)
+    .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectionTimeout.toMillis().toInt())
     .proxy { proxy ->
       val builder = proxy
         .type(ProxyProvider.Proxy.HTTP)
