@@ -17,7 +17,9 @@ internal data class ProxyConfiguration(
 )
 
 internal fun proxyAwareHttpClient(responseTimeout: Duration, connectionTimeout: Duration): HttpClient {
-  val proxyConfiguration = resolveProxyConfiguration() ?: return HttpClient.create().responseTimeout(responseTimeout)
+  val proxyConfiguration = resolveProxyConfiguration() ?: return HttpClient.create()
+    .responseTimeout(responseTimeout)
+    .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectionTimeout.toMillis().toInt())
 
   return HttpClient.create()
     .responseTimeout(responseTimeout)
