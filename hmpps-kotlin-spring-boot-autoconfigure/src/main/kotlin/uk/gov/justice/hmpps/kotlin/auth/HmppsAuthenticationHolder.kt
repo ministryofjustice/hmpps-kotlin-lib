@@ -78,13 +78,22 @@ class HmppsAuthenticationHolder {
   val authSource: AuthSource
     get() = authentication.authSource
 
-  fun isOverrideRole(vararg overrideRoles: String): Boolean = hasMatchingRole(getRoles(*overrideRoles), authentication)
+  fun isOverrideRole(vararg overrideRoles: String): Boolean = hasAnyMatchingRole(getRoles(*overrideRoles), authentication)
 
   companion object {
-    fun hasRoles(vararg allowedRoles: String): Boolean = hasMatchingRole(getRoles(*allowedRoles), SecurityContextHolder.getContext().authentication)
+    @Deprecated("Use hasAnyRoles or hasAllRoles instead.")
+    fun hasRoles(vararg allowedRoles: String): Boolean = hasAnyMatchingRole(getRoles(*allowedRoles), SecurityContextHolder.getContext().authentication)
 
-    private fun hasMatchingRole(roles: List<String>, authentication: Authentication?): Boolean = authentication?.authorities?.any { roles.contains(it?.authority?.replaceFirst("ROLE_", "")) }
+    fun hasAnyRoles(vararg allowedRoles: String): Boolean = hasAnyMatchingRole(getRoles(*allowedRoles), SecurityContextHolder.getContext().authentication)
+    fun hasAllRoles(vararg allowedRoles: String): Boolean = hasAllMatchingRoles(getRoles(*allowedRoles), SecurityContextHolder.getContext().authentication)
+
+    private fun hasAnyMatchingRole(roles: List<String>, authentication: Authentication?): Boolean = getAuthorities(authentication)?.any { roles.contains(it) }
       ?: false
+
+    private fun hasAllMatchingRoles(roles: List<String>, authentication: Authentication?): Boolean = roles.isNotEmpty() &&
+      (getAuthorities(authentication)?.containsAll(roles) ?: false)
+
+    private fun getAuthorities(authentication: Authentication?) = authentication?.authorities?.map { it?.authority?.replaceFirst("ROLE_", "") }
 
     private fun getRoles(vararg roles: String): List<String> = roles.map { it.replaceFirst("ROLE_", "") }
   }
