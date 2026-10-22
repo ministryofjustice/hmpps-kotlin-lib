@@ -42,8 +42,8 @@ class ClientTrackingDetailsDefaultsTest(
   private val tracer: Tracer = otelTesting.openTelemetry.getTracer("test")
 
   @Test
-  fun `should add clientId and username to telemetry`() {
-    val token = jwtAuthHelper.createJwtAccessToken(username = "bob", clientId = "some-client")
+  fun `should add clientId, username and userUuid to telemetry`() {
+    val token = jwtAuthHelper.createJwtAccessToken(username = "bob", clientId = "some-client", userUuid = "some-user-uuid")
     val req = MockHttpServletRequest().also { it.addHeader(HttpHeaders.AUTHORIZATION, "Bearer $token") }
     val res = MockHttpServletResponse()
 
@@ -57,12 +57,13 @@ class ClientTrackingDetailsDefaultsTest(
         it.hasAttribute(AttributeKey.stringKey("username"), "bob")
         it.hasAttribute(AttributeKey.stringKey("enduser.id"), "bob")
         it.hasAttribute(AttributeKey.stringKey("clientId"), "some-client")
+        it.hasAttribute(AttributeKey.stringKey("userUuid"), "some-user-uuid")
       })
     })
   }
 
   @Test
-  fun `should only add clientId to telemetry if username is null`() {
+  fun `should add clientId to telemetry if username and user_uuid are null`() {
     val token = jwtAuthHelper.createJwtAccessToken(clientId = "some-client")
     val req = MockHttpServletRequest().also { it.addHeader(HttpHeaders.AUTHORIZATION, "Bearer $token") }
     val res = MockHttpServletResponse()
