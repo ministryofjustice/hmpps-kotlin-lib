@@ -62,13 +62,13 @@ class JwtAuthorisationHelper {
   fun createJwtAccessToken(
     clientId: String = "test-client-id",
     username: String? = null,
-    userUuid: String? = null,
     scope: List<String>? = listOf(),
     roles: List<String>? = listOf(),
     expiryTime: Duration = Duration.ofHours(2),
     jwtId: String = UUID.randomUUID().toString(),
     authSource: String = "none",
     grantType: String = "client_credentials",
+    userUuid: String? = null,
   ): String = mutableMapOf<String, Any>(
     "sub" to (username ?: clientId),
     "client_id" to clientId,
