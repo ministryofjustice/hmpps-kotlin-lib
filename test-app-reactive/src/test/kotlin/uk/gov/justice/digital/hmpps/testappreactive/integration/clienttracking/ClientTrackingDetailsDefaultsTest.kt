@@ -55,8 +55,8 @@ class ClientTrackingDetailsDefaultsTest(
   }
 
   @Test
-  fun `should add clientId and username to telemetry`() {
-    val token = jwtAuthHelper.createJwtAccessToken(username = "bob", clientId = "some-client")
+  fun `should add clientId, username and userUuid to telemetry`() {
+    val token = jwtAuthHelper.createJwtAccessToken(username = "bob", clientId = "some-client", userUuid = "some-user-uuid")
     val req = MockServerHttpRequest.get("/time").header(HttpHeaders.AUTHORIZATION, "Bearer $token").build()
     val exchange = MockServerWebExchange.from(req)
 
@@ -70,12 +70,13 @@ class ClientTrackingDetailsDefaultsTest(
         it.hasAttribute(AttributeKey.stringKey("username"), "bob")
         it.hasAttribute(AttributeKey.stringKey("enduser.id"), "bob")
         it.hasAttribute(AttributeKey.stringKey("clientId"), "some-client")
+        it.hasAttribute(AttributeKey.stringKey("userUuid"), "some-user-uuid")
       })
     })
   }
 
   @Test
-  fun `should only add clientId to telemetry if username is null`() {
+  fun `should add clientId to telemetry if username and userUuid are null`() {
     val token = jwtAuthHelper.createJwtAccessToken(clientId = "some-client")
     val req = MockServerHttpRequest.get("/time").header(HttpHeaders.AUTHORIZATION, "Bearer $token").build()
     val exchange = MockServerWebExchange.from(req)

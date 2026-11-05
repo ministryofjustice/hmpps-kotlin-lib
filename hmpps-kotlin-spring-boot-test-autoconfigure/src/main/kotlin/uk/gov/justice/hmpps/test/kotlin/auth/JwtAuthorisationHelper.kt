@@ -68,6 +68,7 @@ class JwtAuthorisationHelper {
     jwtId: String = UUID.randomUUID().toString(),
     authSource: String = "none",
     grantType: String = "client_credentials",
+    userUuid: String? = null,
   ): String = mutableMapOf<String, Any>(
     "sub" to (username ?: clientId),
     "client_id" to clientId,
@@ -75,6 +76,7 @@ class JwtAuthorisationHelper {
     "grant_type" to grantType,
   ).apply {
     username?.let { this["user_name"] = username }
+    userUuid?.let { this["user_uuid"] = userUuid }
     scope?.let { this["scope"] = scope }
     roles?.let {
       // ensure that all roles have a ROLE_ prefix
